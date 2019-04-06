@@ -1,5 +1,6 @@
 ---
-- yum: name={{item}} state=present
+- name: install base packages
+  yum: name={{item}} state=present
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
   with_items:
     - firewalld
@@ -14,11 +15,13 @@
     - ntp
 
 - service: name={{item}} state=started enabled=yes
+  name: start essential services
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
   with_items: 
     - ntpd
 
 - apt: name={{item}} state=present
+  name: install base packages
   when: ansible_distribution == 'Debian'
   with_items: 
     - ntp
@@ -26,9 +29,11 @@
     - vim-nox
 
 - service: name=ntp state=started enabled=yes
+  name: start essential services
   when: ansible_distribution == 'Debian'
 
 - name: Update the /etc/ssh/sshd_config file
+  name: remove UseDNS from sshd_config
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: "^UseDNS"
