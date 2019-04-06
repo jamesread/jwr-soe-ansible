@@ -33,7 +33,6 @@
   when: ansible_distribution == 'Debian'
 
 - name: Update the /etc/ssh/sshd_config file
-  name: remove UseDNS from sshd_config
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: "^UseDNS"
