@@ -1,1 +1,4 @@
-= jwr-ansible-roles
+= jwr-ansible-collection
+
+James Read's personal Ansible
+(https://galaxy.ansible.com/docs/contributing/creating_collections.html)[collection].

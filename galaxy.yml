@@ -1,0 +1,15 @@
+namespace: "jamesread"
+name: "jwr-ansible-collection"
+version: "2.0"
+readme: "README.adoc"
+authors:
+  - "James Read <contact@jread.com>"
+dependencies: []
+license: 
+  - "GPLv3"
+tags: 
+  - jwr
+repository: "https://github.com/jamesread/jwr-ansible-collection"
+documentation: "https://github.com/jamesread/jwr-ansible-collection"
+homepage: "https://github.com/jamesread/jwr-ansible-collection"
+issues: "https://github.com/jamesread/jwr-ansible-collection/issues"
