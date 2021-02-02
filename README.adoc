@@ -1,4 +1,3 @@
 = jwr-ansible-collection
 
-James Read's personal Ansible
-(https://galaxy.ansible.com/docs/contributing/creating_collections.html)[collection].
+James Read's personal Ansible https://docs.ansible.com/ansible/latest/user_guide/collections_using.html[collection].

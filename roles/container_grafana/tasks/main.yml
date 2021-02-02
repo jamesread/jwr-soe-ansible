@@ -1,0 +1,10 @@
+- name: container - grafana
+  containers.podman.podman_container:
+    name: grafana
+    image: grafana/grafana
+    state: started
+    privileged: yes
+    security_opt: label=disable
+    volume: /mnt/cifs/grafana/:/var/lib/grafana/:Z
+    user: root
+  when: cfg_grafana_installed

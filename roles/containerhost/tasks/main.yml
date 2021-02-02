@@ -1,0 +1,38 @@
+- name: package - podman
+  package:
+    name: podman
+    state: present
+
+- name: service - podman
+  service:
+    name: podman
+    state: started
+    enabled: yes
+
+- name: install stuff
+  package: 
+    name: "{{ item }}"
+    state: present
+  loop: 
+    - python3-libselinux
+
+#- include: traefik.yml
+
+- name: package - haproxy
+  package:
+    name: haproxy
+    state: present
+
+- name: template - haproxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+  notify:
+    - service haproxy restart
+
+- name: service - haproxy
+  service: 
+    name: haproxy
+    state: started
+    enabled: yes

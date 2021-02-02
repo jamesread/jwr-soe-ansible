@@ -1,0 +1,27 @@
+- block:
+    - name: traefik - copy config
+      ansible.builtin.template:
+        src: traefik.toml.j2
+        dest: /etc/traefik/traefik.toml
+      register: traefik_conf
+
+    - name: traefik - define
+      containers.podman.podman_container:
+        name: traefik
+        image: traefik
+        ports: 
+          - "80:80"
+        state: started
+        privileged: yes
+        volume: /etc/traefik/:/etc/traefik
+        security_opt: label=disable
+        restart: yes
+        user: root
+  when: cfg_traefik_installed
+
+- block:
+  - name: traefik - uninstall
+    containers.podman.podman_container:
+        name: traefik
+        state: absent
+  when: not cfg_traefik_installed

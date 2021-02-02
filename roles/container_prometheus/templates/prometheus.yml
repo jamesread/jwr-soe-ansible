@@ -1,0 +1,43 @@
+---
+global:
+  scrape_interval: 15s
+scrape_configs:
+- job_name: prom
+  static_configs:
+  - targets: ['weblb:9101']
+    labels:
+      host: weblb
+  - targets: ['upsilon-dev:9419']
+    labels:
+      type: rabbitmq
+  - targets: ['cradle:9100']
+    labels:
+      type: linuxvm
+  - targets: ['upsilon-dev:1300']
+    labels:
+      type: upsilon-custodian
+  - targets: ['tydus:9100']
+    labels:
+      type: tydus
+  - targets: ['weblb:9100']
+    labels:
+      type: weblb
+  - targets: ['containerhost:9100']
+    labels:
+      type: containerhost
+  - targets: ['tydus:6667']
+    labels:
+      type: ffg-device-api
+  - targets: ['mogshots:6990']
+    labels:
+      type: ffg-client-api
+  - targets: ['tydus:6668']
+    labels:
+      type: rhemail
+  - targets: ['neo4j:9100']
+    labels:
+      type: neo4j
+  - targets: ['upsilon-devv123:9100']
+    labels:
+      type: upsilon
+

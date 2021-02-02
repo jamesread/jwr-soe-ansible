@@ -1,0 +1,6 @@
+- name: container prometheus restart
+  containers.podman.podman_container:
+    name: prometheus
+    image: prometheus
+    state: started
+    restart: yes
