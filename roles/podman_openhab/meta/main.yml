@@ -1,7 +1,7 @@
----
 galaxy_info:
+  role_name: container_openhab
   author: jamesread
-  description: Common roles of stuff
+  description: Installs a OpenHAB container.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -14,5 +14,5 @@ galaxy_info:
       versions: 
         - all
 
-  dependencies:
-    - role: devnullcake.copr-repository
+  tags:
+    - podman

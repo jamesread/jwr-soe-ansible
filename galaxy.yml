@@ -1,12 +1,12 @@
 namespace: "jamesread"
-name: "jwr-ansible-collection"
-version: "2.0"
-readme: "README.adoc"
+name: "ansiblecollection"
+version: "3.0.0"
+readme: "README.md"
 authors:
   - "James Read <contact@jread.com>"
-dependencies: []
+dependencies: 
 license: 
-  - "GPLv3"
+  - "GPL-3.0-or-later"
 tags: 
   - jwr
 repository: "https://github.com/jamesread/jwr-ansible-collection"

@@ -1,0 +1,23 @@
+---
+- name: package - httpd, php
+  package: name={{ item }} state=present
+  with_items:
+    - httpd
+    - php
+
+- name: service - httpd
+  service: 
+    name: httpd 
+    enabled: yes 
+    state: started
+
+- name: firewall - enable httpd
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+
+- name: service - firewalld
+  service: 
+    name: firewalld 
+    state: restarted

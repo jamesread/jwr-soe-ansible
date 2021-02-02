@@ -1,12 +1,11 @@
----
 galaxy_info:
   author: jamesread
-  description: Common roles of stuff
-  license: GPL-3.0-or-later
+  description: Installs httpd.
+  license: GPLv3
   min_ansible_version: 2.7
 
   platforms:
-    - name: EL
+    - name: CentOS
       versions: 
         - 7
         - 8 
@@ -14,5 +13,5 @@ galaxy_info:
       versions: 
         - all
 
-  dependencies:
-    - role: devnullcake.copr-repository
+  tags:
+    - httpd

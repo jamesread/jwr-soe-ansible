@@ -1,0 +1,5 @@
+---
+- name: package - condor
+  package: 
+    name: condor 
+    state: latest

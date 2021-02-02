@@ -32,6 +32,20 @@
   name: start essential services
   when: ansible_distribution == 'Debian'
 
+- name: enable prometheus repo
+  shell: dnf copr enable ibotty/prometheus-exporters -y
+
+- name: package - node-exporter
+  package:
+    name: node_exporter
+    state: latest
+
+- name: service - node-exporter
+  service: 
+    name: node_exporter
+    state: started
+    enabled: yes
+
 - name: Update the /etc/ssh/sshd_config file
   lineinfile:
     dest: /etc/ssh/sshd_config
@@ -39,16 +53,6 @@
     line: "UseDNS no"
     insertafter: EOF
     state: present
-  register: ssh_config
+  notify: Restart ssh
 
-- name: Restart ssh
-  service:
-    name: sshd
-    state: restarted
-  when: ssh_config.changed and ansible_distribution != 'Debian'
 
-- name: Restart ssh
-  service:
-    name: ssh
-    state: restarted
-  when: ssh_config.changed and ansible_distribution == 'Debian'

@@ -1,0 +1,8 @@
+---
+- name: container - openhab
+  containers.podman.podman_container:
+    name: openhab
+    image: openhab/openhab:latest-alpine
+    state: present
+    published_ports: 
+      - "8081:8080"

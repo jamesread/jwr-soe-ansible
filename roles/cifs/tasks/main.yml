@@ -11,7 +11,7 @@
 - name: mount /mnt/cifs
   ansible.posix.mount:
     path: /mnt/cifs
-    src: //{{ cifs_username }}.your-storagebox.de/backup 
+    src: //{{ cifs_username }}.your-storagebox.de/backup
     fstype: cifs
     opts: user={{ cifs_username }},pass={{ cifs_password }},iocharset=utf8,mfsymlinks
     state: mounted
