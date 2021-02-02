@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: Installs condor as a service.
+  description: Installs jenkins as a service.
   license: GPLv3
   min_ansible_version: 2.7
 
@@ -14,4 +14,4 @@ galaxy_info:
         - all
 
   tags:
-    - condor
+    - jenkins
