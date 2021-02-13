@@ -1,0 +1,53 @@
+---
+- set_fact:
+    rh_subtype: "unknown"
+    rh_pkgtype: "unknown"
+
+- set_fact: 
+    rh_subtyle: fedora
+    rh_pkgtype: dnf
+  when: ansible_distribution == 'Fedora'
+
+- set_fact:
+    rh_subtype: el7
+    rh_pkgtype: yum
+  when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '7'
+
+- set_fact:
+    rh_subtype: el8
+    rh_pkgtype: dnf
+  when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '8'
+
+- name: install base packages
+  package: 
+    name:
+      - firewalld
+      - vim-enhanced
+      - elinks
+      - git
+      - wget
+      - unzip 
+      - psmisc
+    state: present
+
+- package:
+    name: python3-libsemanage
+    state: present
+  when: pkg_mgr == 'el8'
+
+- package: 
+    name: yum-plugin-copr
+  when: pkg_mgr == 'el7'
+
+- name: enable prometheus repo - yum
+  shell: yum copr enable ibotty/prometheus-exporters -y
+  args:
+    warn: false
+  when: pkg_mgr == 'yum'
+
+- name: enable prometheus repo - dnf
+  shell: dnf copr enable ibotty/prometheus-exporters -y
+  args:
+    creates: "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ibotty:prometheus-exporters.repo"
+    warn: false
+  when: pkg_mgr == 'dnf'

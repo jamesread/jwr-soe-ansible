@@ -1,39 +1,16 @@
 ---
-- name: install base packages
-  yum: name={{ item }} state=present
+- include: family_rh.yml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
-  with_items:
-    - firewalld
-    - vim-enhanced
-    - elinks
-    - ntp
-    - git
-    - wget
-    - unzip 
-    - psmisc
-    - libsemanage-python
-    - ntp
 
-- service: name={{ item }} state=started enabled=yes
-  name: start essential services
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
-  with_items: 
-    - ntpd
-
-- apt: name={{ item }} state=present
-  name: install base packages
-  when: ansible_distribution == 'Debian'
-  with_items: 
-    - ntp
-    - git
-    - vim-nox
-
-- service: name=ntp state=started enabled=yes
-  name: start essential services
+- include: family_deb.yml
   when: ansible_distribution == 'Debian'
 
-- name: enable prometheus repo
-  shell: dnf copr enable ibotty/prometheus-exporters -y
+# Start NTP
+#- service: name={{ item }} state=started enabled=yes
+#  name: start essential services
+#  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+#  with_items: 
+#    - ntpd
 
 - name: package - node-exporter
   package:

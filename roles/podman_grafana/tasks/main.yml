@@ -4,7 +4,7 @@
     image: grafana/grafana
     state: started
     privileged: yes
-    security_opt: label=disable
-    volume: /mnt/cifs/grafana/:/var/lib/grafana/:Z
+    security_opt: "label=disable"
+    volume: "{{ container_podman_volume }}/:/var/lib/grafana/:Z"
     user: root
   when: cfg_grafana_installed

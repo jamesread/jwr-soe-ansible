@@ -1,6 +1,15 @@
 ---
-- yum: name={{ item }} state=present
-  name: install workstation packages
+- name: install workstation packages
+  package:
+    state: present
+    name:
+      - vim-enhanced
+      - vim-powerline
+      - vim-command-t
+      - vim-nerdtree
+      - okular
+      - sddm
+      - kwin
+      - firefox
+      - spectacle
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
-  with_items:
-    - vim-enhanced
