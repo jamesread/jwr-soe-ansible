@@ -1,0 +1,2 @@
+config_file: gcal.cfg
+secret_file: secrets.json

@@ -1,0 +1,42 @@
+global
+	chroot /var/lib/haproxy
+	daemon
+
+defaults
+	log global
+	mode http
+
+	timeout connect 3s
+	timeout client 30s
+	timeout server 30s
+
+frontend http_frontend
+	bind 0.0.0.0:80
+
+	option httplog
+
+	use_backend be_prom if { hdr(host) -i prom.webapps.teratan.net }
+	use_backend be_grafana if { hdr(host) -i grafana.webapps.teratan.net }
+	use_backend be_kibana if { hdr(host) -i kibana.webapps.teratan.net }
+	use_backend be_elasticsearch if { hdr(host) -i elasticsearch.webapps.teratan.net }
+	use_backend be_logstash if { hdr(host) -i logstash.webapps.teratan.net }
+
+frontend stats
+	bind *:8404
+	option http-use-htx
+	http-request use-service prometheus-exporter if { path /metrics }
+
+backend be_prom
+	server prom 127.0.0.1:9090 check
+
+backend be_grafana
+	server grafana 127.0.0.1:3000 check
+
+backend be_kibana
+	server kibana custodian:5601
+
+backend be_elasticsearch
+	server elasticsearch custodian:9200
+
+backend be_logstash
+	server logstash custodian:5044

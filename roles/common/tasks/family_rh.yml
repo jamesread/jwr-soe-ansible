@@ -23,31 +23,35 @@
     name:
       - firewalld
       - vim-enhanced
-      - elinks
+        #      - elinks
       - git
       - wget
       - unzip 
       - psmisc
     state: present
 
+- name: debug - print pkr_mgr
+  debug:
+    msg: "{{ ansible_facts.pkg_mgr }}"
+
 - package:
     name: python3-libsemanage
     state: present
-  when: pkg_mgr == 'el8'
+  when: ansible_facts.pkg_mgr == 'dnf'
 
 - package: 
     name: yum-plugin-copr
-  when: pkg_mgr == 'el7'
+  when: ansible_facts.pkg_mgr == 'yum'
 
 - name: enable prometheus repo - yum
   shell: yum copr enable ibotty/prometheus-exporters -y
   args:
     warn: false
-  when: pkg_mgr == 'yum'
+  when: ansible_facts.pkg_mgr == 'yum'
 
 - name: enable prometheus repo - dnf
   shell: dnf copr enable ibotty/prometheus-exporters -y
   args:
     creates: "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ibotty:prometheus-exporters.repo"
     warn: false
-  when: pkg_mgr == 'dnf'
+  when: ansible_facts.pkg_mgr == 'dnf'

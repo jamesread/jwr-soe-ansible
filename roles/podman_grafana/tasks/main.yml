@@ -7,4 +7,6 @@
     security_opt: "label=disable"
     volume: "{{ container_podman_volume }}/:/var/lib/grafana/:Z"
     user: root
+    ports:
+      - "3000:3000"
   when: cfg_grafana_installed

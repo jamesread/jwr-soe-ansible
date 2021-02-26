@@ -1,1 +1,2 @@
 cfg_traefik_installed: false
+cfg_haproxy: haproxy.cfg.j2
