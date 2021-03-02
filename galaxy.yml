@@ -1,6 +1,6 @@
 namespace: "jamesread"
-name: "ansiblecollection"
-version: "3.0.2"
+name: "soe"
+version: "4.0.0"
 readme: "README.md"
 authors:
   - "James Read <contact@jread.com>"
@@ -9,7 +9,8 @@ license:
   - "GPL-3.0-or-later"
 tags: 
   - jwr
-repository: "https://github.com/jamesread/jwr-ansible-collection"
-documentation: "https://github.com/jamesread/jwr-ansible-collection"
-homepage: "https://github.com/jamesread/jwr-ansible-collection"
-issues: "https://github.com/jamesread/jwr-ansible-collection/issues"
+  - podman
+repository: "https://github.com/jamesread/jwr-soe-ansible"
+documentation: "https://github.com/jamesread/jwr-soe-ansible"
+homepage: "https://github.com/jamesread/jwr-soe-ansible"
+issues: "https://github.com/jamesread/jwr-soe-ansible/issues"
