@@ -17,14 +17,6 @@
     dest: /etc/fluentd.conf
     mode: 0644
 
-- name: container - fluentd
-  containers.podman.podman_container:
-    ports: 
-      - "9880:9880"
-    image: docker.io/fluentd/fluentd:v1.12-debian-1
-    name: fluentd
-    volume: "/etc/fluentd.conf:/fluentd/etc/fluentd.conf"
-
 - name: file - kibana.yml
   copy: 
     src: kibana.yml

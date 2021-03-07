@@ -1,19 +1,23 @@
 ---
-- set_fact:
+- name: facts - default
+  set_fact:
     rh_subtype: "unknown"
     rh_pkgtype: "unknown"
 
-- set_fact: 
+- name: facts - fedora
+  set_fact: 
     rh_subtyle: fedora
     rh_pkgtype: dnf
   when: ansible_distribution == 'Fedora'
 
-- set_fact:
+- name: facts - el7
+  set_fact:
     rh_subtype: el7
     rh_pkgtype: yum
   when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '7'
 
-- set_fact:
+- name: facts - el8
+  set_fact:
     rh_subtype: el8
     rh_pkgtype: dnf
   when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '8'
@@ -34,12 +38,14 @@
   debug:
     msg: "{{ ansible_facts.pkg_mgr }}"
 
-- package:
+- name: package - libsemanage for SELinux systems
+  package:
     name: python3-libsemanage
     state: present
   when: ansible_facts.pkg_mgr == 'dnf'
 
-- package: 
+- name: package - libsemanage for SELinux systems
+  package: 
     name: yum-plugin-copr
   when: ansible_facts.pkg_mgr == 'yum'
 

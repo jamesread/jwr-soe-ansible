@@ -1,3 +1,4 @@
-- set_fact:
+- name: facts - defaults
+  set_fact:
     foo: bar
 

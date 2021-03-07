@@ -1,0 +1,26 @@
+global
+	chroot /var/lib/haproxy
+	daemon
+
+defaults
+	log global
+	mode http
+
+	timeout connect 3s
+	timeout client 30s
+	timeout server 30s
+
+frontend http_frontend
+	bind 0.0.0.0:80
+	option httplog
+
+frontend http_frontend
+	use_backend be_1 if { hdr(host) -i b1.webapps.teratan.net }
+
+frontend http_frontend
+	use_backend be_2 if { hdr(host) -i b2.webapps.teratan.net }
+
+frontend stats
+	bind *:8404
+	option http-use-htx
+	http-request use-service prometheus-exporter if { path /metrics }

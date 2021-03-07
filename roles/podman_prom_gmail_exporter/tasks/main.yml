@@ -1,26 +1,30 @@
-- name: mkdir /etc/prometheus
+- name: mkdir config directory
   file:
-    path: /etc/prometheus
+    path: /etc/prometheus-gmail-exporter
     state: directory
     mode: 0755
 
-- name: prometheus - set config
-  tags: prom
+- name: tpl - secret file
   ansible.builtin.template:
-    src: prometheus.yml
-    dest: /etc/prometheus/prometheus.yml
-  notify: container prometheus restart
+    src: "{{ secret_file }}"
+    dest: /etc/prometheus-gmail-exporter/client_secret.json
+
+- name: tpl - config file
+  ansible.builtin.template:
+    src: "{{ config_file }}"
+    dest: /etc/prometheus-gmail-exporter/prometheus-gmail-exporter.cfg
 
 - name: prometheus - define container
-  tags: prom
   containers.podman.podman_container:
-    name: prometheus
-    image: prom/prometheus
+    name: prometheus-gmail-exporter
+    image: jamesread/prometheus-gmail-exporter
     state: started
     privileged: yes
+    recreate: yes
+    force_restart: yes
     security_opt: label=disable
-    volume: /etc/prometheus/:/etc/prometheus
+    volume: /etc/prometheus-gmail-exporter/:/root/.prometheus-gmail-exporter/
     user: root
     ports: 
-      - "9090:9090"
+      - "8082:8080"
 

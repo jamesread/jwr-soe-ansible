@@ -1,16 +1,3 @@
-- name: package - podman
-  package:
-    name: podman
-    state: present
-
-- name: service - podman
-  service:
-    name: podman
-    state: started
-    enabled: yes
-
-#- include: traefik.yml
-
 - name: package - haproxy
   package:
     name: haproxy
@@ -19,7 +6,7 @@
 - name: template - haproxy
   tags: haproxy
   template:
-    src: "{{ cfg_haproxy }}"
+    src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
     mode: 0644
   notify:

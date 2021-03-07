@@ -52,11 +52,13 @@
   copy: 
     src: jenkins-proxy.conf
     dest: /etc/httpd/conf.d/jenkins-proxy.conf
+    mode: 0644
 
 - name: copy index.htm
   copy: 
     src: index.htm
     dest: /var/www/html/index.html
+    mode: 0644
 
 - name: selinux - httpd_can_network_connect
   seboolean:
