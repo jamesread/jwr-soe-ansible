@@ -32,6 +32,7 @@
       - wget
       - unzip 
       - psmisc
+      - smartmontools
     state: present
 
 - name: debug - print pkr_mgr

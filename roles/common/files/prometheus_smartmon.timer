@@ -1,0 +1,10 @@
+[Unit]
+Description=prom smartmon
+Requires=prometheus_smartmon.service
+
+[Timer]
+Unit=prometheus_smartmon.service
+OnCalendar=*-*-* *:*:00
+
+[Install]
+WantedBy=timers.target

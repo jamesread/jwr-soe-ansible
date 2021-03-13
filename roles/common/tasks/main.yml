@@ -32,4 +32,35 @@
     state: present
   notify: Restart ssh
 
+- name: script - prom smart
+  tags: smart
+  copy:
+    src: files/prometheus_smartmon.sh
+    dest: /usr/local/sbin/prometheus_smartmon.sh
+    mode: 0755
 
+- name: smart timer
+  tags: smart
+  copy:
+    src: files/prometheus_smartmon.timer
+    dest: "/etc/systemd/system/prometheus_smartmon.timer"
+    mode: 0644
+
+- name: smart service
+  tags: smart
+  copy:
+    src: files/prometheus_smartmon.service
+    dest: "/etc/systemd/system/prometheus_smartmon.service"
+    mode: 0644
+
+- name: systemd daemon reload
+  tags: smart
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: systemd daemon reload
+  tags: smart
+  ansible.builtin.systemd:
+    name: prometheus_smartmon.timer
+    state: started
+    enabled: yes

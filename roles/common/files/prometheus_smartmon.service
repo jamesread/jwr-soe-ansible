@@ -1,0 +1,11 @@
+[Unit]
+Description=prom smartmon
+Wants=prometheus_smartmon.timer
+
+[Service]
+Type=oneshot
+ExecStart=sh -c "/usr/local/sbin/prometheus_smartmon.sh > /var/lib/node_exporter/textfile_collector/smart.prom"
+
+[Install]
+WantedBy=multi-user.target
+
