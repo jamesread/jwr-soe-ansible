@@ -2,6 +2,7 @@
   file:
     path: /etc/loki/
     state: directory
+    mode: 0644
 
 - name: config - loki
   copy:

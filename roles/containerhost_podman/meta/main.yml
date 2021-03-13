@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: Mount a CIFS share.
+  description: Installs podman.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -14,7 +14,7 @@ galaxy_info:
         - all
 
   tags:
-    - cifs
+    - podman
 
-  collections:
-    - role: ansible.posix
+  collections: 
+    - containers.podman

@@ -2,6 +2,7 @@
   file:
     path: /etc/promtail/
     state: directory
+    mode: 0644
 
 - name: config - promtail
   copy:
