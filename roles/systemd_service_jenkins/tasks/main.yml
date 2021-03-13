@@ -40,12 +40,12 @@
   register: initialAdminPasswordFile
 
 - name: get initial admin password
-  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
-  register: adminPassword
+  set_fact: 
+    adminPassword: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
   when: initialAdminPasswordFile.stat.exists
 
 - name: adminPassword
-  debug: msg={{ adminPassword.stdout }}
+  debug: msg={{ adminPassword }}
   when: initialAdminPasswordFile.stat.exists
 
 - name: copy proxy conf to httpd

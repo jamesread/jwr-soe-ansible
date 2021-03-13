@@ -1,4 +1,4 @@
-- name: facts - defaults
+- name: dummy task for deb
   set_fact:
     foo: bar
 
