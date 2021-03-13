@@ -1,3 +1,5 @@
-- set_fact:
+---
+- name: dummy task for deb
+  set_fact:
     foo: bar
 

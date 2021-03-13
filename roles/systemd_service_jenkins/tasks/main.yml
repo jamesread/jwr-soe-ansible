@@ -40,23 +40,25 @@
   register: initialAdminPasswordFile
 
 - name: get initial admin password
-  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
-  register: adminPassword
+  set_fact: 
+    adminPassword: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
   when: initialAdminPasswordFile.stat.exists
 
 - name: adminPassword
-  debug: msg={{ adminPassword.stdout }}
+  debug: msg={{ adminPassword }}
   when: initialAdminPasswordFile.stat.exists
 
 - name: copy proxy conf to httpd
   copy: 
     src: jenkins-proxy.conf
     dest: /etc/httpd/conf.d/jenkins-proxy.conf
+    mode: 0644
 
 - name: copy index.htm
   copy: 
     src: index.htm
     dest: /var/www/html/index.html
+    mode: 0644
 
 - name: selinux - httpd_can_network_connect
   seboolean:
