@@ -1,0 +1,22 @@
+- name: gpgkey - filebeat
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: package - filebeat
+  package: 
+    name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.11.1-x86_64.rpm
+
+- name: config - filebeat
+  copy:
+    src: files/filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+    mode: 0644
+  notify: restart - filebeat
+
+- name: service - filebeat
+  systemd:
+    name: filebeat
+    state: started
+    masked: no
+

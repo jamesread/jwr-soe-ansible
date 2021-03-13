@@ -16,5 +16,5 @@ galaxy_info:
   tags:
     - cifs
 
-  dependencies:
+  collections:
     - role: ansible.posix

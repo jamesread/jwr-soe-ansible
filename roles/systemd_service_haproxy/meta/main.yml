@@ -1,11 +1,11 @@
 galaxy_info:
   author: jamesread
-  description: Installs a gmail exporter container.
-  license: GPL-3.0-or-later
+  description: Installs haproxy as a service.
+  license: GPLv3
   min_ansible_version: 2.7
 
   platforms:
-    - name: EL
+    - name: CentOS
       versions: 
         - 7
         - 8 
@@ -14,6 +14,5 @@ galaxy_info:
         - all
 
   tags:
-    - podman
-    - fedora
+    - haproxy
 

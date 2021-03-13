@@ -1,0 +1,22 @@
+- name: gpgkey - journalbeat
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: package - journalbeat
+  package: 
+    name: https://artifacts.elastic.co/downloads/beats/journalbeat/journalbeat-7.11.1-x86_64.rpm
+
+- name: config - journalbeat
+  copy:
+    src: files/journalbeat.yml
+    dest: /etc/journalbeat/journalbeat.yml
+    mode: 0644
+  notify: restart - journalbeat
+
+- name: service - journalbeat
+  systemd:
+    name: journalbeat
+    state: started
+    masked: no
+

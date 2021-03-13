@@ -38,7 +38,7 @@
   debug:
     msg: "{{ ansible_facts.pkg_mgr }}"
 
-- name: install libsemanage
+- name: package - libsemanage for SELinux systems
   package:
     name: python3-libsemanage
     state: present
