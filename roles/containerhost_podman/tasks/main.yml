@@ -9,25 +9,26 @@
     state: started
     enabled: yes
 
-#- include: traefik.yml
+- name: haproxy
+  block:
+    - name: package - haproxy
+      package:
+        name: haproxy
+        state: present
 
-- name: package - haproxy
-  package:
-    name: haproxy
-    state: present
+    - name: template - haproxy
+      tags: haproxy
+      template:
+        src: "{{ cfg_haproxy }}"
+        dest: /etc/haproxy/haproxy.cfg
+        mode: 0644
+      notify:
+        - service haproxy restart
 
-- name: template - haproxy
-  tags: haproxy
-  template:
-    src: "{{ cfg_haproxy }}"
-    dest: /etc/haproxy/haproxy.cfg
-    mode: 0644
-  notify:
-    - service haproxy restart
-
-- name: service - haproxy
-  tags: haproxy
-  service: 
-    name: haproxy
-    state: started
-    enabled: yes
+    - name: service - haproxy
+      tags: haproxy
+      service: 
+        name: haproxy
+        state: started
+        enabled: yes
+  when: "{{ cfg_haproxy }}"
