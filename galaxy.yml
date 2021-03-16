@@ -1,6 +1,6 @@
 namespace: "jamesread"
 name: "soe"
-version: "4.1.5"
+version: "4.2"
 readme: "README.md"
 authors:
   - "James Read <contact@jread.com>"
