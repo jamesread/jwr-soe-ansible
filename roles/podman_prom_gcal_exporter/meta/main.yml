@@ -15,5 +15,5 @@ galaxy_info:
 
   tags:
     - podman
-    - fedora
-
+    - prometheus
+    - gcal
