@@ -1,7 +1,6 @@
 galaxy_info:
-  role_name: containerhost_podman
   author: jamesread
-  description: Installs podman.
+  description: Installs a promtail container.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -13,12 +12,8 @@ galaxy_info:
     - name: Fedora
       versions: 
         - all
-  galaxy_tags:
-    - podman
 
   tags:
     - podman
-
-  collections: 
-    - containers.podman
+    - promtail
 
