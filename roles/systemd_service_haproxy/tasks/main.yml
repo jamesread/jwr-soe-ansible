@@ -3,10 +3,17 @@
     name: haproxy
     state: present
 
+- name: sebool - haproxy
+  tags: haproxy
+  ansible.posix.seboolean:
+    name: haproxy_connect_any
+    state: yes
+    persistent: yes
+
 - name: template - haproxy
   tags: haproxy
   template:
-    src: haproxy.cfg.j2
+    src: "{{ cfg_file }}"
     dest: /etc/haproxy/haproxy.cfg
     mode: 0644
   notify:
