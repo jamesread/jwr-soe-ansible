@@ -31,4 +31,4 @@
         name: haproxy
         state: started
         enabled: yes
-  when: "{{ cfg_haproxy }}"
+  when: cfg_haproxy is defined
