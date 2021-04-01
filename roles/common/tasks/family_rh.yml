@@ -20,7 +20,7 @@
   set_fact:
     rh_subtype: el8
     rh_pkgtype: dnf
-  when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '8'
+  when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '8'
 
 - name: install base packages
   package: 
