@@ -3,29 +3,28 @@
   yum_repository: name=jenkins baseurl=http://pkg.jenkins.io/redhat gpgcheck=no enabled=yes description=Jenkins
 
 - name: package - jenkins and lots of stuff
-  yum: name={{ item }} state=present
-  with_items:
-    - zip
-    - httpd
-    - jenkins
-    - java
-    - pytest
-    - make
-    - autoconf
-    - php
-    - php-phpunit-PHPUnit
-    - ant
-    - maven
-    - java
-    - puppet
-    - rubygem-puppet-lint
-    - npm
-    - nodeunit
-    - composer
-    - cmake
-    - mariadb-server
-    - mariadb
-    - rpm-build
+  package:
+    state: present
+    name:
+      - zip
+      - httpd
+      - jenkins
+      - java
+      - pytest
+      - make
+      - autoconf
+      - php
+      - php-phpunit-PHPUnit
+      - ant
+      - maven
+      - java
+      - puppet
+      - rubygem-puppet-lint
+      - composer
+      - cmake
+      - mariadb-server
+      - mariadb
+      - rpm-build
 
 - name: jenkins config
   lineinfile:
@@ -72,4 +71,10 @@
     - httpd
     - jenkins
     - mariadb
+
+- name: firewall rule - node-exporter
+  ansible.posix.firewalld:
+    port: 8080/tcp
+    permanent: yes
+    state: enabled 
 

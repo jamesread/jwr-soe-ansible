@@ -1,0 +1,24 @@
+- name: package - jenkins and lots of stuff
+  package:
+    state: present
+    name:
+      - zip
+      - httpd
+      - java
+      - pytest
+      - make
+      - autoconf
+      - php
+      - php-phpunit-PHPUnit
+      - ant
+      - maven
+      - java
+      - puppet
+      - rubygem-puppet-lint
+      - composer
+      - cmake
+      - mariadb-server
+      - mariadb
+      - rpm-build
+      - gcc
+      - gcc-c++

@@ -1,6 +1,6 @@
 ---
 - include: family_rh.yml
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
 - include: family_deb.yml
   when: ansible_distribution == 'Debian'
@@ -11,6 +11,13 @@
 #  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
 #  with_items: 
 #    - ntpd
+
+
+- name: firewall rule - node-exporter
+  ansible.posix.firewalld:
+    port: 9100/tcp
+    permanent: yes
+    state: enabled 
 
 - name: package - node-exporter
   package:
