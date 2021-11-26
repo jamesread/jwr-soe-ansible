@@ -9,4 +9,3 @@
     user: root
     ports:
       - "3000:3000"
-  when: cfg_grafana_installed
