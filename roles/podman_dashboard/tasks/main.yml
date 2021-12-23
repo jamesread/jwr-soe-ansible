@@ -1,0 +1,17 @@
+- name: container - dashboard - config
+  copy:
+    src: "{{ dashboard_config }}"
+    dest: "{{ dashboard_volume }}/apps.json"
+  notify: container dashboard restart
+
+- name: container - dashboard
+  tags: dashboard
+  containers.podman.podman_container:
+    name: dashboard
+    image: docker.io/phntxx/dashboard:latest
+    state: started
+    volume: "{{ dashboard_volume }}/:/app/data/"
+    ports:
+      - "8383:8080"
+
+

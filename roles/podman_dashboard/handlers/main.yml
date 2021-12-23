@@ -1,0 +1,5 @@
+- name: container dashboard restart
+  containers.podman.podman_container:
+    name: dashboard
+    state: started
+    
