@@ -13,6 +13,7 @@
       - kubernetes-node
       - kubernetes-client
       - kubernetes-kubeadm
+      - nfs-utils
     state: installed
   tags: k8s_packages
 
