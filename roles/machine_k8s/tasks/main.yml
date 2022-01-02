@@ -1,0 +1,71 @@
+---
+- name: Disable SELinux
+  ansible.posix.selinux: 
+    state: disabled 
+
+- shell: dnf module enable cri-o:1.22 -y
+
+- package: 
+    name: 
+      - cri-o
+      - crictl 
+      - ethtool
+      - kubernetes-node
+      - kubernetes-client
+      - kubernetes-kubeadm
+    state: installed
+  tags: k8s_packages
+
+- package:
+    name:
+      - firewalld
+      - zram-generator
+    state: removed
+  tags: k8s_packages
+
+- name: copy k8s modprobe
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    src: files/k8s-modprobe.conf
+
+- modprobe:
+    name: br_netfilter
+    state: present
+
+- service:
+    name: crio
+    state: started
+    enabled: yes
+
+- ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+
+- ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+
+- ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    state: present
+
+- ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: '1'
+    state: present
+
+
+- service:
+    name: kubelet
+    enabled: yes
+    state: started
+  tags: kubelet
+
+- service:
+    name: systemd-resolved
+    enabled: no
+    state: stopped
+  tags: resolved

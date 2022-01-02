@@ -1,0 +1,2 @@
+traefik_volume: /containers/traefik/
+traefik_config: traefik.json

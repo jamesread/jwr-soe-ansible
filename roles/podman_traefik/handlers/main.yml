@@ -1,0 +1,5 @@
+- name: container traefik restart
+  containers.podman.podman_container:
+    name: traefik
+    force_restart: true
+    
