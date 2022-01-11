@@ -2,21 +2,59 @@
 
 An Ansible [collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) of roles for [James Read's](http://jread.com/) (JWR) [Standard Operating Environment](https://en.wikipedia.org/wiki/Standard_Operating_Environment) (SOE). 
 
+This is published on Ansible Galaxy as "[https://galaxy.ansible.com/jamesread/soe](jamesread.soe)". 
+
+## Roles;
+
+*  jamesread.soe.[cifs](roles/cifs) - Mount a CIFS share.
+*  jamesread.soe.[common](roles/common) - Common roles of stuff
+*  jamesread.soe.[containerhost_podman](roles/containerhost_podman) - Installs podman.
+*  jamesread.soe.[machine_jenkins_slave](roles/machine_jenkins_slave) - Installs a Jenkins slave.
+*  jamesread.soe.[machine_k8s](roles/machine_k8s) - k8s
+*  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
+*  jamesread.soe.[machine_workstation](roles/machine_workstation) - My desktop workstation
+*  jamesread.soe.[podman_dashboard](roles/podman_dashboard) - Installs a Grafana container.
+*  jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
+*  jamesread.soe.[podman_grafana](roles/podman_grafana) - Installs a Grafana container.
+podman_loki [Errno 2] No such file or directory: 'roles/podman_loki/meta/main.yml'
+*  jamesread.soe.[podman_loki](roles/podman_loki) - ?
+*  jamesread.soe.[podman_openhab](roles/podman_openhab) - Installs a OpenHAB container.
+*  jamesread.soe.[podman_prom_gcal_exporter](roles/podman_prom_gcal_exporter) - Installs a Prometheus container.
+*  jamesread.soe.[podman_prom_gmail_exporter](roles/podman_prom_gmail_exporter) - Installs a gmail exporter container.
+*  jamesread.soe.[podman_prometheus](roles/podman_prometheus) - Installs a Prometheus container.
+*  jamesread.soe.[podman_promtail](roles/podman_promtail) - Installs a promtail container.
+*  jamesread.soe.[podman_traefik](roles/podman_traefik) - Installs a traefik container.
+*  jamesread.soe.[systemd_kvm_hypervisor](roles/systemd_kvm_hypervisor) - Installs KVM, libvirt, etc.
+*  jamesread.soe.[systemd_service_apachephp](roles/systemd_service_apachephp) - Installs httpd.
+*  jamesread.soe.[systemd_service_condor](roles/systemd_service_condor) - Installs condor as a service.
+*  jamesread.soe.[systemd_service_filebeat](roles/systemd_service_filebeat) - Installs a filebeat service.
+*  jamesread.soe.[systemd_service_haproxy](roles/systemd_service_haproxy) - Installs haproxy as a service.
+*  jamesread.soe.[systemd_service_jenkins](roles/systemd_service_jenkins) - Installs jenkins as a service.
+systemd_service_journalbeat [Errno 2] No such file or directory: 'roles/systemd_service_journalbeat/meta/main.yml'
+*  jamesread.soe.[systemd_service_journalbeat](roles/systemd_service_journalbeat) - ?
+*  jamesread.soe.[systemd_service_kvmlibvirt](roles/systemd_service_kvmlibvirt) - Installs kvm, libvirt and essential virt tools.
+
 ## Usage 
+
+Install the collection like this;
+
+----
+ansible-galaxy collection install jamesread.soe
+----
 
 Create a playbook like this;
 
 ----
-    #!/usr/bin/env ansible-playbook
-    
-    - hosts: 
-        - group_common
-      roles: 
-        - name: jamesread.soe.common
-          myVar: foobar
+#!/usr/bin/env ansible-playbook
+
+- hosts: 
+    - all
+  roles: 
+    - name: jamesread.soe.common
+      myVar: foobar
 ----
 
-## Principals
+## Principles;
 
 * Separation of data (mostly config files) and reusable code (roles). 
 * Separation of layers (ie, containers should not depend on an OS thing)
