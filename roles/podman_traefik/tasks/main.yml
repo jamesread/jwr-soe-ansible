@@ -1,0 +1,20 @@
+- name: container - traefik - config
+  copy:
+    src: "{{ traefik_config }}"
+    dest: "{{ traefik_volume }}/apps.json"
+  notify: container traefik restart
+
+- name: container - traefik
+  tags: traefik
+  containers.podman.podman_container:
+    name: traefik
+    image: traefik:latest
+    state: started
+    privileged: yes
+    security_opt: "label=disable"
+    user: root
+    volume: "{{ traefik_volume }}/:/app/data/"
+    ports:
+      - "8383:8080"
+
+

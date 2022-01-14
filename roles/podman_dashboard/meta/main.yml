@@ -1,0 +1,16 @@
+galaxy_info:
+  role_name: container_grafana
+  author: jamesread
+  description: Installs a Grafana container.
+  license: GPL-3.0-or-later
+  min_ansible_version: 2.7
+
+  platforms:
+    - name: EL
+      versions: 
+        - 7
+        - 8 
+    - name: Fedora
+      versions: 
+        - all
+

@@ -1,0 +1,25 @@
+- name: container - dashboard - config
+  copy:
+    src: "{{ dashboard_config }}"
+    dest: "{{ dashboard_volume }}/apps.json"
+  notify: container - dashboard - restart
+
+- name: container - dashboard - define
+  tags: dashboard
+  containers.podman.podman_container:
+    name: dashboard
+    image: docker.io/phntxx/dashboard:latest
+    privileged: yes
+    security_opt: "label=disable"
+    user: root
+    volume: "{{ dashboard_volume }}/:/app/data/"
+    ports:
+      - "8383:8080"
+    generate_systemd:
+      path: /etc/systemd/system/
+
+- name: container - dashboard - start
+  service:
+    name: container-dashboard
+    state: started
+    enabled: yes

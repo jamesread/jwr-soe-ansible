@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: Installs a Prometheus container.
+  description: Installs a Google Calendar Prometheus exporter.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 

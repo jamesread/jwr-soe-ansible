@@ -1,0 +1,5 @@
+- name: container - dashboard - restart
+  service:
+    name: container-dashboard
+    state: restarted
+
