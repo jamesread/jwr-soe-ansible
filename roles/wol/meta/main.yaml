@@ -1,0 +1,20 @@
+galaxy_info:
+  author: jamesread
+  description: Enable Wake on LAN.
+  license: GPL-3.0-or-later
+  min_ansible_version: 2.7
+
+  platforms:
+    - name: EL
+      versions: 
+        - 7
+        - 8 
+    - name: Fedora
+      versions: 
+        - all
+
+  tags:
+    - wol
+
+  collections:
+    - role: ansible.posix

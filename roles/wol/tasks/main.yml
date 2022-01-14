@@ -1,0 +1,7 @@
+tasks: 
+  - copy: wol
+    dest: /etc/init.d/
+
+  - service:
+      name: wol
+      enabled: true
