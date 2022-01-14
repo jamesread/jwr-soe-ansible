@@ -1,5 +1,6 @@
 namespace: "jamesread"
 name: "soe"
+description: "A standard operating environment collection."
 version: "4.2.5"
 readme: "README.md"
 authors:
@@ -8,7 +9,17 @@ dependencies:
 license: 
   - "GPL-3.0-or-later"
 tags: 
+  - linux
   - podman
+  - systemd
+platforms:
+  - name: EL
+    versions: 
+      - 7
+      - 8 
+  - name: Fedora
+    versions: 
+      - all
 repository: "https://github.com/jamesread/jwr-soe-ansible"
 documentation: "https://github.com/jamesread/jwr-soe-ansible"
 homepage: "https://github.com/jamesread/jwr-soe-ansible"

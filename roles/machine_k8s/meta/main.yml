@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: k8s
+  description: Install a k8s node (could be a control/worker). 
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 

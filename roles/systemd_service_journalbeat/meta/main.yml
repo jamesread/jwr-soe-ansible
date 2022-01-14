@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: Installs a Google Calendar Prometheus exporter.
+  description: Installs a journalbeat systemd service.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -15,5 +15,5 @@ galaxy_info:
 
   tags:
     - podman
-    - prometheus
-    - gcal
+    - fedora
+

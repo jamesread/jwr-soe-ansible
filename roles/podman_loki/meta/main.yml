@@ -1,6 +1,6 @@
 galaxy_info:
   author: jamesread
-  description: Installs a Google Calendar Prometheus exporter.
+  description: Install loki as a podman container.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -13,7 +13,6 @@ galaxy_info:
       versions: 
         - all
 
+
   tags:
-    - podman
-    - prometheus
-    - gcal
+    - loki

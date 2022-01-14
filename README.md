@@ -4,7 +4,7 @@ An Ansible [collection](https://docs.ansible.com/ansible/latest/user_guide/colle
 
 This is published on Ansible Galaxy as "[https://galaxy.ansible.com/jamesread/soe](jamesread.soe)". 
 
-## Roles;
+## Roles
 
 *  jamesread.soe.[cifs](roles/cifs) - Mount a CIFS share.
 *  jamesread.soe.[common](roles/common) - Common roles of stuff
@@ -36,30 +36,26 @@ systemd_service_journalbeat [Errno 2] No such file or directory: 'roles/systemd_
 
 ## Usage 
 
-Install the collection like this;
+Install the collection like this
 
-----
-ansible-galaxy collection install jamesread.soe
-----
+    ansible-galaxy collection install jamesread.soe
 
-Create a playbook like this;
+Create a playbook like this
 
-----
-#!/usr/bin/env ansible-playbook
+    #!/usr/bin/env ansible-playbook
 
-- hosts: 
-    - all
-  roles: 
-    - name: jamesread.soe.common
-      myVar: foobar
-----
+    - hosts: 
+        - all
+      roles: 
+        - name: jamesread.soe.common
+          myVar: foobar
 
-## Principles;
+## Principles
 
 * Separation of data (mostly config files) and reusable code (roles). 
 * Separation of layers (ie, containers should not depend on an OS thing)
 
-# Layers;
+# Layers
 
 1. Infra: (nothing here yet)
 2. OS Configuration (Physical/Virtual machine) - `machine_`
