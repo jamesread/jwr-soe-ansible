@@ -65,7 +65,7 @@ def extract_role_variables(r):
 
 def roles_to_markdown_overview(roles):
     for r in roles:
-        print("* ", r.url, r.readmeLink, "-", r.description)
+        print("* ", r.url, "-", r.description)
 
 def roles_to_role_readmes(roles):
     for r in roles:

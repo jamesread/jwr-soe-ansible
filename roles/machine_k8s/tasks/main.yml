@@ -3,7 +3,7 @@
   ansible.posix.selinux: 
     state: disabled 
 
-- shell: dnf module enable cri-o:1.22 -y
+- shell: dnf module enable cri-o:1.21 -y
 
 - package: 
     name: 
@@ -14,6 +14,7 @@
       - kubernetes-client
       - kubernetes-kubeadm
       - nfs-utils
+      - iptables-nft
     state: installed
   tags: k8s_packages
 
