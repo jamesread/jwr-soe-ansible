@@ -85,6 +85,21 @@ def generate_role_readme(r):
         for var in r.variables:
             ret += "* `" + var.name + "` (default: " + var.default + ")\n"
 
+
+    ret += "\n\n## Example usage in a playbook\n\n"
+    ret += "```\n"
+    ret += "- hosts: [myserver]\n"
+    ret += "  roles\n"
+    ret += "    - roles: jamesread.soe." + r.name + "\n"
+
+    if len(r.variables) > 0:
+        ret += "      vars:\n"
+
+        for var in r.variables:
+            ret += "        " + var.name + ": " + var.default + "\n"
+
+    ret += "```\n"
+
     return ret
 
 if __name__ == "__main__":
