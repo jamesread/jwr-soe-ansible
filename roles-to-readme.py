@@ -82,8 +82,11 @@ def generate_role_readme(r):
     if len(r.variables) == 0:
         ret += "This role does not have any variables.\n"
     else:
+        ret += "| Variable | Default |\n"
+        ret += "|----------|---------|\n"
+
         for var in r.variables:
-            ret += "* `" + var.name + "` (default: " + var.default + ")\n"
+            ret += "| `" + var.name + "` | " + var.default + " |\n"
 
 
     ret += "\n\n## Example usage in a playbook\n\n"

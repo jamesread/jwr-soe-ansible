@@ -1,7 +1,7 @@
 galaxy_info:
-  role_name: container_grafana
+  role_name: container_dashboard
   author: jamesread
-  description: Installs a Grafana container.
+  description: Installs a Dashboard container.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 

@@ -2,7 +2,9 @@
 
 Installs haproxy as a service.
 ## Variables
-* `cfg_file` (default: haproxy.cfg)
+| Variable | Default |
+|----------|---------|
+| `cfg_file` | haproxy.cfg |
 
 
 ## Example usage in a playbook

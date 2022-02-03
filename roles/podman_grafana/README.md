@@ -2,8 +2,10 @@
 
 Installs a Grafana container.
 ## Variables
-* `cfg_grafana_installed` (default: True)
-* `container_podman_volume` (default: /containers/grafana/)
+| Variable | Default |
+|----------|---------|
+| `cfg_grafana_installed` | True |
+| `container_podman_volume` | /containers/grafana/ |
 
 
 ## Example usage in a playbook
