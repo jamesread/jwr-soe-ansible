@@ -7,7 +7,7 @@
 - name: prometheus - set config
   tags: prom
   ansible.builtin.template:
-    src: "{{ prom_config_file }}"
+    src: "{{ cfg_file }}"
     dest: /etc/prometheus/prometheus.yml
   notify: container prometheus restart
 
