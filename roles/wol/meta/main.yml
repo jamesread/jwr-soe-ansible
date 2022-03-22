@@ -1,7 +1,6 @@
 galaxy_info:
-  role_name: container_dashboard
   author: jamesread
-  description: Installs a Dashboard container.
+  description: Enable Wake on LAN.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
 
@@ -14,3 +13,8 @@ galaxy_info:
       versions: 
         - all
 
+  tags:
+    - wol
+
+  collections:
+    - role: ansible.posix

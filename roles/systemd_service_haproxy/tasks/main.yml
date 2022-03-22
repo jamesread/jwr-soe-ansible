@@ -14,7 +14,7 @@
 - name: template - haproxy
   tags: haproxy
   template:
-    src: "{{ haproxy_cfg_file }}"
+    src: "{{ cfg_file }}"
     dest: /etc/haproxy/haproxy.cfg
     mode: 0644
   notify:

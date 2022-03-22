@@ -1,6 +1,6 @@
-# podman_prometheus
+# wol
 
-Installs a Prometheus container.
+Enable Wake on LAN.
 ## Variables
 This role does not have any variables.
 
@@ -10,5 +10,5 @@ This role does not have any variables.
 ```
 - hosts: [myserver]
   roles
-    - roles: jamesread.soe.podman_prometheus
+    - roles: jamesread.soe.wol
 ```

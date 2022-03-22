@@ -65,7 +65,7 @@ def extract_role_variables(r):
 
 def roles_to_markdown_overview(roles):
     for r in roles:
-        print("* ", r.url, r.readmeLink, "-", r.description)
+        print("* ", r.url, "-", r.description)
 
 def roles_to_role_readmes(roles):
     for r in roles:
@@ -82,8 +82,26 @@ def generate_role_readme(r):
     if len(r.variables) == 0:
         ret += "This role does not have any variables.\n"
     else:
+        ret += "| Variable | Default |\n"
+        ret += "|----------|---------|\n"
+
         for var in r.variables:
-            ret += "* `" + var.name + "` (default: " + var.default + ")\n"
+            ret += "| `" + var.name + "` | " + var.default + " |\n"
+
+
+    ret += "\n\n## Example usage in a playbook\n\n"
+    ret += "```\n"
+    ret += "- hosts: [myserver]\n"
+    ret += "  roles\n"
+    ret += "    - roles: jamesread.soe." + r.name + "\n"
+
+    if len(r.variables) > 0:
+        ret += "      vars:\n"
+
+        for var in r.variables:
+            ret += "        " + var.name + ": " + var.default + "\n"
+
+    ret += "```\n"
 
     return ret
 
