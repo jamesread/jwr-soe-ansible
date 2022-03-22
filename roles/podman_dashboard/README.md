@@ -1,6 +1,6 @@
 # podman_dashboard
 
-Installs a Grafana container.
+Installs a Dashboard container.
 ## Variables
 | Variable | Default |
 |----------|---------|

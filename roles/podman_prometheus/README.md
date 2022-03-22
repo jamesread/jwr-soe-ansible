@@ -2,7 +2,9 @@
 
 Installs a Prometheus container.
 ## Variables
-This role does not have any variables.
+| Variable | Default |
+|----------|---------|
+| `cfg_file` | prometheus.yml |
 
 
 ## Example usage in a playbook
@@ -11,4 +13,6 @@ This role does not have any variables.
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.podman_prometheus
+      vars:
+        cfg_file: prometheus.yml
 ```
