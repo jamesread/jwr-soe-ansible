@@ -15,7 +15,7 @@
   tags: prom
   containers.podman.podman_container:
     name: prometheus
-    image: prom/prometheus
+    image: docker.io/prom/prometheus
     state: started
     privileged: yes
     security_opt: label=disable
