@@ -1,0 +1,20 @@
+galaxy_info:
+  author: jamesread
+  description: Various utils used for sysadmins.
+  license: GPL-3.0-or-later
+  min_ansible_version: 2.7
+
+  platforms:
+    - name: EL
+      versions: 
+        - 7
+        - 8 
+    - name: Fedora
+      versions: 
+        - all
+
+
+  tags:
+    - workstation
+    - fedora
+    - developer
