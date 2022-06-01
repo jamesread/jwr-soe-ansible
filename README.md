@@ -6,7 +6,6 @@ This is published on Ansible Galaxy as "[jamesread.soe](https://galaxy.ansible.c
 
 ## Roles
 
-*  jamesread.soe.[cifs](roles/cifs) - Mount a CIFS share.
 *  jamesread.soe.[common](roles/common) - Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
 *  jamesread.soe.[libvirt_vm](roles/libvirt_vm) - Creates a libvirtvm.
 *  jamesread.soe.[machine_jenkins_slave](roles/machine_jenkins_slave) - Installs a Jenkins slave.
