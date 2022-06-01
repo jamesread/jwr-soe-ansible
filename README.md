@@ -25,7 +25,6 @@ This is published on Ansible Galaxy as "[jamesread.soe](https://galaxy.ansible.c
 *  jamesread.soe.[podman_prometheus](roles/podman_prometheus) - Installs a Prometheus container.
 *  jamesread.soe.[podman_promtail](roles/podman_promtail) - Installs a promtail container.
 *  jamesread.soe.[podman_traefik](roles/podman_traefik) - Installs a traefik container.
-*  jamesread.soe.[systemd_kvm_hypervisor](roles/systemd_kvm_hypervisor) - Installs KVM, libvirt, etc.
 *  jamesread.soe.[systemd_service_apachephp](roles/systemd_service_apachephp) - Installs httpd.
 *  jamesread.soe.[systemd_service_condor](roles/systemd_service_condor) - Installs condor as a service.
 *  jamesread.soe.[systemd_service_filebeat](roles/systemd_service_filebeat) - Installs a filebeat service.
