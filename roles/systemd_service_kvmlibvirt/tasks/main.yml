@@ -3,12 +3,18 @@
   package: name={{ item }} state=present
   with_items: 
     - libvirt
+    - libvirt-client
+    - libguestfs
     - virt-install 
     - bridge-utils
     - qemu-kvm 
     - qemu-img 
     - qemu-system-x86
     - qemu-kvm-tools
+    - qemu-device-display-qxl
+    - qemu-device-usb-redirect
+    - qemu-ui-spice-app
+ 
 
 - name: service - libvirtd 
   service: 
