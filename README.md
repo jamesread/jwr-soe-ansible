@@ -8,12 +8,13 @@ This is published on Ansible Galaxy as "[jamesread.soe](https://galaxy.ansible.c
 
 *  jamesread.soe.[cifs](roles/cifs) - Mount a CIFS share.
 *  jamesread.soe.[common](roles/common) - Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
-*  jamesread.soe.[containerhost_podman](roles/containerhost_podman) - Installs podman.
 *  jamesread.soe.[libvirt_vm](roles/libvirt_vm) - Creates a libvirtvm.
 *  jamesread.soe.[machine_jenkins_slave](roles/machine_jenkins_slave) - Installs a Jenkins slave.
 *  jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
 *  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
+*  jamesread.soe.[machine_podman](roles/machine_podman) - Installs podman.
 *  jamesread.soe.[machine_sysadmin_utils](roles/machine_sysadmin_utils) - Various utils used for sysadmins.
+*  jamesread.soe.[machine_wol](roles/machine_wol) - Enable Wake on LAN.
 *  jamesread.soe.[machine_workstation](roles/machine_workstation) - My desktop workstation
 *  jamesread.soe.[podman_dashboard](roles/podman_dashboard) - Installs a Dashboard container.
 *  jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
@@ -32,7 +33,6 @@ This is published on Ansible Galaxy as "[jamesread.soe](https://galaxy.ansible.c
 *  jamesread.soe.[systemd_service_jenkins](roles/systemd_service_jenkins) - Installs jenkins as a service.
 *  jamesread.soe.[systemd_service_journalbeat](roles/systemd_service_journalbeat) - Installs a journalbeat systemd service.
 *  jamesread.soe.[systemd_service_kvmlibvirt](roles/systemd_service_kvmlibvirt) - Installs kvm, libvirt and essential virt tools.
-*  jamesread.soe.[wol](roles/wol) - Enable Wake on LAN.
 
 ## Usage 
 

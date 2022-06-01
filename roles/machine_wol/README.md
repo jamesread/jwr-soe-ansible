@@ -1,4 +1,4 @@
-# wol
+# machine_wol
 
 Enable Wake on LAN.
 ## Variables
@@ -10,5 +10,5 @@ This role does not have any variables.
 ```
 - hosts: [myserver]
   roles
-    - roles: jamesread.soe.wol
+    - roles: jamesread.soe.machine_wol
 ```
