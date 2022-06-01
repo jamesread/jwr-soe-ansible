@@ -1,11 +1,12 @@
 ---
-- name: install workstation packages
+- name: install sysadmin packages
   package:
     state: present
     name:
-      - okular
-      - sddm
-      - kwin
-      - firefox
-      - spectacle
+      - vim-enhanced
+      - vim-powerline
+      - vim-command-t
+      - vim-nerdtree
+      - htop
+      - vifm
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'

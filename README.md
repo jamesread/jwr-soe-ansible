@@ -13,8 +13,9 @@ This is published on Ansible Galaxy as "[jamesread.soe](https://galaxy.ansible.c
 *  jamesread.soe.[machine_jenkins_slave](roles/machine_jenkins_slave) - Installs a Jenkins slave.
 *  jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
 *  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
+*  jamesread.soe.[machine_sysadmin_utils](roles/machine_sysadmin_utils) - Various utils used for sysadmins.
 *  jamesread.soe.[machine_workstation](roles/machine_workstation) - My desktop workstation
-*  jamesread.soe.[podman_dashboard](roles/podman_dashboard) - Installs a Grafana container.
+*  jamesread.soe.[podman_dashboard](roles/podman_dashboard) - Installs a Dashboard container.
 *  jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
 *  jamesread.soe.[podman_grafana](roles/podman_grafana) - Installs a Grafana container.
 *  jamesread.soe.[podman_loki](roles/podman_loki) - Install loki as a podman container.
