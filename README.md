@@ -12,6 +12,7 @@ This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.co
 
 ### machine layer
 
+*  jamesread.soe.[machine_i3](roles/machine_i3) - Install i3wm.
 *  jamesread.soe.[machine_jenkins_slave](roles/machine_jenkins_slave) - Installs a Jenkins slave.
 *  jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
 *  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
