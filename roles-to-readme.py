@@ -17,6 +17,13 @@ class RoleVariable:
     name = ""
     default = ""
 
+def get_role_layer(name):
+    if "machine_" in name: return "machine"
+    if "systemd_service" in name: return "workload"
+    if "podman_" in name: return "workload"
+
+    return "misc"
+
 def extract_roles():
     roles = list()
 
@@ -26,6 +33,8 @@ def extract_roles():
         r.name = d
         r.url = "jamesread.soe.[" + d + "](roles/" + d + ")"
         r.readmeLink = "[[README](roles/" + d + "/README.md)]"
+        r.layer = get_role_layer(r.name)
+
 
         try:
             with open(os.path.join("roles", d, 'meta/main.yml'), 'r') as role_file:
@@ -64,8 +73,12 @@ def extract_role_variables(r):
     return ret
 
 def roles_to_markdown_overview(roles):
-    for r in roles:
-        print("* ", r.url, "-", r.description)
+    for layer in ["infra", "machine", "workload", "misc"]:
+        print("\n### " + layer + " layer\n")
+
+        for r in roles:
+            if r.layer == layer:
+                print("* ", r.url, "-", r.description)
 
 def roles_to_role_readmes(roles):
     for r in roles:
