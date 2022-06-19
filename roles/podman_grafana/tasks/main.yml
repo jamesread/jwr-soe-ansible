@@ -5,7 +5,9 @@
     state: started
     privileged: yes
     security_opt: "label=disable"
-    volume: "{{ container_podman_volume }}/:/var/lib/grafana/:Z"
+    volume: 
+    - "{{ container_podman_volume }}_data/:/var/lib/grafana/:Z"
+    - "{{ container_podman_volume }}_config/:/etc/grafana/:Z"
     user: root
     ports:
       - "3000:3000"
