@@ -1,7 +1,12 @@
+- name: container - grafana - mkdir
+  file: 
+    path: "{{ container_podman_volume }}"
+    state: directory
+
 - name: container - grafana
   containers.podman.podman_container:
     name: grafana
-    image: grafana/grafana
+    image: docker.io/grafana/grafana
     state: started
     privileged: yes
     security_opt: "label=disable"

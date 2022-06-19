@@ -1,4 +1,4 @@
-# containerhost_podman
+# machine_podman
 
 Installs podman.
 ## Variables
@@ -13,7 +13,7 @@ Installs podman.
 ```
 - hosts: [myserver]
   roles
-    - roles: jamesread.soe.containerhost_podman
+    - roles: jamesread.soe.machine_podman
       vars:
         cfg_traefik_installed: False
         cfg_haproxy: haproxy.cfg.j2

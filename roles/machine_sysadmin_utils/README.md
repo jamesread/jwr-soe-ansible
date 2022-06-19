@@ -1,6 +1,6 @@
-# systemd_kvm_hypervisor
+# machine_sysadmin_utils
 
-Installs KVM, libvirt, etc.
+Various utils used for sysadmins.
 ## Variables
 This role does not have any variables.
 
@@ -10,5 +10,5 @@ This role does not have any variables.
 ```
 - hosts: [myserver]
   roles
-    - roles: jamesread.soe.systemd_kvm_hypervisor
+    - roles: jamesread.soe.machine_sysadmin_utils
 ```

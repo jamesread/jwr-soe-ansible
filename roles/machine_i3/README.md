@@ -1,6 +1,6 @@
-# wol
+# machine_i3
 
-Enable Wake on LAN.
+Install i3wm.
 ## Variables
 This role does not have any variables.
 
@@ -10,5 +10,5 @@ This role does not have any variables.
 ```
 - hosts: [myserver]
   roles
-    - roles: jamesread.soe.wol
+    - roles: jamesread.soe.machine_i3
 ```
