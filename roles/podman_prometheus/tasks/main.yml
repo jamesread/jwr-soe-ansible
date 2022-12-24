@@ -18,6 +18,7 @@
     image: docker.io/prom/prometheus
     state: started
     privileged: yes
+    conmon_pidfile: /etc/prometheus/prometheus.pid
     security_opt: label=disable
     volume: /etc/prometheus/:/etc/prometheus
     user: root
