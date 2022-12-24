@@ -9,7 +9,7 @@
     image: docker.io/grafana/grafana
     state: started
     privileged: yes
-    conmon_pidfile: "{{ container_podman_volume }}/grafana.pid"
+    conmon_pidfile: "{{ container_podman_volume }}_data/grafana.pid"
     security_opt: "label=disable"
     volume:
       - "{{ container_podman_volume }}_data/:/var/lib/grafana/:Z"
