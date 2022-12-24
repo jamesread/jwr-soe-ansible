@@ -1,6 +1,6 @@
 ---
-- package: 
-    name: 
+- package:
+    name:
       - i3
       - i3status
-  state: installed
+    state: installed

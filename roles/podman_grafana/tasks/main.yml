@@ -1,7 +1,7 @@
-- name: container - grafana - mkdir
-  file: 
-    path: "{{ container_podman_volume }}"
-    state: directory
+---
+- name: container - grafana - print base path
+  debug:
+    msg: '{{ container_podman_volume }}'
 
 - name: container - grafana
   containers.podman.podman_container:
@@ -10,9 +10,9 @@
     state: started
     privileged: yes
     security_opt: "label=disable"
-    volume: 
-    - "{{ container_podman_volume }}_data/:/var/lib/grafana/:Z"
-    - "{{ container_podman_volume }}_config/:/etc/grafana/:Z"
+    volume:
+      - "{{ container_podman_volume }}_data/:/var/lib/grafana/:Z"
+      - "{{ container_podman_volume }}_config/:/etc/grafana/:Z"
     user: root
     ports:
       - "3000:3000"

@@ -2,28 +2,47 @@
 - name: Disable SELinux
   ansible.posix.selinux: 
     state: disabled 
+  register: selinux
 
-- shell: dnf module enable cri-o:1.21 -y
+- when: selinux.changed
+  block:
+    - reboot:
 
-- package: 
-    name: 
-      - cri-o
-      - crictl 
-      - ethtool
-      - kubernetes-node
-      - kubernetes-client
-      - kubernetes-kubeadm
-      - nfs-utils
-      - iptables-nft
-    state: installed
-  tags: k8s_packages
+- name: check if crio is installed
+  stat:
+    path: /usr/bin/crio
+  register: crio
 
-- package:
-    name:
-      - firewalld
-      - zram-generator
-    state: removed
-  tags: k8s_packages
+- when: not crio.stat.exists
+  block:
+  - shell: dnf module enable cri-o:1.24 -y
+
+  - package: 
+      name: 
+        - cri-o
+        - crictl 
+        - ethtool
+        - kubernetes-node
+        - kubernetes-client
+        - kubernetes-kubeadm
+        - nfs-utils
+        - iptables-nft
+        - iproute-tc
+      state: installed
+    tags: k8s_packages
+
+  - package:
+      name:
+        - firewalld
+        - zram-generator
+      state: removed
+    tags: k8s_packages
+
+- name: replace kubeadm.conf because of messed up fedora package still using --cni*
+  copy:
+    dest: /etc/systemd/system/kubelet.service.d/kubeadm.conf
+    src: kubeadm.conf
+  tags: kubeadm.conf
 
 - name: copy k8s modprobe
   copy:
@@ -59,9 +78,9 @@
     value: '1'
     state: present
 
-
 - service:
     name: kubelet
+    daemon_reload: yes
     enabled: yes
     state: started
   tags: kubelet
@@ -71,3 +90,21 @@
     enabled: no
     state: stopped
   tags: resolved
+
+- name: remove old systemd-resolved resolv.conf stub
+  file:
+    path: /etc/resolv.conf
+    state: absent
+
+- name: restart network manager to regenerate resolv.conf
+  service:
+    name: NetworkManager
+    state: restarted
+    enabled: yes
+  tags: NM
+
+- reboot:
+
+- shell: kubeadm config images pull
+  tags: kubeadm-pull
+
