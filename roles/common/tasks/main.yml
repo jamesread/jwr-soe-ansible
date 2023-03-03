@@ -12,6 +12,16 @@
 #  with_items: 
 #    - ntpd
 
+- name: install podman
+  include_role: 
+    name: jamesread.soe.machine_podman
+
+- include_role: 
+    name: jamesread.soe.podman_container
+  vars:
+    name: systemd-exporter
+    image: quay.io/prometheuscommunity/systemd-exporter:latest
+  tags: systemd
 
 - name: firewall rule - node-exporter
   ansible.posix.firewalld:
