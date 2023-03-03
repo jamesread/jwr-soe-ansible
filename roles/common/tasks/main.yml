@@ -1,8 +1,8 @@
 ---
-- include: family_rh.yml
+- include_tasks: family_rh.yml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
-- include: family_deb.yml
+- include_tasks: family_deb.yml
   when: ansible_distribution == 'Debian'
 
 # Start NTP

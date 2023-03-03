@@ -8,6 +8,8 @@
   block:
     - reboot:
 
+- shell: dnf module enable cri-o:1.24 -y
+
 - name: check if crio is installed
   stat:
     path: /usr/bin/crio
@@ -90,6 +92,8 @@
     enabled: no
     state: stopped
   tags: resolved
+
+- reboot:
 
 - name: remove old systemd-resolved resolv.conf stub
   file:
