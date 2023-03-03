@@ -3,7 +3,9 @@
   ansible.posix.selinux: 
     state: disabled 
 
-- shell: dnf module enable cri-o:1.21 -y
+- reboot:
+
+- shell: dnf module enable cri-o:1.24 -y
 
 - package: 
     name: 
@@ -71,3 +73,6 @@
     enabled: no
     state: stopped
   tags: resolved
+
+- reboot:
+
