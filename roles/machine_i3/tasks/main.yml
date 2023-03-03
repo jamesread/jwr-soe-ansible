@@ -1,0 +1,6 @@
+---
+- package:
+    name:
+      - i3
+      - i3status
+    state: installed
