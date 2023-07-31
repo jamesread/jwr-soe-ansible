@@ -1,19 +1,18 @@
+---
 galaxy_info:
   author: jamesread
   description: Installs kvm, libvirt and essential virt tools.
   license: GPLv3
   min_ansible_version: 2.7
-
   platforms:
     - name: CentOS
-      versions: 
+      versions:
         - 7
-        - 8 
+        - 8
     - name: Fedora
-      versions: 
+      versions:
         - all
-
-  tags:
+  galaxy_tags:
     - kvm
     - hypervisor
     - libvirt

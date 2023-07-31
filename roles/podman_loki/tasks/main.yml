@@ -1,24 +1,23 @@
+---
 - name: config - loki dir
   file:
     path: /etc/loki/
     state: directory
     mode: 0644
-
 - name: config - loki
   copy:
     src: files/loki.yml
     dest: /etc/loki/local-config.yaml
     mode: 0644
-
 - name: container - loki
   containers.podman.podman_container:
     name: loki
     image: grafana/loki
     state: started
-    privileged: yes
-    security_opt: "label=disable"
+    privileged: true
+    security_opt: label=disable
     user: root
     ports:
-      - "3100:3100"
-    volumes: 
-      - "/etc/loki/:/etc/loki/:ro"
+      - 3100:3100
+    volumes:
+      - /etc/loki/:/etc/loki/:ro

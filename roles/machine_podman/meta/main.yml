@@ -1,24 +1,21 @@
+---
 galaxy_info:
   role_name: machine_podman
   author: jamesread
   description: Installs podman.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
-
   platforms:
     - name: EL
-      versions: 
+      versions:
         - 7
-        - 8 
+        - 8
     - name: Fedora
-      versions: 
+      versions:
         - all
+  galaxy_galaxy_tags:
+    - podman
   galaxy_tags:
     - podman
-
-  tags:
-    - podman
-
-  collections: 
+  collections:
     - containers.podman
-

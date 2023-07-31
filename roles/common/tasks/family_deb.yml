@@ -1,4 +1,4 @@
-- name: dummy task for deb
-  set_fact:
+---
+- name: Dummy task for deb
+  ansible.builtin.set_fact:
     foo: bar
-

@@ -1,16 +1,15 @@
+---
 galaxy_info:
   role_name: systemd_service_filebeat
   author: jamesread
   description: Installs a filebeat service.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
-
   platforms:
     - name: EL
-      versions: 
+      versions:
         - 7
-        - 8 
+        - 8
     - name: Fedora
-      versions: 
+      versions:
         - all
-

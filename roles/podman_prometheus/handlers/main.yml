@@ -1,13 +1,14 @@
+---
 - name: container prometheus restart
   tags: prom
   containers.podman.podman_container:
     name: prometheus
     image: prom/prometheus
     state: started
-    privileged: yes
+    privileged: true
     security_opt: label=disable
     volume: /etc/prometheus/:/etc/prometheus
     user: root
-    restart: yes
-    ports: 
-      - "9090:9090"
+    restart: true
+    ports:
+      - 9090:9090

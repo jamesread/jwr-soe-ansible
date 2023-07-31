@@ -5,30 +5,25 @@
     - xscreensaver
     - fluxbox
   when: ansible_distribution == "debian"
-
 - name: packages - install essentials
   package: name={{ item }} state=present
   with_items:
     - unclutter
-
 - name: copy lxde config
   copy:
     src: lxde-autostart
     dest: /home/pi/.config/lxsession/LXDE/autostart
     mode: 0644
-
 - name: copy fluxbox config
   copy:
     src: fluxbox-startup
     dest: /home/pi/.fluxbox/startup
     mode: 0644
-
 - name: copy xinitrc
   copy:
     src: xinitrc
     dest: /home/pi/.xinitrc
     mode: 0644
-
 - name: copy lightdm conf
   copy:
     src: lightdm.conf

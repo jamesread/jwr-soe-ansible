@@ -1,22 +1,21 @@
 ---
-- name: packages - kvm, etc
-  package: name={{ item }} state=present
-  with_items: 
+- name: Packages - kvm, etc
+  ansible.builtin.package: name={{ item }} state=present
+  with_items:
     - libvirt
     - libvirt-client
     - libguestfs
-    - virt-install 
+    - virt-install
     - bridge-utils
-    - qemu-kvm 
-    - qemu-img 
+    - qemu-kvm
+    - qemu-img
     - qemu-system-x86
     - qemu-device-display-qxl
     - qemu-device-usb-redirect
     - qemu-ui-spice-app
- 
 
-- name: service - libvirtd 
-  service: 
-    name: libvirtd 
-    state: started 
-    enabled: yes 
+- name: Service - libvirtd
+  ansible.builtin.service:
+    name: libvirtd
+    state: started
+    enabled: 'yes'

@@ -1,10 +1,10 @@
+---
 - name: package - podman
   package:
     name: podman
     state: present
-
 - name: service - podman
   service:
     name: podman
     state: started
-    enabled: yes
+    enabled: true

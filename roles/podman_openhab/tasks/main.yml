@@ -4,5 +4,5 @@
     name: openhab
     image: openhab/openhab:latest-alpine
     state: present
-    published_ports: 
-      - "8081:8080"
+    published_ports:
+      - 8081:8080

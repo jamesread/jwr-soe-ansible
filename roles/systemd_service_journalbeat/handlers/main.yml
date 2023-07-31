@@ -1,6 +1,6 @@
+---
 - name: restart - journalbeat
   systemd:
     name: journalbeat
     state: restarted
-    masked: no
-
+    masked: false

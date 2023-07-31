@@ -1,2 +1,3 @@
+---
 dashboard_volume: /containers/dashboard/
 dashboard_config: dashboard.json

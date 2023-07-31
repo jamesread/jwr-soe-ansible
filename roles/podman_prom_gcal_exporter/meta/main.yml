@@ -1,19 +1,18 @@
+---
 galaxy_info:
   author: jamesread
   description: Installs a Google Calendar Prometheus exporter.
   license: GPL-3.0-or-later
   min_ansible_version: 2.7
-
   platforms:
     - name: EL
-      versions: 
+      versions:
         - 7
-        - 8 
+        - 8
     - name: Fedora
-      versions: 
+      versions:
         - all
-
-  tags:
+  galaxy_tags:
     - podman
     - prometheus
     - gcal

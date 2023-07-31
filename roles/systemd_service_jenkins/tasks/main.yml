@@ -1,9 +1,9 @@
 ---
-- name: jenkins repo
-  yum_repository: name=jenkins baseurl=http://pkg.jenkins.io/redhat gpgcheck=no enabled=yes description=Jenkins
+- name: Jenkins repo
+  ansible.builtin.yum_repository: name=jenkins baseurl=http://pkg.jenkins.io/redhat gpgcheck=no enabled=yes description=Jenkins
 
-- name: package - jenkins and lots of stuff
-  package:
+- name: Package - jenkins and lots of stuff
+  ansible.builtin.package:
     state: present
     name:
       - zip
@@ -26,55 +26,54 @@
       - mariadb
       - rpm-build
 
-- name: jenkins config
-  lineinfile:
+- name: Jenkins config
+  ansible.builtin.lineinfile:
     path: /etc/sysconfig/jenkins
-    regexp: '^JENKINS_ARGS='
+    regexp: ^JENKINS_ARGS=
     line: 'JENKINS_ARGS="--prefix=/jenkins" '
     state: present
 
-- name: find initial admin password file 
-  stat: 
+- name: Find initial admin password file
+  ansible.builtin.stat:
     path: /var/lib/jenkins/secrets/initialAdminPassword
   register: initialAdminPasswordFile
 
-- name: get initial admin password
-  set_fact: 
+- name: Get initial admin password
+  ansible.builtin.set_fact:
     adminPassword: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
   when: initialAdminPasswordFile.stat.exists
 
-- name: adminPassword
-  debug: msg={{ adminPassword }}
+- name: Admin Password
+  ansible.builtin.debug: msg={{ adminPassword }}
   when: initialAdminPasswordFile.stat.exists
 
-- name: copy proxy conf to httpd
-  copy: 
+- name: Copy proxy conf to httpd
+  ansible.builtin.copy:
     src: jenkins-proxy.conf
     dest: /etc/httpd/conf.d/jenkins-proxy.conf
-    mode: 0644
+    mode: '0644'
 
-- name: copy index.htm
-  copy: 
+- name: Copy index.htm
+  ansible.builtin.copy:
     src: index.htm
     dest: /var/www/html/index.html
-    mode: 0644
+    mode: '0644'
 
-- name: selinux - httpd_can_network_connect
-  seboolean:
+- name: SElinux - httpd_can_network_connect
+  ansible.builtin.seboolean:
     name: httpd_can_network_connect
-    state: yes
-    persistent: yes
+    state: true
+    persistent: true
 
-- name: service {{ item }} start
-  service: name={{ item }} state=started
+- name: Service start {{ item }}
+  ansible.builtin.service: name={{ item }} state=started
   with_items:
     - httpd
     - jenkins
     - mariadb
 
-- name: firewall rule - node-exporter
+- name: Firewall rule - node-exporter
   ansible.posix.firewalld:
     port: 8080/tcp
-    permanent: yes
-    state: enabled 
-
+    permanent: true
+    state: enabled

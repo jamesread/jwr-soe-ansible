@@ -1,83 +1,88 @@
 ---
-- include_tasks: family_rh.yml
+- name: Include Red Hat Tasks
+  ansible.builtin.include_tasks:
+    file: family_rh.yml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
-- include_tasks: family_deb.yml
+- name: Include Debian Tasks
+  ansible.builtin.include_tasks:
+    file: family_deb.yml
   when: ansible_distribution == 'Debian'
 
-# Start NTP
-#- service: name={{ item }} state=started enabled=yes
-#  name: start essential services
-#  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
-#  with_items: 
-#    - ntpd
+  # Start NTP
+  # - service: name={{ item }} state=started enabled=yes
+  #  name: start essential services
+  #  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+  #  with_items:
+  #    - ntpd
 
-- name: install podman
-  include_role: 
+- name: Install podman
+  ansible.builtin.include_role:
     name: jamesread.soe.machine_podman
 
-- include_role: 
+- name: Install systemd-exporter
+  ansible.builtin.include_role:
     name: jamesread.soe.podman_container
   vars:
     name: systemd-exporter
     image: quay.io/prometheuscommunity/systemd-exporter:latest
   tags: systemd
 
-- name: firewall rule - node-exporter
+- name: Firewall rule - node-exporter
   ansible.posix.firewalld:
     port: 9100/tcp
-    permanent: yes
-    state: enabled 
+    permanent: true
+    state: enabled
 
-- name: package - node-exporter
-  package:
+- name: Package - node-exporter
+  ansible.builtin.package:
     name: node_exporter
     state: latest
 
-- name: service - node-exporter
-  service: 
+- name: Service - node-exporter
+  ansible.builtin.service:
     name: node_exporter
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Update the /etc/ssh/sshd_config file
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/ssh/sshd_config
-    regexp: "^UseDNS"
-    line: "UseDNS no"
+    regexp: ^UseDNS
+    line: UseDNS no
     insertafter: EOF
     state: present
   notify: Restart ssh
 
-- name: script - prom smart
+- name: Copy script - prom smartmon
   tags: smart
-  copy:
+  ansible.builtin.copy:
     src: files/prometheus_smartmon.sh
     dest: /usr/local/sbin/prometheus_smartmon.sh
-    mode: 0755
+    mode: '0755'
 
-- name: smart timer
+- name: Smart timer
   tags: smart
-  copy:
+  ansible.builtin.copy:
     src: files/prometheus_smartmon.timer
-    dest: "/etc/systemd/system/prometheus_smartmon.timer"
-    mode: 0644
+    dest: /etc/systemd/system/prometheus_smartmon.timer
+    mode: '0644'
 
-- name: smart service
+- name: Smart service
   tags: smart
-  copy:
+  ansible.builtin.copy:
     src: files/prometheus_smartmon.service
-    dest: "/etc/systemd/system/prometheus_smartmon.service"
-    mode: 0644
+    dest: /etc/systemd/system/prometheus_smartmon.service
+    mode: '0644'
 
-- name: systemd daemon reload
+- name: Systemd daemon reload
   tags: smart
   ansible.builtin.systemd:
-    daemon_reload: yes
+    daemon_reload: true
 
-- name: systemd daemon reload
+- name: Enable Smartmon Timer in systemd
   tags: smart
   ansible.builtin.systemd:
     name: prometheus_smartmon.timer
     state: started
-    enabled: yes
+    enabled: true

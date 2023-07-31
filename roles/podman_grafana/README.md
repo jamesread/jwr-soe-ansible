@@ -5,7 +5,7 @@ Installs a Grafana container.
 | Variable | Default |
 |----------|---------|
 | `cfg_grafana_installed` | True |
-| `container_podman_volume` | /containers/grafana/ |
+| `container_podman_volume` | /containers/grafana |
 
 
 ## Example usage in a playbook
@@ -16,5 +16,5 @@ Installs a Grafana container.
     - roles: jamesread.soe.podman_grafana
       vars:
         cfg_grafana_installed: True
-        container_podman_volume: /containers/grafana/
+        container_podman_volume: /containers/grafana
 ```

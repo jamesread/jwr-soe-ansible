@@ -1,14 +1,12 @@
+---
 - meta: end_host
   when: ansible_virtualization_role == "guest"
-
 - package:
     name: ethtool
     state: installed
-
-- copy: 
+- copy:
     src: wol
     dest: /etc/init.d/
-
 - service:
     name: wol
     enabled: true

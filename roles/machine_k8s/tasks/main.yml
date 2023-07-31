@@ -1,53 +1,54 @@
 ---
 - name: Disable SELinux
-  ansible.posix.selinux: 
-    state: disabled 
+  ansible.posix.selinux:
+    state: disabled
   register: selinux
 
-- when: selinux.changed
+- name: Trigger reboot
+  when: selinux.changed
   block:
     - reboot:
 
-- shell: dnf module enable cri-o:1.24 -y
+- name: Enable CRIO Module
+  shell: dnf module enable cri-o:1.24 -y
 
-- name: check if crio is installed
+- name: Check if crio is installed
   stat:
     path: /usr/bin/crio
   register: crio
 
-- when: not crio.stat.exists
+- name: Install CIO
+  when: not crio.stat.exists
   block:
-  - shell: dnf module enable cri-o:1.24 -y
+    - shell: dnf module enable cri-o:1.24 -y
+    - package:
+        name:
+          - cri-o
+          - crictl
+          - ethtool
+          - kubernetes-node
+          - kubernetes-client
+          - kubernetes-kubeadm
+          - nfs-utils
+          - iptables-nft
+          - iproute-tc
+        state: installed
+      tags: k8s_packages
+    - package:
+        name:
+          - firewalld
+          - zram-generator
+        state: removed
+      tags: k8s_packages
 
-  - package: 
-      name: 
-        - cri-o
-        - crictl 
-        - ethtool
-        - kubernetes-node
-        - kubernetes-client
-        - kubernetes-kubeadm
-        - nfs-utils
-        - iptables-nft
-        - iproute-tc
-      state: installed
-    tags: k8s_packages
-
-  - package:
-      name:
-        - firewalld
-        - zram-generator
-      state: removed
-    tags: k8s_packages
-
-- name: replace kubeadm.conf because of messed up fedora package still using --cni*
+- name: Replace kubeadm.conf because of messed up fedora package still using --cni*
   copy:
     dest: /etc/systemd/system/kubelet.service.d/kubeadm.conf
     src: kubeadm.conf
   tags: kubeadm.conf
 
-- name: copy k8s modprobe
-  copy:
+- name: Copy k8s modprobe
+  ansible.builtin.copy:
     dest: /etc/modules-load.d/k8s.conf
     src: files/k8s-modprobe.conf
 
@@ -55,10 +56,10 @@
     name: br_netfilter
     state: present
 
-- service:
+- ansible.builtin.service:
     name: crio
     state: started
-    enabled: yes
+    enabled: true
 
 - ansible.posix.sysctl:
     name: net.ipv4.ip_forward
@@ -82,18 +83,19 @@
 
 - service:
     name: kubelet
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: started
   tags: kubelet
 
 - service:
     name: systemd-resolved
-    enabled: no
+    enabled: false
     state: stopped
   tags: resolved
 
-- reboot:
+- name: Reboot because of systemd-resolved disable
+  reboot:
 
 - name: remove old systemd-resolved resolv.conf stub
   file:
@@ -104,11 +106,12 @@
   service:
     name: NetworkManager
     state: restarted
-    enabled: yes
+    enabled: true
   tags: NM
 
-- reboot:
+- name: Reboot because of network manager
+  reboot:
 
-- shell: kubeadm config images pull
+- name: Kubeadm pull
+  shell: kubeadm config images pull
   tags: kubeadm-pull
-

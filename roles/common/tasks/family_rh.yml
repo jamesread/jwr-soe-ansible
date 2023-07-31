@@ -1,64 +1,64 @@
 ---
-- name: set rh_ variable defaults
-  set_fact:
-    rh_subtype: "unknown"
-    rh_pkgtype: "unknown"
+- name: Set rh_ variable defaults
+  ansible.builtin.set_fact:
+    rh_subtype: unknown
+    rh_pkgtype: unknown
 
-- name: set rh_ variables for Fedora
-  set_fact: 
+- name: Set rh_ variables for Fedora
+  ansible.builtin.set_fact:
     rh_subtyle: fedora
     rh_pkgtype: dnf
   when: ansible_distribution == 'Fedora'
 
-- name: set rh_ variables for EL7
-  set_fact:
+- name: Set rh_ variables for EL7
+  ansible.builtin.set_fact:
     rh_subtype: el7
     rh_pkgtype: yum
   when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' ) and ansible_distribution_major_version == '7'
 
-- name: set rh_ variables for EL8
-  set_fact:
+- name: Set rh_ variables for EL8
+  ansible.builtin.set_fact:
     rh_subtype: el8
     rh_pkgtype: dnf
   when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '8'
 
-- name: install base packages
-  package: 
+- name: Install base packages
+  ansible.builtin.package:
     name:
       - firewalld
       - vim-enhanced
         #      - elinks
       - git
       - wget
-      - unzip 
+      - unzip
       - psmisc
       - smartmontools
     state: present
 
-- name: debug - print pkr_mgr
-  debug:
-    msg: "{{ ansible_facts.pkg_mgr }}"
+- name: Debug - print pkr_mgr
+  ansible.builtin.debug:
+    msg: '{{ ansible_facts.pkg_mgr }}'
 
-- name: package - libsemanage for SELinux systems
-  package:
+- name: Package - libsemanage for SELinux systems
+  ansible.builtin.package:
     name: python3-libsemanage
     state: present
   when: ansible_facts.pkg_mgr == 'dnf'
 
-- name: install copr for YUM based systems
-  package: 
+- name: Install copr for YUM based systems
+  ansible.builtin.package:
     name: yum-plugin-copr
   when: ansible_facts.pkg_mgr == 'yum'
 
-- name: enable prometheus repo - yum
-  shell: yum copr enable ibotty/prometheus-exporters -y
+- name: Enable prometheus repo - yum
+  ansible.builtin.shell: yum copr enable ibotty/prometheus-exporters -y
   args:
     warn: false
   when: ansible_facts.pkg_mgr == 'yum'
 
-- name: enable prometheus repo - dnf
-  shell: dnf copr enable ibotty/prometheus-exporters -y
+- name: Enable prometheus repo - dnf
+  ansible.builtin.shell: dnf copr enable ibotty/prometheus-exporters -y
   args:
-    creates: "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ibotty:prometheus-exporters.repo"
+    creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ibotty:prometheus-exporters.repo
     warn: false
   when: ansible_facts.pkg_mgr == 'dnf'

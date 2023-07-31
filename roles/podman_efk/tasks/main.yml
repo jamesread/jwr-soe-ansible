@@ -1,3 +1,4 @@
+---
 - name: container - elasticsearch
   containers.podman.podman_container:
     name: elastic
@@ -8,29 +9,26 @@
     state: started
     user: root
     ports:
-      - "9200:9200"
-      - "9300:9300"
-
+      - 9200:9200
+      - 9300:9300
 - name: file - fluentd.conf
   copy:
     src: fluentd.conf
     dest: /etc/fluentd.conf
     mode: 0644
-
 - name: file - kibana.yml
-  copy: 
+  copy:
     src: kibana.yml
     dest: /etc/kibana.yml
     mode: 0644
-
 - name: container - kibana
   containers.podman.podman_container:
     image: docker.elastic.co/kibana/kibana:7.11.0
     name: kibana
-    ports: 
-      - "5601:5601"
-    env: 
+    ports:
+      - 5601:5601
+    env:
       discovery.type: single-node
       ELASTIC_PASSWORD: changeme
     volumes:
-      - "/etc/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
+      - /etc/kibana.yml:/usr/share/kibana/config/kibana.yml:ro

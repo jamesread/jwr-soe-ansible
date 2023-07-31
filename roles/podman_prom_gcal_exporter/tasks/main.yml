@@ -1,30 +1,27 @@
+---
 - name: mkdir config directory
   file:
     path: /etc/prom-gcal-exporter
     state: directory
     mode: 0755
-
 - name: tpl - secret file
   ansible.builtin.template:
-    src: "{{ secret_file }}"
+    src: '{{ secret_file }}'
     dest: /etc/prom-gcal-exporter/client_secret.json
-
 - name: tpl - config file
   ansible.builtin.template:
-    src: "{{ config_file }}"
+    src: '{{ config_file }}'
     dest: /etc/prom-gcal-exporter/prometheus-gcal-exporter.cfg
-
 - name: prometheus - define container
   containers.podman.podman_container:
     name: prom-gcal-exporter
     image: jamesread/prometheus-google-calendar-exporter
     state: started
-    privileged: yes
-    recreate: yes
-    force_restart: yes
+    privileged: true
+    recreate: true
+    force_restart: true
     security_opt: label=disable
     volume: /etc/prom-gcal-exporter/:/root/.prometheus-gcal-exporter/
     user: root
-    ports: 
-      - "8081:8080"
-
+    ports:
+      - 8081:8080

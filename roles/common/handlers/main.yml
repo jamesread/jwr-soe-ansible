@@ -1,11 +1,12 @@
+---
 - name: Restart ssh
-  service:
+  ansible.builtin.service:
     name: sshd
     state: restarted
   when: ansible_distribution != 'Debian'
 
 - name: Restart ssh
-  service:
+  ansible.builtin.service:
     name: ssh
     state: restarted
   when: ansible_distribution == 'Debian'

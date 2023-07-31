@@ -1,3 +1,4 @@
 skip_list:
+  - 'casing'
   - '201' # Trailing whitespace - this is just a pedantic lint.
   - '403' # Latest packages. Sorry. I want the latest new stuff. Yay.

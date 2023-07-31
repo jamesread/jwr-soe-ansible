@@ -1,27 +1,25 @@
+---
 - name: mkdir /etc/prometheus
   file:
     path: /etc/prometheus
     state: directory
     mode: 0755
-
 - name: prometheus - set config
   tags: prom
   ansible.builtin.template:
-    src: "{{ cfg_file }}"
+    src: '{{ cfg_file }}'
     dest: /etc/prometheus/prometheus.yml
   notify: container prometheus restart
-
 - name: prometheus - define container
   tags: prom
   containers.podman.podman_container:
     name: prometheus
     image: docker.io/prom/prometheus
     state: started
-    privileged: yes
+    privileged: true
     conmon_pidfile: /etc/prometheus/prometheus.pid
     security_opt: label=disable
     volume: /etc/prometheus/:/etc/prometheus
     user: root
-    ports: 
-      - "9090:9090"
-
+    ports:
+      - 9090:9090

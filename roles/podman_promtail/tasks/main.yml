@@ -1,22 +1,21 @@
+---
 - name: config - promtail dir
   file:
     path: /etc/promtail/
     state: directory
     mode: 0644
-
 - name: config - promtail
   copy:
     src: files/promtail.yml
     dest: /etc/promtail/config.yml
     mode: 0644
-
 - name: container - promtail
   containers.podman.podman_container:
     name: promtail
     image: grafana/promtail
     state: started
-    privileged: yes
+    privileged: true
     user: root
-    volumes: 
-      - "/etc/promtail/:/etc/promtail/:ro"
-      - "/var/log/journal/:/mnt:ro"
+    volumes:
+      - /etc/promtail/:/etc/promtail/:ro
+      - /var/log/journal/:/mnt:ro

@@ -1,8 +1,12 @@
+---
 # kibana
 server.name: kibana
-server.host: "0"
-elasticsearch.hosts: ["http://10.88.0.1:9200"]
+server.host: '0'
+
+elasticsearch.hosts:
+  - http://10.88.0.1:9200
+
 elasticsearch.username: elastic
 elasticsearch.password: changeme
 xpack.monitoring.ui.container.elasticsearch.enabled: true
-xpack.security.encryptionKey: "1234567890123456789012345678901234567890"
+xpack.security.encryptionKey: '1234567890123456789012345678901234567890'
