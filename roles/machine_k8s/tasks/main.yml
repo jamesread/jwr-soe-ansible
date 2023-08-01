@@ -2,26 +2,26 @@
 - name: Disable SELinux
   ansible.posix.selinux:
     state: disabled
-  register: selinux
+  notify: Reboot
 
-- name: Trigger reboot
-  when: selinux.changed
-  block:
-    - reboot:
-
-- name: Enable CRIO Module
-  shell: dnf module enable cri-o:1.24 -y
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Check if crio is installed
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/crio
   register: crio
 
-- name: Install CIO
+- name: Install CRIO if it isn't already
   when: not crio.stat.exists
   block:
-    - shell: dnf module enable cri-o:1.24 -y
-    - package:
+    - name: Enable CRIO Module
+      ansible.builtin.command: dnf module enable cri-o:1.24 -y
+      register: output
+      changed_when: output.rc != 0
+
+    - name: Install CRIO packages
+      ansible.builtin.package:
         name:
           - cri-o
           - crictl
@@ -34,7 +34,9 @@
           - iproute-tc
         state: installed
       tags: k8s_packages
-    - package:
+
+    - name: Remove unwanted packages
+      ansible.builtin.package:
         name:
           - firewalld
           - zram-generator
@@ -42,76 +44,84 @@
       tags: k8s_packages
 
 - name: Replace kubeadm.conf because of messed up fedora package still using --cni*
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/kubelet.service.d/kubeadm.conf
     src: kubeadm.conf
+    mode: '0644'
   tags: kubeadm.conf
 
 - name: Copy k8s modprobe
   ansible.builtin.copy:
     dest: /etc/modules-load.d/k8s.conf
     src: files/k8s-modprobe.conf
+    mode: '0644'
 
-- modprobe:
+- name: Modprobe netfilter
+  community.general.system.modprobe:
     name: br_netfilter
     state: present
 
-- ansible.builtin.service:
+- name: Service - enable and start CRIO
+  ansible.builtin.service:
     name: crio
     state: started
     enabled: true
 
-- ansible.posix.sysctl:
+- name: Enable IPv4 forwarding via syscyl
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '1'
     state: present
 
-- ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    state: present
-
-- ansible.posix.sysctl:
+- name: Do something with sysctl (ipv4)
+  ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-iptables
     value: '1'
     state: present
 
-- ansible.posix.sysctl:
+- name: Do something with sysctl (ipv6)
+  ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-ip6tables
     value: '1'
     state: present
 
-- service:
+- name: Reload, start and enable kubelet
+  ansible.builtin.service:
     name: kubelet
     daemon_reload: true
     enabled: true
     state: started
   tags: kubelet
 
-- service:
+- name: Stop and disable resolved
+  ansible.builtin.service:
     name: systemd-resolved
     enabled: false
     state: stopped
   tags: resolved
+  notify: Reboot
 
-- name: Reboot because of systemd-resolved disable
-  reboot:
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
 
-- name: remove old systemd-resolved resolv.conf stub
-  file:
+- name: Remove old systemd-resolved resolv.conf stub
+  ansible.builtin.file:
     path: /etc/resolv.conf
     state: absent
 
-- name: restart network manager to regenerate resolv.conf
-  service:
+- name: Restart network manager to regenerate resolv.conf
+  ansible.builtin.service:
     name: NetworkManager
     state: restarted
     enabled: true
   tags: NM
+  notify: Reboot
 
-- name: Reboot because of network manager
-  reboot:
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Kubeadm pull
-  shell: kubeadm config images pull
+  ansible.builtin.command: kubeadm config images pull
   tags: kubeadm-pull
+  register: output
+  changed_when: output.rc != 0

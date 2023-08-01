@@ -1,24 +1,32 @@
 ---
-- package:
+- name: Install {{ item }}
+  ansible.builtin.package:
     name: '{{ item }}'
     state: present
   with_items:
     - genisoimage
     - virt-install
     - libguestfs-tools
-- name: checkCount
-  debug:
-    msg: '{{ count|int }}'
-- block:
-    - debug:
-        msg: creating multiple instances
-    - include_tasks: create.yml
-      with_sequence: start=1 end={{ count }} format={{ nameFormat }}
+
+- name: Check Count
+  ansible.builtin.debug:
+    msg: '{{ count | int }}'
+
+- name: Creating multiple instances
   when: count|int > 1
-- block:
-    - debug:
-        msg: creating single instance
-    - set_fact:
-        item: '{{ vmTitle }}'
-    - include_tasks: create.yml
+  block:
+    - name: "Create VM {{ vm_title }}"
+      ansible.builtin.include_tasks:
+        file: create.yml
+      with_sequence: start=1 end={{ count }} format={{ nameFormat }}
+
+- name: Creating single instance
   when: count|int == 1
+  block:
+    - name: Set VM Title
+      ansible.builtin.set_fact:
+        item: '{{ vm_title }}'
+
+    - name: "Create VM {{ vm_title }}"
+      ansible.builtin.include_tasks:
+        file: create.yml

@@ -1,12 +1,20 @@
 ---
-- meta: end_host
+- name: Skip host if it's a VM
+  ansible.builtin.meta: end_host
   when: ansible_virtualization_role == "guest"
-- package:
+
+- name: Install ethtool
+  ansible.builtin.package:
     name: ethtool
     state: installed
-- copy:
+
+- name: Copy wol script
+  ansible.builtin.copy:
     src: wol
     dest: /etc/init.d/
-- service:
+    mode: '0644'
+
+- name: Enable wol service
+  ansible.builtin.service:
     name: wol
     enabled: true

@@ -1,16 +1,19 @@
 ---
-- name: mkdir /etc/prometheus
-  file:
+- name: Make directory /etc/prometheus
+  ansible.builtin.file:
     path: /etc/prometheus
     state: directory
-    mode: 0755
-- name: prometheus - set config
+    mode: '0755'
+
+- name: Prometheus - set config
   tags: prom
   ansible.builtin.template:
     src: '{{ cfg_file }}'
     dest: /etc/prometheus/prometheus.yml
-  notify: container prometheus restart
-- name: prometheus - define container
+    mode: '0644'
+  notify: Container prometheus restart
+
+- name: Prometheus - define container
   tags: prom
   containers.podman.podman_container:
     name: prometheus

@@ -1,9 +1,13 @@
 ---
-- name: generate cloud-init
-  template: src=cloudinit.j2 dest=/tmp/meta-data
-- name: generate user-data
-  template:
+- name: Generate cloud-init
+  ansible.builtin.template:
+    src: cloudinit.j2
+    dest: /tmp/meta-data
+    mode: '0644'
+
+- name: Generate user-data
+  ansible.builtin.template:
     src: user-data.j2
     dest: /tmp/user-data
-- name: genisoimage
-  command: genisoimage -output "/var/lib/libvirt/images/{{ item }}.iso" -volid cidata -joliet -r /tmp/meta-data /tmp/user-data
+    mode: '0644'
+  notify: Genisoimage

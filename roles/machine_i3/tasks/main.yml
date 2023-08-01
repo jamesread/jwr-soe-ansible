@@ -1,5 +1,6 @@
 ---
-- package:
+- name: Install i3
+  ansible.builtin.package:
     name:
       - i3
       - i3status

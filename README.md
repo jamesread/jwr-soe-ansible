@@ -1,8 +1,8 @@
-# jwr-ansible-soe
+# jamesread.soe Ansible Collection (jwr-soe-ansible)
 
-An Ansible [collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) of roles for [James Read's](http://jread.com/) (JWR) [Standard Operating Environment](https://en.wikipedia.org/wiki/Standard_Operating_Environment) (SOE). 
+An Ansible [collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) of roles for [James Read's](http://jread.com/) (JWR) [Standard Operating Environment](https://en.wikipedia.org/wiki/Standard_Operating_Environment) (SOE).
 
-This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.com/jamesread/soe). 
+This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.com/jamesread/soe).
 
 ## Roles
 

@@ -1,6 +1,6 @@
 ---
-- name: restart - filebeat
-  systemd:
+- name: Restart - filebeat
+  ansible.builtin.systemd_service:
     name: filebeat
     state: restarted
     masked: false

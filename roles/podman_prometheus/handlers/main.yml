@@ -1,5 +1,5 @@
 ---
-- name: container prometheus restart
+- name: Container prometheus restart
   tags: prom
   containers.podman.podman_container:
     name: prometheus

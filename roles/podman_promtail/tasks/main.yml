@@ -1,15 +1,17 @@
 ---
-- name: config - promtail dir
-  file:
+- name: Config - promtail dir
+  ansible.builtin.file:
     path: /etc/promtail/
     state: directory
-    mode: 0644
-- name: config - promtail
-  copy:
+    mode: '0644'
+
+- name: Config - promtail
+  ansible.builtin.copy:
     src: files/promtail.yml
     dest: /etc/promtail/config.yml
-    mode: 0644
-- name: container - promtail
+    mode: '0644'
+
+- name: Container - promtail
   containers.podman.podman_container:
     name: promtail
     image: grafana/promtail

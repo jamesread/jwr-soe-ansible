@@ -1,5 +1,5 @@
 ---
-- name: container - elasticsearch
+- name: Container - elasticsearch
   containers.podman.podman_container:
     name: elastic
     image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
@@ -11,17 +11,20 @@
     ports:
       - 9200:9200
       - 9300:9300
-- name: file - fluentd.conf
-  copy:
+
+- name: File - fluentd.conf
+  ansible.builtin.copy:
     src: fluentd.conf
     dest: /etc/fluentd.conf
-    mode: 0644
-- name: file - kibana.yml
-  copy:
+    mode: '0644'
+
+- name: File - kibana.yml
+  ansible.builtin.copy:
     src: kibana.yml
     dest: /etc/kibana.yml
-    mode: 0644
-- name: container - kibana
+    mode: '0644'
+
+- name: Container - kibana
   containers.podman.podman_container:
     image: docker.elastic.co/kibana/kibana:7.11.0
     name: kibana

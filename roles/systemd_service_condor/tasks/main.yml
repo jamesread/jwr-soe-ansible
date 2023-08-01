@@ -1,5 +1,5 @@
 ---
-- name: package - condor
-  package:
+- name: Package - condor
+  ansible.builtin.package:
     name: condor
-    state: latest
+    state: lates

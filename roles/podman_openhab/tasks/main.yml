@@ -1,5 +1,5 @@
 ---
-- name: container - openhab
+- name: Container - openhab
   containers.podman.podman_container:
     name: openhab
     image: openhab/openhab:latest-alpine

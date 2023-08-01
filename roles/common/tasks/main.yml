@@ -21,12 +21,11 @@
     name: jamesread.soe.machine_podman
 
 - name: Install systemd-exporter
-  ansible.builtin.include_role:
-    name: jamesread.soe.podman_container
-  vars:
+  containers.podman.podman_container:
     name: systemd-exporter
     image: quay.io/prometheuscommunity/systemd-exporter:latest
-  tags: systemd
+    state: started
+  tags: systemd-exporter
 
 - name: Firewall rule - node-exporter
   ansible.posix.firewalld:
@@ -77,12 +76,12 @@
 
 - name: Systemd daemon reload
   tags: smart
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     daemon_reload: true
 
 - name: Enable Smartmon Timer in systemd
   tags: smart
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: prometheus_smartmon.timer
     state: started
     enabled: true

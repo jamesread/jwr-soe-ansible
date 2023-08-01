@@ -1,14 +1,14 @@
 ---
-baseImageDirectory: /jwrFs/Software/PC/OS/
-baseImageFilename: Fedora-Cloud-Base-35-1.2.x86_64.qcow2
-vmTitle: untitled
-nameFormat: '{{ vmTitle }}-%02x'
+base_image_directory: /jwrFs/Software/PC/OS/
+base_image_filename: Fedora-Cloud-Base-35-1.2.x86_64.qcow2
+vm_title: untitled
+name_format: '{{ vmTitle }}-%02x'
 count: 1
-diskSize: 8
-ramMb: 4096
-vcpuCount: 2
-useCloudInit: false
-rawDisk: 0
-vmCustomize: cloud-init
-extraVmCustomize:
-extraVirtInstall:
+disk_size: 8
+ram_mb: 4096
+vcpu_count: 2
+use_cloud_init: false
+raw_disk: 0
+vm_customize: cloud-init
+extra_vm_customize:
+extra_virt_install:

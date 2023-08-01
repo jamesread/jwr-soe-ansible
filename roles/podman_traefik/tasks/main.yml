@@ -1,10 +1,12 @@
 ---
-- name: container - traefik - config
-  copy:
+- name: Container - traefik - config
+  ansible.builtin.copy:
     src: '{{ traefik_config }}'
     dest: '{{ traefik_volume }}/apps.json'
-  notify: container traefik restart
-- name: container - traefik
+    mode: '0644'
+  notify: Container traefik restart
+
+- name: Container - traefik
   tags: traefik
   containers.podman.podman_container:
     name: traefik

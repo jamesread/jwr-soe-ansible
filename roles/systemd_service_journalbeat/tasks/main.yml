@@ -16,7 +16,7 @@
   notify: restart - journalbeat
 
 - name: Service - journalbeat
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: journalbeat
     state: started
     masked: false

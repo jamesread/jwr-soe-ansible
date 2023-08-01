@@ -1,6 +1,6 @@
 ---
-- name: install workstation packages
-  package:
+- name: Install workstation packages
+  ansible.builtin.package:
     state: present
     name:
       - okular

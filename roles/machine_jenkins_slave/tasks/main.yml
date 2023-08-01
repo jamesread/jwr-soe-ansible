@@ -1,6 +1,6 @@
 ---
-- name: package - jenkins and lots of stuff
-  package:
+- name: Package - jenkins and lots of stuff
+  ansible.builtin.package:
     state: present
     name:
       - zip

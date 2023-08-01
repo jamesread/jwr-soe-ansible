@@ -1,2 +1,4 @@
 **/*.swp
 **/*.swo
+*/.cache
+/ansible-navigator.log

@@ -1,19 +1,22 @@
 ---
-- name: gpgkey - filebeat
-  rpm_key:
+- name: GPGkey - filebeat
+  ansible.builtin.rpm_key:
     state: present
     key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-- name: package - filebeat
-  package:
+
+- name: Package - filebeat
+  ansible.builtin.package:
     name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.11.1-x86_64.rpm
-- name: config - filebeat
-  copy:
+
+- name: Config - filebeat
+  ansible.builtin.copy:
     src: files/filebeat.yml
     dest: /etc/filebeat/filebeat.yml
-    mode: 0644
-  notify: restart - filebeat
-- name: service - filebeat
-  systemd:
+    mode: '0644'
+  notify: Restart - filebeat
+
+- name: Service - filebeat
+  ansible.builtin.systemd_service:
     name: filebeat
     state: started
     masked: false

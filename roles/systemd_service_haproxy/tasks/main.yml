@@ -1,26 +1,29 @@
 ---
-- name: package - haproxy
-  package:
+- name: Package - haproxy
+  ansible.builtin.package:
     name: haproxy
     state: present
-- name: sebool - haproxy
+
+- name: SEbool - haproxy
   tags: haproxy
   ansible.posix.seboolean:
     name: haproxy_connect_any
     state: true
     persistent: true
     ignore_selinux_state: true
-- name: template - haproxy
+
+- name: Template - haproxy
   tags: haproxy
-  template:
+  ansible.builtin.template:
     src: '{{ cfg_file }}'
     dest: /etc/haproxy/haproxy.cfg
-    mode: 0644
+    mode: '0644'
   notify:
-    - service haproxy restart
-- name: service - haproxy
+    - Service haproxy restart
+
+- name: Service - haproxy
   tags: haproxy
-  service:
+  ansible.builtin.service:
     name: haproxy
     state: started
     enabled: true

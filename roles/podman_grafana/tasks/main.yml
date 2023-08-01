@@ -1,8 +1,9 @@
 ---
-- name: container - grafana - print base path
-  debug:
+- name: Container - grafana - print base path
+  ansible.builtin.debug:
     msg: '{{ container_podman_volume }}'
-- name: container - grafana
+
+- name: Container - grafana
   containers.podman.podman_container:
     name: grafana
     image: docker.io/grafana/grafana

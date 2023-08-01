@@ -1,15 +1,17 @@
 ---
-- name: config - loki dir
-  file:
+- name: Config - loki dir
+  ansible.builtin.file:
     path: /etc/loki/
     state: directory
-    mode: 0644
-- name: config - loki
-  copy:
+    mode: '0644'
+
+- name: Config - loki
+  ansible.builtin.copy:
     src: files/loki.yml
     dest: /etc/loki/local-config.yaml
-    mode: 0644
-- name: container - loki
+    mode: '0644'
+
+- name: Container - loki
   containers.podman.podman_container:
     name: loki
     image: grafana/loki

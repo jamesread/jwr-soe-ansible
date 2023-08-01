@@ -1,18 +1,23 @@
 ---
-- name: mkdir config directory
-  file:
+- name: Make directory config
+  ansible.builtin.file:
     path: /etc/prometheus-gmail-exporter
     state: directory
-    mode: 0755
-- name: tpl - secret file
+    mode: '0755'
+
+- name: Template - secret file
   ansible.builtin.template:
     src: '{{ secret_file }}'
     dest: /etc/prometheus-gmail-exporter/client_secret.json
-- name: tpl - config file
+    mode: '0644'
+
+- name: Template - config file
   ansible.builtin.template:
     src: '{{ config_file }}'
     dest: /etc/prometheus-gmail-exporter/prometheus-gmail-exporter.cfg
-- name: prometheus - define container
+    mode: '0644'
+
+- name: Prometheus - define container
   containers.podman.podman_container:
     name: prometheus-gmail-exporter
     image: jamesread/prometheus-gmail-exporter

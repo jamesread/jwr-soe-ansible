@@ -1,6 +1,7 @@
 ---
-- name: install sysadmin packages
-  package:
+- name: Install sysadmin packages
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+  ansible.builtin.package:
     state: present
     name:
       - vim-enhanced
@@ -9,4 +10,3 @@
       - vim-nerdtree
       - htop
       - vifm
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'

@@ -1,6 +1,6 @@
 ---
-- name: restart - journalbeat
-  systemd:
+- name: Restart - journalbeat
+  ansible.builtin.systemd_service:
     name: journalbeat
     state: restarted
     masked: false

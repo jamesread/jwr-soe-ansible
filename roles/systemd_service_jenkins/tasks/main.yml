@@ -1,6 +1,11 @@
 ---
 - name: Jenkins repo
-  ansible.builtin.yum_repository: name=jenkins baseurl=http://pkg.jenkins.io/redhat gpgcheck=no enabled=yes description=Jenkins
+  ansible.builtin.yum_repository:
+    name: jenkins
+    baseurl: http://pkg.jenkins.io/redhat
+    gpgcheck: false
+    enabled: true
+    description: Jenkins
 
 - name: Package - jenkins and lots of stuff
   ansible.builtin.package:
@@ -36,16 +41,17 @@
 - name: Find initial admin password file
   ansible.builtin.stat:
     path: /var/lib/jenkins/secrets/initialAdminPassword
-  register: initialAdminPasswordFile
+  register: inital_admin_password_file
 
 - name: Get initial admin password
   ansible.builtin.set_fact:
-    adminPassword: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
-  when: initialAdminPasswordFile.stat.exists
+    admin_password: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
+  when: inital_admin_password_file.stat.exists
 
 - name: Admin Password
-  ansible.builtin.debug: msg={{ adminPassword }}
-  when: initialAdminPasswordFile.stat.exists
+  ansible.builtin.debug:
+    msg: '{{ admin_password }}'
+  when: inital_admin_password_file.stat.exists
 
 - name: Copy proxy conf to httpd
   ansible.builtin.copy:
@@ -60,13 +66,15 @@
     mode: '0644'
 
 - name: SElinux - httpd_can_network_connect
-  ansible.builtin.seboolean:
+  ansible.posix.seboolean:
     name: httpd_can_network_connect
     state: true
     persistent: true
 
 - name: Service start {{ item }}
-  ansible.builtin.service: name={{ item }} state=started
+  ansible.builtin.service:
+    name: '{{ item }}'
+    state: started
   with_items:
     - httpd
     - jenkins

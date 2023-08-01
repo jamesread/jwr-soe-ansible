@@ -1,10 +1,12 @@
 ---
-- name: container - dashboard - config
-  copy:
+- name: Container - dashboard - config
+  ansible.builtin.copy:
     src: '{{ dashboard_config }}'
     dest: '{{ dashboard_volume }}/apps.json'
-  notify: container - dashboard - restart
-- name: container - dashboard - define
+    mode: '0644'
+  notify: Container - dashboard - restart
+
+- name: Container - dashboard - define
   tags: dashboard
   containers.podman.podman_container:
     name: dashboard
@@ -17,8 +19,9 @@
       - 8383:8080
     generate_systemd:
       path: /etc/systemd/system/
-- name: container - dashboard - start
-  service:
+
+- name: Container - dashboard - start
+  ansible.builtin.service:
     name: container-dashboard
     state: started
     enabled: true
