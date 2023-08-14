@@ -1,4 +1,5 @@
 **/*.swp
 **/*.swo
-*/.cache
+/.cache
 /ansible-navigator.log
+/*.tar.gz
