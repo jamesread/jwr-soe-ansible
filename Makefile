@@ -1,3 +1,6 @@
+build:
+	ansible-galaxy collection build .
+
 yamlfix:
 	yamlfix roles
 
@@ -6,4 +9,3 @@ lint:
 
 publish:
 	ansible-galaxy collection publish
-
