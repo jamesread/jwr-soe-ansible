@@ -1,3 +1,5 @@
 ---
 collections:
   - name: containers.podman
+roles:
+  - name: devnullcake.copr-repository
