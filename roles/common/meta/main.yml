@@ -3,7 +3,7 @@ galaxy_info:
   author: jamesread
   description: Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
   license: GPL-3.0-or-later
-  min_ansible_version: "2.7"
+  min_ansible_version: '2.7'
   platforms:
     - name: EL
       versions:
@@ -12,6 +12,3 @@ galaxy_info:
     - name: Fedora
       versions:
         - all
-
-dependencies:
-  - role: devnullcake.copr-repository

@@ -15,7 +15,7 @@
 - name: Creating multiple instances
   when: count|int > 1
   block:
-    - name: "Create VM {{ vm_title }}"
+    - name: Create VM {{ vm_title }}
       ansible.builtin.include_tasks:
         file: create.yml
       with_sequence: start=1 end={{ count }} format={{ nameFormat }}
@@ -27,6 +27,6 @@
       ansible.builtin.set_fact:
         item: '{{ vm_title }}'
 
-    - name: "Create VM {{ vm_title }}"
+    - name: Create VM {{ vm_title }}
       ansible.builtin.include_tasks:
         file: create.yml
