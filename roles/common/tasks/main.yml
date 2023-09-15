@@ -9,6 +9,12 @@
     file: family_deb.yml
   when: ansible_distribution == 'Debian'
 
+- name: Install IP Address issue file
+  ansible.builtin.copy:
+    src: ipaddress.issue
+    dest: /etc/issue.d/
+    mode: '0644'
+
   # Start NTP
   # - service: name={{ item }} state=started enabled=yes
   #  name: start essential services
