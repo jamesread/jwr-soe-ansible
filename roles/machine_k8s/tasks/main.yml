@@ -57,7 +57,7 @@
     mode: '0644'
 
 - name: Modprobe netfilter
-  community.general.system.modprobe:
+  community.general.modprobe:
     name: br_netfilter
     state: present
 
