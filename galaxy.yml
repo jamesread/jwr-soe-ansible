@@ -2,7 +2,7 @@
 namespace: jamesread
 name: soe
 description: A standard operating environment collection.
-version: 4.5.1
+version: 4.5.2
 readme: README.md
 
 authors:
