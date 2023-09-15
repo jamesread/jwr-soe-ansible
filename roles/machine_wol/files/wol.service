@@ -1,0 +1,10 @@
+[Unit]
+Description=wol-enable
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/wol-enable
+
+[Install]
+WantedBy=multi-user.target

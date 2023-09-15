@@ -8,6 +8,6 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-IF=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}')
+IF=$(ip link | awk -F: '$0 !~ "lo|vir|podman|wl|^[^0-9]"{print $2;getline}')
 /sbin/ethtool -s $IF wol g
 echo "WOL enabled for interface: $IF"

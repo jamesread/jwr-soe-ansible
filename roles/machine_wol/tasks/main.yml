@@ -11,10 +11,18 @@
 - name: Copy wol script
   ansible.builtin.copy:
     src: wol
-    dest: /etc/init.d/
+    dest: /usr/bin/
+    mode: '0755'
+
+- name: Copy systemd unit
+  ansible.builtin.copy:
+    src: wol.service
+    dest: /etc/systemd/system/
     mode: '0644'
 
 - name: Enable wol service
-  ansible.builtin.service:
-    name: wol
+  ansible.builtin.systemd_service:
+    name: wol-enable
+    daemon_reload: true
+    state: started
     enabled: true
