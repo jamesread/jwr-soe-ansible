@@ -11,8 +11,13 @@
 - name: Copy wol script
   ansible.builtin.copy:
     src: wol
-    dest: /usr/bin/
+    dest: /usr/bin/wol-enable
     mode: '0755'
+
+- name: Run wol script
+  ansible.builtin.command: /usr/bin/wol-enable
+  register: output
+  changed_when: output.rc != 0
 
 - name: Copy systemd unit
   ansible.builtin.copy:
@@ -22,7 +27,7 @@
 
 - name: Enable wol service
   ansible.builtin.systemd_service:
-    name: wol-enable
+    name: wol
     daemon_reload: true
     state: started
     enabled: true
