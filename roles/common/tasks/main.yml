@@ -31,6 +31,15 @@
     name: systemd-exporter
     image: quay.io/prometheuscommunity/systemd-exporter:latest
     state: started
+    ports:
+      - "9558:9558"
+  tags: systemd-exporter
+
+- name: Firewall rule - systemd-exporter
+  ansible.posix.firewalld:
+    port: 9558/tcp
+    permanent: true
+    state: enabled
   tags: systemd-exporter
 
 - name: Firewall rule - node-exporter
@@ -38,17 +47,53 @@
     port: 9100/tcp
     permanent: true
     state: enabled
+  tags: node-exporter
 
 - name: Package - node-exporter
   ansible.builtin.package:
     name: node_exporter
     state: latest
+  tags: node-exporter
 
 - name: Service - node-exporter
   ansible.builtin.service:
     name: node_exporter
     state: started
     enabled: true
+  tags: node-exporter
+
+- name: Copy script - prom smartmon
+  ansible.builtin.copy:
+    src: files/prometheus_smartmon.sh
+    dest: /usr/local/sbin/prometheus_smartmon.sh
+    mode: '0755'
+  tags: node-exporter
+
+- name: Smart timer
+  ansible.builtin.copy:
+    src: files/prometheus_smartmon.timer
+    dest: /etc/systemd/system/prometheus_smartmon.timer
+    mode: '0644'
+  tags: node-exporter
+
+- name: Smart service
+  ansible.builtin.copy:
+    src: files/prometheus_smartmon.service
+    dest: /etc/systemd/system/prometheus_smartmon.service
+    mode: '0644'
+  tags: node-exporter
+
+- name: Systemd daemon reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  tags: node-exporter
+
+- name: Enable Smartmon Timer in systemd
+  ansible.builtin.systemd_service:
+    name: prometheus_smartmon.timer
+    state: started
+    enabled: true
+  tags: node-exporter
 
 - name: Update the /etc/ssh/sshd_config file
   ansible.builtin.lineinfile:
@@ -58,36 +103,3 @@
     insertafter: EOF
     state: present
   notify: Restart ssh
-
-- name: Copy script - prom smartmon
-  tags: smart
-  ansible.builtin.copy:
-    src: files/prometheus_smartmon.sh
-    dest: /usr/local/sbin/prometheus_smartmon.sh
-    mode: '0755'
-
-- name: Smart timer
-  tags: smart
-  ansible.builtin.copy:
-    src: files/prometheus_smartmon.timer
-    dest: /etc/systemd/system/prometheus_smartmon.timer
-    mode: '0644'
-
-- name: Smart service
-  tags: smart
-  ansible.builtin.copy:
-    src: files/prometheus_smartmon.service
-    dest: /etc/systemd/system/prometheus_smartmon.service
-    mode: '0644'
-
-- name: Systemd daemon reload
-  tags: smart
-  ansible.builtin.systemd_service:
-    daemon_reload: true
-
-- name: Enable Smartmon Timer in systemd
-  tags: smart
-  ansible.builtin.systemd_service:
-    name: prometheus_smartmon.timer
-    state: started
-    enabled: true
