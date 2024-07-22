@@ -32,7 +32,7 @@
     image: quay.io/prometheuscommunity/systemd-exporter:latest
     state: started
     ports:
-      - "9558:9558"
+      - 9558:9558
   tags: systemd-exporter
 
 - name: Firewall rule - systemd-exporter
