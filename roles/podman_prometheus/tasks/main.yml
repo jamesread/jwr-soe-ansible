@@ -15,7 +15,7 @@
 
 - name: Prometheus - set alert rules
   tags: prom
-  ansible.builtin.template:
+  ansible.builtin.copy:
     src: '{{ alert_file }}'
     dest: /etc/prometheus/alert.rules
     mode: '0644'
