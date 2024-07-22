@@ -1,2 +1,3 @@
 ---
 cfg_file: prometheus.yml
+alert_file: alert.rules
