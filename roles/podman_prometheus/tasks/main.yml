@@ -11,7 +11,7 @@
     src: '{{ cfg_file }}'
     dest: /etc/prometheus/prometheus.yml
     mode: '0644'
-  notify: Container prometheus restart
+  notify: Container prometheus reload config
 
 - name: Prometheus - set alert rules
   tags: prom
@@ -19,7 +19,7 @@
     src: '{{ alert_file }}'
     dest: /etc/prometheus/alert.rules
     mode: '0644'
-  notify: Container prometheus restart
+  notify: Container prometheus reload config
 
 - name: Prometheus - define container
   tags: prom

@@ -12,3 +12,8 @@
     restart: true
     ports:
       - 9090:9090
+
+- name: Container prometheus reload
+  tags: prom
+  ansible.builtin.command: kill --signal=SIGHUP $(pidof prometheus)
+  changed_when: true
