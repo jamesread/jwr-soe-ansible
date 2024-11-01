@@ -21,16 +21,19 @@
     mode: '0644'
   notify: Container prometheus reload config
 
-- name: Prometheus - define container
+- name: Prometheus - copy quadlet
   tags: prom
-  containers.podman.podman_container:
+  ansible.builtin.copy:
+    src: 'prometheus.container'
+    dest: /etc/containers/systemd/'
+    mode: '0600'
+  notify: Container prometheus reload config
+
+- name: Start Prometheus
+  ansible.builtin.service:
     name: prometheus
-    image: docker.io/prom/prometheus
     state: started
-    privileged: true
-    conmon_pidfile: /etc/prometheus/prometheus.pid
-    security_opt: label=disable
-    volume: /etc/prometheus/:/etc/prometheus
-    user: root
-    ports:
-      - 9090:9090
+    owner: root
+    group: root
+    enabled: true
+  tags: prom
