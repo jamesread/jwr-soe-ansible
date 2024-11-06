@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus
+After=local-fs.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Container]
+Image=docker.io/prom/prometheus:latest
+PublishPort=9090:9090
+ContainerName=Prometheus
+Volume=prometheus-data:/prometheus/
+Volume=/etc/prometheus/:/etc/prometheus
