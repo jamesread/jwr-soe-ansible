@@ -10,7 +10,7 @@ Installs a traefik container.
 
 ## Example usage in a playbook
 
-```
+```yaml
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.podman_traefik

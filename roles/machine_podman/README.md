@@ -10,7 +10,7 @@ Installs podman.
 
 ## Example usage in a playbook
 
-```
+```yaml
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.machine_podman

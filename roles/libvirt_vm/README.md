@@ -21,7 +21,7 @@ Creates a libvirtvm.
 
 ## Example usage in a playbook
 
-```
+```yaml
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.libvirt_vm

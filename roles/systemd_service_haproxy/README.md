@@ -9,7 +9,7 @@ Installs haproxy as a service.
 
 ## Example usage in a playbook
 
-```
+```yaml
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.systemd_service_haproxy

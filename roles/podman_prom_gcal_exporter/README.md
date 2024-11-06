@@ -10,7 +10,7 @@ Installs a Google Calendar Prometheus exporter.
 
 ## Example usage in a playbook
 
-```
+```yaml
 - hosts: [myserver]
   roles
     - roles: jamesread.soe.podman_prom_gcal_exporter
