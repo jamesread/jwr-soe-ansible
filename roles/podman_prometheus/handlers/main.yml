@@ -1,19 +1,5 @@
 ---
-- name: Container prometheus restart
-  tags: prom
-  containers.podman.podman_container:
-    name: prometheus
-    image: prom/prometheus
-    state: started
-    privileged: true
-    security_opt: label=disable
-    volume: /etc/prometheus/:/etc/prometheus
-    user: root
-    restart: true
-    ports:
-      - 9090:9090
-
-- name: Container prometheus reload
+- name: Container prometheus reload config
   tags: prom
   ansible.builtin.command: kill --signal=SIGHUP $(pidof prometheus)
   changed_when: true
