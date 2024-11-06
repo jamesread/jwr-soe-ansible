@@ -46,7 +46,7 @@ This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.co
 *  jamesread.soe.[common](roles/common) - Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
 *  jamesread.soe.[libvirt_vm](roles/libvirt_vm) - Creates a libvirtvm.
 
-## Usage 
+## Usage
 
 Install the collection like this
 
@@ -54,17 +54,19 @@ Install the collection like this
 
 Create a playbook like this
 
-    #!/usr/bin/env ansible-playbook
+```yaml
+#!/usr/bin/env ansible-playbook
 
-    - hosts: 
-        - all
-      roles: 
-        - name: jamesread.soe.common
-          myVar: foobar
+- hosts:
+	- all
+  roles:
+	- name: jamesread.soe.common
+	  myVar: foobar
+```
 
 ## Principles
 
-* Separation of data (mostly config files) and reusable code (roles). 
+* Separation of data (mostly config files) and reusable code (roles).
 * Separation of layers (ie, containers should not depend on an OS thing)
 
 ## Layers
@@ -78,4 +80,4 @@ Create a playbook like this
 
 No `site.yml`. I started off with this, but honestly have no idea where it's
 supposed to fit if you're trying to promote role re-use and separation of
-data/code. 
+data/code.
