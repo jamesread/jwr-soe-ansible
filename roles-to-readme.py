@@ -42,9 +42,9 @@ def extract_roles():
 
                 r.description = role_md['galaxy_info']['description']
 
-        except Exception as e: 
+        except Exception as e:
             print(d, str(e))
- 
+
         r.variables = extract_role_variables(r)
 
         roles.append(r)
@@ -103,10 +103,10 @@ def generate_role_readme(r):
 
 
     ret += "\n\n## Example usage in a playbook\n\n"
-    ret += "```\n"
+    ret += "```yaml\n"
     ret += "- hosts: [myserver]\n"
-    ret += "  roles\n"
-    ret += "    - roles: jamesread.soe." + r.name + "\n"
+    ret += "  roles:\n"
+    ret += "    - role: jamesread.soe." + r.name + "\n"
 
     if len(r.variables) > 0:
         ret += "      vars:\n"

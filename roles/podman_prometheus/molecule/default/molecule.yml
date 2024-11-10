@@ -1,0 +1,16 @@
+dependency:
+  name: galaxy
+driver:
+  options:
+    managed: false
+    login_cmd_template: "podman exec -it {instance} bash"
+    ansible_connection_options:
+      ansible_connection: podman
+platforms:
+  - name: instance
+    image: registry.fedoraproject.org/fedora:latest
+    pre_build_image: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

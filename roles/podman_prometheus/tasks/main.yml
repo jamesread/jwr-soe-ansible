@@ -33,7 +33,5 @@
   ansible.builtin.service:
     name: prometheus
     state: started
-    owner: root
-    group: root
     enabled: true
   tags: prom

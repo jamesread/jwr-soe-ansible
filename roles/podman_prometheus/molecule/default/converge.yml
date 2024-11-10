@@ -1,0 +1,18 @@
+- name: Fail if molecule group is missing
+  hosts: localhost
+  tasks:
+    - name: Print some info
+      ansible.builtin.debug:
+        msg: "{{ groups }}"
+
+    - name: Assert group existence
+      ansible.builtin.assert:
+        that: "'molecule' in groups"
+        fail_msg: |
+          molecule group was not found inside inventory groups: {{ groups }}
+
+- name: Test podman_prometheus
+  hosts: molecule
+  gather_facts: false
+  roles:
+    - role: jamesread.soe.podman_prometheus
