@@ -25,7 +25,7 @@
   tags: prom
   ansible.builtin.copy:
     src: 'prometheus.container'
-    dest: /etc/containers/systemd/'
+    dest: /etc/containers/systemd/prometheus.container
     mode: '0600'
   notify: Container prometheus reload config
 
