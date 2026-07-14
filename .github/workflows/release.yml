@@ -1,7 +1,14 @@
+---
 name: release
 
 on: # yamllint disable-line
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: Collection version / git tag to publish
+        required: true
+        type: string
   push:
     tags: ['*']
 
@@ -16,6 +23,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Set up Python 3.
         uses: actions/setup-python@v5
@@ -26,6 +35,5 @@ jobs:
         run: |
           pip3 install ansible-core
 
-
       - name: Release to Ansible Galaxy
-        run: ansible-playbook -i 'localhost,' galaxy-deploy.yml -e "github_tag=${{ github.ref }}"
+        run: ansible-playbook -i 'localhost,' galaxy-deploy.yml -e "github_tag=${{ inputs.tag || github.ref }}"
