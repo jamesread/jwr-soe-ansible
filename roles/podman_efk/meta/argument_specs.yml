@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: Install Elasticsearch/Fluentd/Kibana containers.
+    options:
+      podman_efk_elastic_password:
+        type: str
+        default: ''
+        description: Elasticsearch elastic user password (required; set via Vault).
+      podman_efk_kibana_encryption_key:
+        type: str
+        default: ''
+        description: Kibana xpack.security.encryptionKey (required; set via Vault).
+      podman_efk_elasticsearch_host:
+        type: str
+        default: http://10.88.0.1:9200
+        description: Elasticsearch URL for Kibana.

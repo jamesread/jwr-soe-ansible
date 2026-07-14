@@ -4,17 +4,17 @@ Installs a Dashboard container.
 ## Variables
 | Variable | Default |
 |----------|---------|
-| `dashboard_volume` | /containers/dashboard/ |
-| `dashboard_config` | dashboard.json |
+| `podman_dashboard_volume` | /containers/dashboard/ |
+| `podman_dashboard_config` | dashboard.json |
 
 
 ## Example usage in a playbook
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.podman_dashboard
+  roles:
+    - role: jamesread.soe.podman_dashboard
       vars:
-        dashboard_volume: /containers/dashboard/
-        dashboard_config: dashboard.json
+        podman_dashboard_volume: /containers/dashboard/
+        podman_dashboard_config: dashboard.json
 ```

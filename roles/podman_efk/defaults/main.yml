@@ -1,0 +1,4 @@
+---
+podman_efk_elastic_password: ''
+podman_efk_kibana_encryption_key: ''
+podman_efk_elasticsearch_host: http://10.88.0.1:9200

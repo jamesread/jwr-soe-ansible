@@ -9,6 +9,6 @@ This role does not have any variables.
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.podman_promtail
+  roles:
+    - role: jamesread.soe.podman_promtail
 ```

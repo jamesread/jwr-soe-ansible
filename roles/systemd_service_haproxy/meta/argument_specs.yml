@@ -1,0 +1,9 @@
+---
+argument_specs:
+  main:
+    short_description: Install HAProxy as a systemd service.
+    options:
+      systemd_service_haproxy_cfg_file:
+        type: str
+        default: haproxy.cfg
+        description: HAProxy config template source filename.

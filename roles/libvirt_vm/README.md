@@ -4,39 +4,49 @@ Creates a libvirtvm.
 ## Variables
 | Variable | Default |
 |----------|---------|
-| `base_image_directory` | /jwrFs/Software/PC/OS/ |
-| `base_image_filename` | Fedora-Cloud-Base-35-1.2.x86_64.qcow2 |
-| `vm_title` | untitled |
-| `name_format` | {{ vmTitle }}-%02x |
-| `count` | 1 |
-| `disk_size` | 8 |
-| `ram_mb` | 4096 |
-| `vcpu_count` | 2 |
-| `use_cloud_init` | False |
-| `raw_disk` | 0 |
-| `vm_customize` | cloud-init |
-| `extra_vm_customize` | None |
-| `extra_virt_install` | None |
+| `libvirt_vm_base_image_directory` | /jwrFs/Software/PC/OS/ |
+| `libvirt_vm_base_image_filename` | Fedora-Cloud-Base-35-1.2.x86_64.qcow2 |
+| `libvirt_vm_title` | untitled |
+| `libvirt_vm_name_format` | {{ libvirt_vm_title }}-%02x |
+| `libvirt_vm_count` | 1 |
+| `libvirt_vm_disk_size` | 8 |
+| `libvirt_vm_ram_mb` | 4096 |
+| `libvirt_vm_vcpu_count` | 2 |
+| `libvirt_vm_use_cloud_init` | False |
+| `libvirt_vm_raw_disk` | 0 |
+| `libvirt_vm_customize` | cloud-init |
+| `libvirt_vm_extra_customize` | None |
+| `libvirt_vm_extra_virt_install` | None |
+| `libvirt_vm_root_password` |  |
+| `libvirt_vm_ssh_authorized_keys` | [] |
+| `libvirt_vm_ssh_inject_key_file` | /root/.ssh/id_rsa.pub |
+| `libvirt_vm_ssh_pwauth` | False |
+| `libvirt_vm_permit_root_login` | False |
 
 
 ## Example usage in a playbook
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.libvirt_vm
+  roles:
+    - role: jamesread.soe.libvirt_vm
       vars:
-        base_image_directory: /jwrFs/Software/PC/OS/
-        base_image_filename: Fedora-Cloud-Base-35-1.2.x86_64.qcow2
-        vm_title: untitled
-        name_format: {{ vmTitle }}-%02x
-        count: 1
-        disk_size: 8
-        ram_mb: 4096
-        vcpu_count: 2
-        use_cloud_init: False
-        raw_disk: 0
-        vm_customize: cloud-init
-        extra_vm_customize: None
-        extra_virt_install: None
+        libvirt_vm_base_image_directory: /jwrFs/Software/PC/OS/
+        libvirt_vm_base_image_filename: Fedora-Cloud-Base-35-1.2.x86_64.qcow2
+        libvirt_vm_title: untitled
+        libvirt_vm_name_format: {{ libvirt_vm_title }}-%02x
+        libvirt_vm_count: 1
+        libvirt_vm_disk_size: 8
+        libvirt_vm_ram_mb: 4096
+        libvirt_vm_vcpu_count: 2
+        libvirt_vm_use_cloud_init: False
+        libvirt_vm_raw_disk: 0
+        libvirt_vm_customize: cloud-init
+        libvirt_vm_extra_customize: None
+        libvirt_vm_extra_virt_install: None
+        libvirt_vm_root_password:
+        libvirt_vm_ssh_authorized_keys: []
+        libvirt_vm_ssh_inject_key_file: /root/.ssh/id_rsa.pub
+        libvirt_vm_ssh_pwauth: False
+        libvirt_vm_permit_root_login: False
 ```

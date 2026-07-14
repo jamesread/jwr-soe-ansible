@@ -2,15 +2,29 @@
 users:
   - name: root
     shell: /bin/bash
+{% if libvirt_vm_ssh_authorized_keys | length > 0 %}
     ssh-authorized-keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCbdHN0m4f6b5+0hyhFud367EXqxmOAs9O2zodSrZC0+xWrK4pQcj8udbdBNsncSaXTw7q+s5bCl+NQ67gqOgYcwdQ1daLsMvt9Nk1YBiNajca2QZjYXCh8njWElHv10n3+rj4Wa4Wne8flZZCguLMPe+ebvs+K1baaveXyDQpyvY695NzYlBlxUAc1gix21RniVh1dvbhZQ5l78apPCb7O2qTIAhVUlAHP6dRfeXlNH9b0as0fdo5PIw97JFA2iFDdwsoCe85m9jtTU7rDf6Jp1fEgGLobGGJCDCmrijM/eqX/aJEHvDhsdJj1lS2fVKqdyFrqoDyg18rzaIJS5skx jamesread@jread.com
+{% for key in libvirt_vm_ssh_authorized_keys %}
+      - {{ key }}
+{% endfor %}
+{% endif %}
+{% if libvirt_vm_root_password | length > 0 %}
 chpasswd:
   list: |
-    root:password
-  expire: False
-ssh_pwauth: True
-disable_root: False
+    root:{{ libvirt_vm_root_password }}
+  expire: false
+{% endif %}
+ssh_pwauth: {{ libvirt_vm_ssh_pwauth | bool }}
+disable_root: false
 runcmd:
+{% if libvirt_vm_ssh_pwauth | bool %}
   - echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+{% else %}
+  - echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+{% endif %}
+{% if libvirt_vm_permit_root_login | bool %}
   - echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+{% else %}
+  - echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+{% endif %}
   - service sshd restart

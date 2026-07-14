@@ -1,3 +1,3 @@
 ---
-cfg_grafana_installed: true
-container_podman_volume: /containers/grafana
+podman_grafana_installed: true
+podman_grafana_volume: /containers/grafana

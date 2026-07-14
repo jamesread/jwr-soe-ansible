@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Dashboard container with Podman.
+    options:
+      podman_dashboard_volume:
+        type: str
+        default: /containers/dashboard/
+        description: Host path mounted for dashboard data.
+      podman_dashboard_config:
+        type: str
+        default: dashboard.json
+        description: Source config file copied into the volume.

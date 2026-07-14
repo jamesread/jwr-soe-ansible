@@ -9,6 +9,6 @@ This role does not have any variables.
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.systemd_service_apachephp
+  roles:
+    - role: jamesread.soe.systemd_service_apachephp
 ```

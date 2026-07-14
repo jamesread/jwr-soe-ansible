@@ -1,0 +1,12 @@
+---
+# kibana
+server.name: kibana
+server.host: '0'
+
+elasticsearch.hosts:
+  - {{ podman_efk_elasticsearch_host }}
+
+elasticsearch.username: elastic
+elasticsearch.password: "{{ podman_efk_elastic_password }}"
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+xpack.security.encryptionKey: "{{ podman_efk_kibana_encryption_key }}"

@@ -5,4 +5,5 @@ skip_list:
 
 exclude_paths:
   - .cache
+  - .ansible
   - roles/**/meta/main.yml

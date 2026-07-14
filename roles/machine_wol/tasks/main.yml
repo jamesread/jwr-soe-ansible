@@ -16,8 +16,8 @@
 
 - name: Run wol script
   ansible.builtin.command: /usr/bin/wol-enable
-  register: output
-  changed_when: output.rc != 0
+  register: machine_wol_cmd
+  changed_when: machine_wol_cmd.rc != 0
 
 - name: Copy systemd unit
   ansible.builtin.copy:

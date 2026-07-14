@@ -1,0 +1,3 @@
+---
+podman_prom_gmail_exporter_config_file: gmail.cfg
+podman_prom_gmail_exporter_secret_file: secrets.json

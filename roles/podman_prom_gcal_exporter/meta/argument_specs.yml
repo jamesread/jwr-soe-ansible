@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Google Calendar Prometheus exporter container.
+    options:
+      podman_prom_gcal_exporter_config_file:
+        type: str
+        default: gcal.cfg
+        description: Exporter config template source.
+      podman_prom_gcal_exporter_secret_file:
+        type: str
+        default: secrets.json
+        description: OAuth/client secret template source (keep out of git).

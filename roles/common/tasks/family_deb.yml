@@ -1,4 +1,4 @@
 ---
 - name: Dummy task for deb
-  ansible.builtin.set_fact:
-    foo: bar
+  ansible.builtin.debug:
+    msg: Debian family placeholder

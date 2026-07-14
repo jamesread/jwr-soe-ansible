@@ -4,17 +4,17 @@ Installs a traefik container.
 ## Variables
 | Variable | Default |
 |----------|---------|
-| `traefik_volume` | /containers/traefik/ |
-| `traefik_config` | traefik.json |
+| `podman_traefik_volume` | /containers/traefik/ |
+| `podman_traefik_config` | traefik.json |
 
 
 ## Example usage in a playbook
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.podman_traefik
+  roles:
+    - role: jamesread.soe.podman_traefik
       vars:
-        traefik_volume: /containers/traefik/
-        traefik_config: traefik.json
+        podman_traefik_volume: /containers/traefik/
+        podman_traefik_config: traefik.json
 ```

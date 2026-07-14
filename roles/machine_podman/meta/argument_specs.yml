@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install and enable Podman.
+    options:
+      machine_podman_traefik_installed:
+        type: bool
+        default: false
+        description: Whether Traefik is expected on this host (for playbook conditionals).
+      machine_podman_haproxy_cfg:
+        type: str
+        default: haproxy.cfg.j2
+        description: HAProxy config template name when used with related roles.

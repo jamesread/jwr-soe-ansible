@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Traefik container with Podman.
+    options:
+      podman_traefik_volume:
+        type: str
+        default: /containers/traefik/
+        description: Host path mounted for Traefik data.
+      podman_traefik_config:
+        type: str
+        default: traefik.json
+        description: Source config file copied into the volume.

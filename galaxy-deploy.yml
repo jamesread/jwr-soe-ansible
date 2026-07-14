@@ -16,8 +16,8 @@
   gather_facts: false
 
   vars:
-    namespace: jamesread
-    collection: soe
+    galaxy_namespace: jamesread
+    galaxy_collection: soe
     # Requires github_tag to be set when calling playbook.
     release_tag: "{{ github_tag.split('/')[-1] }}"
 
@@ -53,5 +53,5 @@
 
     - name: Publish the collection.
       ansible.builtin.command: >
-        ansible-galaxy collection publish ./{{ namespace }}-{{ collection }}-{{ release_tag }}.tar.gz
+        ansible-galaxy collection publish ./{{ galaxy_namespace }}-{{ galaxy_collection }}-{{ release_tag }}.tar.gz
       changed_when: true

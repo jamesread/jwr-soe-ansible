@@ -9,6 +9,6 @@ This role does not have any variables.
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.machine_k8s
+  roles:
+    - role: jamesread.soe.machine_k8s
 ```

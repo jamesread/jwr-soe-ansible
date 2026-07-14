@@ -1,8 +1,8 @@
 ---
 - name: Container - dashboard - config
   ansible.builtin.copy:
-    src: '{{ dashboard_config }}'
-    dest: '{{ dashboard_volume }}/apps.json'
+    src: '{{ podman_dashboard_config }}'
+    dest: '{{ podman_dashboard_volume }}/apps.json'
     mode: '0644'
   notify: Container - dashboard - restart
 
@@ -14,7 +14,7 @@
     privileged: true
     security_opt: label=disable
     user: root
-    volume: '{{ dashboard_volume }}/:/app/data/'
+    volume: '{{ podman_dashboard_volume }}/:/app/data/'
     ports:
       - 8383:8080
     generate_systemd:

@@ -1,59 +1,119 @@
 ---
 - name: Printing base image directory
   ansible.builtin.debug:
-    msg: 'using directory: {{ base_image_directory }}'
+    msg: 'using directory: {{ libvirt_vm_base_image_directory }}'
 
 - name: Stat'ing base image
   ansible.builtin.stat:
-    path: '{{ base_image_directory }}/{{ base_image_filename }}'
+    path: '{{ libvirt_vm_base_image_directory }}/{{ libvirt_vm_base_image_filename }}'
+  register: libvirt_vm_base_image
 
-- name: Creating cloud-init file
-  when: vm_customize == "cloud-init"
-  ansible.builtin.include_tasks:
-    file: '{{ base_image_directory }}/{{ base_image_filename }}'
-    dest: /var/lib/libvirt/images/{{ item }}.qcow2
+- name: Fail when base image is missing
+  ansible.builtin.fail:
+    msg: >-
+      Base image not found at
+      {{ libvirt_vm_base_image_directory }}/{{ libvirt_vm_base_image_filename }}
+  when: not libvirt_vm_base_image.stat.exists
+
+- name: Require root password for virt-customize
+  ansible.builtin.assert:
+    that:
+      - libvirt_vm_root_password | length > 0
+    fail_msg: Set libvirt_vm_root_password (e.g. via Ansible Vault) when using virt-customize.
+  when: libvirt_vm_customize == "virt-customize"
+
+- name: Require SSH keys or root password for cloud-init
+  ansible.builtin.assert:
+    that:
+      - (libvirt_vm_ssh_authorized_keys | length > 0) or (libvirt_vm_root_password | length > 0)
+    fail_msg: >-
+      Set libvirt_vm_ssh_authorized_keys and/or libvirt_vm_root_password
+      when using cloud-init.
+  when: libvirt_vm_customize == "cloud-init"
+
+- name: Copy base image
+  ansible.builtin.copy:
+    src: '{{ libvirt_vm_base_image_directory }}/{{ libvirt_vm_base_image_filename }}'
+    dest: /var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2
     remote_src: true
     mode: '0644'
 
-- name: Resize disk
-  ansible.builtin.command: qemu-img resize "/var/lib/libvirt/images/{{ item }}.qcow2" "+{{ disk_size }}G"
-  register: output
-  changed_when: output.rc != 0
+- name: Create cloud-init metadata and ISO
+  when: libvirt_vm_customize == "cloud-init"
+  ansible.builtin.include_tasks:
+    file: create-cloud-init.yml
 
-  # - name: create base disk
-  #   command: qemu-img create -f qcow2 -b "{{ baseImageDirectory }}/{{ baseImageFilename }}" /var/lib/libvirt/images/{{item}}.qcow2
+- name: Flush handlers for cloud-init ISO
+  when: libvirt_vm_customize == "cloud-init"
+  ansible.builtin.meta: flush_handlers
+
+- name: Resize disk
+  ansible.builtin.command: qemu-img resize "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2" "+{{ libvirt_vm_disk_size }}G"
+  register: libvirt_vm_cmd
+  changed_when: libvirt_vm_cmd.rc == 0
 
 - name: Run virt-install (cloud-init)
-  when: vm_customize == "cloud-init"
+  when: libvirt_vm_customize == "cloud-init"
   block:
     - name: Run virt-install with cloud-init
-      ansible.builtin.command: virt-install -n '{{ item }}' --memory "{{ ram_mb }}" --disk "/var/lib/libvirt/images/{{ item }}.qcow2" --disk "/var/lib/libvirt/images/{{ item }}.iso,device=cdrom" --import --noautoconsole --os-variant rhel7.0 --vcpus "{{ vcpu_count }}" --cpu host {{ extra_virt_install }}
-      register: output
-      changed_when: output.rc != 0
+      ansible.builtin.command: >-
+        virt-install -n '{{ libvirt_vm_instance }}'
+        --memory "{{ libvirt_vm_ram_mb }}"
+        --disk "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2"
+        --disk "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.iso,device=cdrom"
+        --import --noautoconsole --os-variant rhel7.0
+        --vcpus "{{ libvirt_vm_vcpu_count }}" --cpu host
+        {{ libvirt_vm_extra_virt_install }}
+      register: libvirt_vm_cmd
+      changed_when: libvirt_vm_cmd.rc == 0
 
 - name: Run virt-customize + virt-install
-  when: vm_customize == "virt-customize"
+  when: libvirt_vm_customize == "virt-customize"
   block:
     - name: Customize vm
-      ansible.builtin.command: virt-customize -a "/var/lib/libvirt/images/{{ item }}.qcow2" --root-password password:password --uninstall cloud-init --hostname "{{ item }}" --ssh-inject root:file:/root/.ssh/id_rsa.pub --selinux-relabel {{ extra_vm_customize }}
-      register: output
-      changed_when: output.rc != 0
+      ansible.builtin.command: >-
+        virt-customize -a "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2"
+        --root-password password:{{ libvirt_vm_root_password }}
+        --uninstall cloud-init
+        --hostname "{{ libvirt_vm_instance }}"
+        --ssh-inject root:file:{{ libvirt_vm_ssh_inject_key_file }}
+        --selinux-relabel
+        {{ libvirt_vm_extra_customize }}
+      register: libvirt_vm_cmd
+      changed_when: libvirt_vm_cmd.rc == 0
+      no_log: true
 
     - name: Subscription Manager register
-      ansible.builtin.command: virt-customize -a "/var/lib/libvirt/images/{{ item }}.qcow2" --sm-credentials "{{ rh_username }}:password:{{ rh_password }}" --sm-register --sm-attach auto
+      ansible.builtin.command: >-
+        virt-customize -a "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2"
+        --sm-credentials "{{ rh_username }}:password:{{ rh_password }}"
+        --sm-register --sm-attach auto
       when: rh_username is defined and rh_password is defined
-      register: output
-      changed_when: output.rc != 0
+      register: libvirt_vm_cmd
+      changed_when: libvirt_vm_cmd.rc == 0
+      no_log: true
 
     - name: Run virt-install after virt-customize
-      ansible.builtin.command: virt-install -n '{{ item }}' --memory "{{ ram_mb }}" --disk "/var/lib/libvirt/images/{{ item }}.qcow2" --import --noautoconsole --os-variant rhel7.0 --vcpus "{{ vcpu_count }}" --cpu host {{ extra_virt_install }}
-      register: output
-      changed_when: output.rc != 0
+      ansible.builtin.command: >-
+        virt-install -n '{{ libvirt_vm_instance }}'
+        --memory "{{ libvirt_vm_ram_mb }}"
+        --disk "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2"
+        --import --noautoconsole --os-variant rhel7.0
+        --vcpus "{{ libvirt_vm_vcpu_count }}" --cpu host
+        {{ libvirt_vm_extra_virt_install }}
+      register: libvirt_vm_cmd
+      changed_when: libvirt_vm_cmd.rc == 0
 
 - name: Run virt-install (customization skipped)
-  when: vm_customize == "skip"
+  when: libvirt_vm_customize == "skip"
   block:
     - name: Run virt-install (customization skipped)
-      ansible.builtin.command: virt-install -n '{{ item }}' --memory "{{ ram_mb }}" --disk "/var/lib/libvirt/images/{{ item }}.qcow2" --import --noautoconsole --os-variant rhel7.0 --vcpus "{{ vcpu_count }}" --cpu host {{ extraVirtInstall }}
-      register: output
-      changed_when: output.rc != 0
+      ansible.builtin.command: >-
+        virt-install -n '{{ libvirt_vm_instance }}'
+        --memory "{{ libvirt_vm_ram_mb }}"
+        --disk "/var/lib/libvirt/images/{{ libvirt_vm_instance }}.qcow2"
+        --import --noautoconsole --os-variant rhel7.0
+        --vcpus "{{ libvirt_vm_vcpu_count }}" --cpu host
+        {{ libvirt_vm_extra_virt_install }}
+      register: libvirt_vm_cmd
+      changed_when: libvirt_vm_cmd.rc == 0

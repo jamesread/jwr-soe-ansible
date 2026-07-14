@@ -7,13 +7,13 @@
 
 - name: Template - secret file
   ansible.builtin.template:
-    src: '{{ secret_file }}'
+    src: '{{ podman_prom_gcal_exporter_secret_file }}'
     dest: /etc/prom-gcal-exporter/client_secret.json
     mode: '0644'
 
 - name: Tempplate - config file
   ansible.builtin.template:
-    src: '{{ config_file }}'
+    src: '{{ podman_prom_gcal_exporter_config_file }}'
     dest: /etc/prom-gcal-exporter/prometheus-gcal-exporter.cfg
     mode: '0644'
 

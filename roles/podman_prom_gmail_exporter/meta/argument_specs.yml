@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Gmail Prometheus exporter container.
+    options:
+      podman_prom_gmail_exporter_config_file:
+        type: str
+        default: gmail.cfg
+        description: Exporter config template source.
+      podman_prom_gmail_exporter_secret_file:
+        type: str
+        default: secrets.json
+        description: OAuth/client secret template source (keep out of git).

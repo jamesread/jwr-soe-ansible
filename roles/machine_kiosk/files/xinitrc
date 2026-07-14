@@ -3,4 +3,3 @@
 echo "kiosk xinitrc"
 
 /usr/bin/xset s off -dpms
-

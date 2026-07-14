@@ -4,17 +4,17 @@ Installs a Prometheus container.
 ## Variables
 | Variable | Default |
 |----------|---------|
-| `cfg_file` | prometheus.yml |
-| `alert_file` | alert.rules |
+| `podman_prometheus_cfg_file` | prometheus.yml |
+| `podman_prometheus_alert_file` | alert.rules |
 
 
 ## Example usage in a playbook
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.podman_prometheus
+  roles:
+    - role: jamesread.soe.podman_prometheus
       vars:
-        cfg_file: prometheus.yml
-        alert_file: alert.rules
+        podman_prometheus_cfg_file: prometheus.yml
+        podman_prometheus_alert_file: alert.rules
 ```

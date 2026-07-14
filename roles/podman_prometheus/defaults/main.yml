@@ -1,3 +1,3 @@
 ---
-cfg_file: prometheus.yml
-alert_file: alert.rules
+podman_prometheus_cfg_file: prometheus.yml
+podman_prometheus_alert_file: alert.rules

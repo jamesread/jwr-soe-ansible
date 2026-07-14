@@ -1,16 +1,26 @@
 ---
+- name: Require EFK secrets
+  ansible.builtin.assert:
+    that:
+      - podman_efk_elastic_password | length > 0
+      - podman_efk_kibana_encryption_key | length > 0
+    fail_msg: >-
+      Set podman_efk_elastic_password and podman_efk_kibana_encryption_key
+      (e.g. via Ansible Vault).
+
 - name: Container - elasticsearch
   containers.podman.podman_container:
     name: elastic
     image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
     env:
       discovery.type: single-node
-      ELASTIC_PASSWORD: changeme
+      ELASTIC_PASSWORD: '{{ podman_efk_elastic_password }}'
     state: started
     user: root
     ports:
       - 9200:9200
       - 9300:9300
+  no_log: true
 
 - name: File - fluentd.conf
   ansible.builtin.copy:
@@ -19,10 +29,11 @@
     mode: '0644'
 
 - name: File - kibana.yml
-  ansible.builtin.copy:
-    src: kibana.yml
+  ansible.builtin.template:
+    src: kibana.yml.j2
     dest: /etc/kibana.yml
-    mode: '0644'
+    mode: '0600'
+  no_log: true
 
 - name: Container - kibana
   containers.podman.podman_container:
@@ -32,6 +43,7 @@
       - 5601:5601
     env:
       discovery.type: single-node
-      ELASTIC_PASSWORD: changeme
+      ELASTIC_PASSWORD: '{{ podman_efk_elastic_password }}'
     volumes:
       - /etc/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+  no_log: true

@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Grafana container with Podman.
+    options:
+      podman_grafana_installed:
+        type: bool
+        default: true
+        description: Whether Grafana should be considered installed/enabled.
+      podman_grafana_volume:
+        type: str
+        default: /containers/grafana
+        description: Base host path for Grafana data and config volumes.

@@ -10,23 +10,25 @@
 
 - name: Check Count
   ansible.builtin.debug:
-    msg: '{{ count | int }}'
+    msg: '{{ libvirt_vm_count | int }}'
 
 - name: Creating multiple instances
-  when: count|int > 1
+  when: libvirt_vm_count | int > 1
   block:
-    - name: Create VM {{ vm_title }}
+    - name: Create VM {{ libvirt_vm_title }}
       ansible.builtin.include_tasks:
         file: create.yml
-      with_sequence: start=1 end={{ count }} format={{ nameFormat }}
+      with_sequence: start=1 end={{ libvirt_vm_count }} format={{ libvirt_vm_name_format }}
+      loop_control:
+        loop_var: libvirt_vm_instance
 
 - name: Creating single instance
-  when: count|int == 1
+  when: libvirt_vm_count | int == 1
   block:
     - name: Set VM Title
       ansible.builtin.set_fact:
-        item: '{{ vm_title }}'
+        libvirt_vm_instance: '{{ libvirt_vm_title }}'
 
-    - name: Create VM {{ vm_title }}
+    - name: Create VM {{ libvirt_vm_title }}
       ansible.builtin.include_tasks:
         file: create.yml

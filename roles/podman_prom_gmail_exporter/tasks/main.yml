@@ -7,13 +7,13 @@
 
 - name: Template - secret file
   ansible.builtin.template:
-    src: '{{ secret_file }}'
+    src: '{{ podman_prom_gmail_exporter_secret_file }}'
     dest: /etc/prometheus-gmail-exporter/client_secret.json
     mode: '0644'
 
 - name: Template - config file
   ansible.builtin.template:
-    src: '{{ config_file }}'
+    src: '{{ podman_prom_gmail_exporter_config_file }}'
     dest: /etc/prometheus-gmail-exporter/prometheus-gmail-exporter.cfg
     mode: '0644'
 

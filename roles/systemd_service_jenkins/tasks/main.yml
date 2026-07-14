@@ -41,17 +41,13 @@
 - name: Find initial admin password file
   ansible.builtin.stat:
     path: /var/lib/jenkins/secrets/initialAdminPassword
-  register: inital_admin_password_file
+  register: systemd_service_jenkins_initial_admin_password_file
 
 - name: Get initial admin password
   ansible.builtin.set_fact:
-    admin_password: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
-  when: inital_admin_password_file.stat.exists
-
-- name: Admin Password
-  ansible.builtin.debug:
-    msg: '{{ admin_password }}'
-  when: inital_admin_password_file.stat.exists
+    systemd_service_jenkins_admin_password: "{{ lookup('file', '/var/lib/jenkins/secrets/initialAdminPassword') }}"
+  when: systemd_service_jenkins_initial_admin_password_file.stat.exists
+  no_log: true
 
 - name: Copy proxy conf to httpd
   ansible.builtin.copy:

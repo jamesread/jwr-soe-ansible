@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: false
   vars:
-    molecule_inventory:
+    podman_prometheus_molecule_inventory:
       all:
         hosts: {}
         children:
@@ -21,7 +21,7 @@
         command: "{{ item.command | default('sleep 0d') }}"
         # bash -c "while true; do sleep 10000; done"
         log_driver: json-file
-      register: result
+      register: podman_prometheus_result
       loop: "{{ molecule_yml.platforms }}"
 
     - name: Install python
@@ -32,7 +32,7 @@
 
     - name: Print some info
       ansible.builtin.debug:
-        msg: "{{ result.results }}"
+        msg: "{{ podman_prometheus_result.results }}"
 
     - name: Fail if container is not running
       when: >
@@ -40,7 +40,7 @@
         not item.container.State.Running
       ansible.builtin.include_tasks:
         file: tasks/create-fail.yml
-      loop: "{{ result.results }}"
+      loop: "{{ podman_prometheus_result.results }}"
       loop_control:
         label: "{{ item.container.Name }}"
 
@@ -54,8 +54,8 @@
                   "{{ item.name }}":
                     ansible_connection: containers.podman.podman
       ansible.builtin.set_fact:
-        molecule_inventory: >
-          {{ molecule_inventory | combine(inventory_partial_yaml | from_yaml, recursive=true) }}
+        podman_prometheus_molecule_inventory: >
+          {{ podman_prometheus_molecule_inventory | combine(inventory_partial_yaml | from_yaml, recursive=true) }}
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
@@ -63,7 +63,7 @@
     - name: Dump molecule_inventory
       ansible.builtin.copy:
         content: |
-          {{ molecule_inventory | to_yaml }}
+          {{ podman_prometheus_molecule_inventory | to_yaml }}
         dest: "{{ molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
         mode: "0600"
 
@@ -84,9 +84,9 @@
   tasks:
     - name: Check uname
       ansible.builtin.raw: uname -a
-      register: result
+      register: podman_prometheus_result
       changed_when: false
 
     - name: Display uname info
       ansible.builtin.debug:
-        msg: "{{ result.stdout }}"
+        msg: "{{ podman_prometheus_result.stdout }}"

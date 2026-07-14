@@ -10,25 +10,20 @@
 - name: Check if crio is installed
   ansible.builtin.stat:
     path: /usr/bin/crio
-  register: crio
+  register: machine_k8s_crio
 
-- name: Install CRIO if it isn't already
-  when: not crio.stat.exists
+- name: Install Kubernetes if it isn't already
+  when: not machine_k8s_crio.stat.exists
   block:
-    - name: Enable CRIO Module
-      ansible.builtin.command: dnf module enable cri-o:1.24 -y
-      register: output
-      changed_when: output.rc != 0
-
-    - name: Install CRIO packages
+    - name: Install Kubernetes packages
       ansible.builtin.package:
         name:
-          - cri-o
-          - crictl
           - ethtool
-          - kubernetes-node
-          - kubernetes-client
-          - kubernetes-kubeadm
+          - cri-o1.34
+          - cri-tools1.34
+          - kubernetes1.34
+          - kubernetes1.34-client
+          - kubernetes1.34-kubeadm
           - nfs-utils
           - iptables-nft
           - iproute-tc
@@ -40,15 +35,9 @@
         name:
           - firewalld
           - zram-generator
+          - zram-generator-defaults
         state: removed
       tags: k8s_packages
-
-- name: Replace kubeadm.conf because of messed up fedora package still using --cni*
-  ansible.builtin.copy:
-    dest: /etc/systemd/system/kubelet.service.d/kubeadm.conf
-    src: kubeadm.conf
-    mode: '0644'
-  tags: kubeadm.conf
 
 - name: Copy k8s modprobe
   ansible.builtin.copy:
@@ -123,5 +112,5 @@
 - name: Kubeadm pull
   ansible.builtin.command: kubeadm config images pull
   tags: kubeadm-pull
-  register: output
-  changed_when: output.rc != 0
+  register: machine_k8s_cmd
+  changed_when: machine_k8s_cmd.rc == 0

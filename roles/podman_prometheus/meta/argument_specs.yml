@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Install a Prometheus container with Podman.
+    options:
+      podman_prometheus_cfg_file:
+        type: str
+        default: prometheus.yml
+        description: Prometheus config template/source filename.
+      podman_prometheus_alert_file:
+        type: str
+        default: alert.rules
+        description: Alert rules file copied into /etc/prometheus.

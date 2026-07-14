@@ -3,3 +3,4 @@
 /.cache
 /ansible-navigator.log
 /*.tar.gz
+molecule-venv

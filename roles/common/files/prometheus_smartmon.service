@@ -8,4 +8,3 @@ ExecStart=sh -c "/usr/local/sbin/prometheus_smartmon.sh > /var/lib/node_exporter
 
 [Install]
 WantedBy=multi-user.target
-

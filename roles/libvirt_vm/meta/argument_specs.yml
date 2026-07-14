@@ -1,0 +1,82 @@
+---
+argument_specs:
+  main:
+    short_description: Create one or more libvirt VMs from a cloud image.
+    options:
+      libvirt_vm_base_image_directory:
+        type: str
+        default: /jwrFs/Software/PC/OS/
+        description: Directory containing the base qcow2 image.
+      libvirt_vm_base_image_filename:
+        type: str
+        default: Fedora-Cloud-Base-35-1.2.x86_64.qcow2
+        description: Base qcow2 image filename.
+      libvirt_vm_title:
+        type: str
+        default: untitled
+        description: Base name for the VM (and single-instance name).
+      libvirt_vm_name_format:
+        type: str
+        default: '{{ libvirt_vm_title }}-%02x'
+        description: with_sequence format when creating multiple VMs.
+      libvirt_vm_count:
+        type: int
+        default: 1
+        description: Number of VMs to create.
+      libvirt_vm_disk_size:
+        type: int
+        default: 8
+        description: Extra disk size in GiB added with qemu-img resize.
+      libvirt_vm_ram_mb:
+        type: int
+        default: 4096
+        description: Memory for the VM in MiB.
+      libvirt_vm_vcpu_count:
+        type: int
+        default: 2
+        description: Number of vCPUs.
+      libvirt_vm_use_cloud_init:
+        type: bool
+        default: false
+        description: Legacy flag; prefer libvirt_vm_customize.
+      libvirt_vm_raw_disk:
+        type: int
+        default: 0
+        description: Reserved for raw disk sizing (legacy).
+      libvirt_vm_customize:
+        type: str
+        default: cloud-init
+        choices:
+          - cloud-init
+          - virt-customize
+          - skip
+        description: How to customize the guest before virt-install.
+      libvirt_vm_extra_customize:
+        type: raw
+        required: false
+        description: Extra arguments appended to virt-customize.
+      libvirt_vm_extra_virt_install:
+        type: raw
+        required: false
+        description: Extra arguments appended to virt-install.
+      libvirt_vm_root_password:
+        type: str
+        default: ''
+        description: Root password (set via Vault). Required for virt-customize; optional for cloud-init if SSH keys are set.
+      libvirt_vm_ssh_authorized_keys:
+        type: list
+        elements: str
+        default: []
+        description: SSH public keys injected via cloud-init.
+      libvirt_vm_ssh_inject_key_file:
+        type: str
+        default: /root/.ssh/id_rsa.pub
+        description: Host path to public key for virt-customize --ssh-inject.
+      libvirt_vm_ssh_pwauth:
+        type: bool
+        default: false
+        description: Allow SSH password authentication in cloud-init guests.
+      libvirt_vm_permit_root_login:
+        type: bool
+        default: false
+        description: Allow password root SSH login (when true). Otherwise prohibit-password.

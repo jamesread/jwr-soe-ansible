@@ -15,7 +15,7 @@
 - name: Template - haproxy
   tags: haproxy
   ansible.builtin.template:
-    src: '{{ cfg_file }}'
+    src: '{{ systemd_service_haproxy_cfg_file }}'
     dest: /etc/haproxy/haproxy.cfg
     mode: '0644'
   notify:

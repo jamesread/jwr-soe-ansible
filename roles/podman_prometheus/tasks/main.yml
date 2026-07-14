@@ -8,7 +8,7 @@
 - name: Prometheus - set config
   tags: prom
   ansible.builtin.template:
-    src: '{{ cfg_file }}'
+    src: '{{ podman_prometheus_cfg_file }}'
     dest: /etc/prometheus/prometheus.yml
     mode: '0644'
   notify: Container prometheus reload config
@@ -16,7 +16,7 @@
 - name: Prometheus - set alert rules
   tags: prom
   ansible.builtin.copy:
-    src: '{{ alert_file }}'
+    src: '{{ podman_prometheus_alert_file }}'
     dest: /etc/prometheus/alert.rules
     mode: '0644'
   notify: Container prometheus reload config

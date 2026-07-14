@@ -4,17 +4,17 @@ Installs podman.
 ## Variables
 | Variable | Default |
 |----------|---------|
-| `cfg_traefik_installed` | False |
-| `cfg_haproxy` | haproxy.cfg.j2 |
+| `machine_podman_traefik_installed` | False |
+| `machine_podman_haproxy_cfg` | haproxy.cfg.j2 |
 
 
 ## Example usage in a playbook
 
 ```yaml
 - hosts: [myserver]
-  roles
-    - roles: jamesread.soe.machine_podman
+  roles:
+    - role: jamesread.soe.machine_podman
       vars:
-        cfg_traefik_installed: False
-        cfg_haproxy: haproxy.cfg.j2
+        machine_podman_traefik_installed: False
+        machine_podman_haproxy_cfg: haproxy.cfg.j2
 ```

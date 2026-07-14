@@ -2,14 +2,16 @@
 namespace: jamesread
 name: soe
 description: A standard operating environment collection.
-version: 1.0.0
+version: 2.0.0
 readme: README.md
 
 authors:
   - James Read <contact@jread.com>
 
 dependencies:
-  containers.podman: ">=1.10.1"
+  containers.podman: ">=1.20.2"
+  community.general: ">=13.2.0"
+  ansible.posix: ">=2.0.0"
 
 license:
   - GPL-3.0-or-later
