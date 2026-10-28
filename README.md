@@ -12,6 +12,7 @@ This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.co
 
 ### machine layer
 
+*  jamesread.soe.[machine_hardening_auth](roles/machine_hardening_auth) - Hardens SSH authentication (sshd options, AllowUsers) and adds a fail2ban sshd jail.
 *  jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
 *  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
 *  jamesread.soe.[machine_podman](roles/machine_podman) - Installs podman.
@@ -24,12 +25,14 @@ This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.co
 *  jamesread.soe.[podman_app](roles/podman_app) - Runs any container image as a systemd service, using a Podman quadlet.
 *  jamesread.soe.[podman_app_grafana](roles/podman_app_grafana) - Runs Grafana as a systemd service (podman quadlet).
 *  jamesread.soe.[podman_app_prometheus](roles/podman_app_prometheus) - Runs Prometheus as a systemd service (podman quadlet).
+*  jamesread.soe.[podman_compose_apps](roles/podman_compose_apps) - Deploys rootless Podman Compose apps from a list of compose templates.
 *  jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
 *  jamesread.soe.[podman_loki](roles/podman_loki) - Install loki as a podman container.
 *  jamesread.soe.[podman_promtail](roles/podman_promtail) - Installs a promtail container.
 *  jamesread.soe.[systemd_service_apachephp](roles/systemd_service_apachephp) - Installs httpd.
 *  jamesread.soe.[systemd_service_filebeat](roles/systemd_service_filebeat) - Installs a filebeat service.
 *  jamesread.soe.[systemd_service_haproxy](roles/systemd_service_haproxy) - Installs haproxy as a service.
+*  jamesread.soe.[systemd_service_httpd_proxy](roles/systemd_service_httpd_proxy) - Installs httpd as a name-based reverse proxy for local services.
 *  jamesread.soe.[systemd_service_jenkins](roles/systemd_service_jenkins) - Installs jenkins as a service.
 *  jamesread.soe.[systemd_service_journalbeat](roles/systemd_service_journalbeat) - Installs a journalbeat systemd service.
 *  jamesread.soe.[systemd_service_kvmlibvirt](roles/systemd_service_kvmlibvirt) - Installs kvm, libvirt and essential virt tools.
