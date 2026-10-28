@@ -1,0 +1,9 @@
+# {{ machine_hardening_auth_header }}
+[sshd]
+enabled = true
+mode = aggressive
+port = ssh
+backend = systemd
+findtime = {{ machine_hardening_auth_fail2ban_findtime }}
+bantime = {{ machine_hardening_auth_fail2ban_bantime }}
+maxretry = {{ machine_hardening_auth_fail2ban_maxretry }}

@@ -1,0 +1,43 @@
+---
+argument_specs:
+  main:
+    short_description: Harden SSH authentication and add a fail2ban sshd jail.
+    options:
+      machine_hardening_auth_label:
+        type: str
+        default: soe
+        description: Label used in the drop-in filename, blockinfile marker and file headers.
+      machine_hardening_auth_header:
+        type: str
+        description: Comment header written at the top of managed files.
+      machine_hardening_auth_sshd_dropin:
+        type: str
+        description: Path of the sshd_config.d drop-in.
+      machine_hardening_auth_sshd_config_block:
+        type: bool
+        default: true
+        description: Also append the settings to the tail of /etc/ssh/sshd_config.
+      machine_hardening_auth_sshd_options:
+        type: dict
+        description: Ordered sshd options written to the drop-in and config block.
+      machine_hardening_auth_ssh_allow_users:
+        type: list
+        elements: str
+        default: []
+        description: AllowUsers entries. Empty omits AllowUsers. Include ansible_user.
+      machine_hardening_auth_fail2ban:
+        type: bool
+        default: true
+        description: Install and configure the fail2ban sshd jail.
+      machine_hardening_auth_fail2ban_findtime:
+        type: str
+        default: 10m
+        description: fail2ban findtime.
+      machine_hardening_auth_fail2ban_bantime:
+        type: str
+        default: 1h
+        description: fail2ban bantime.
+      machine_hardening_auth_fail2ban_maxretry:
+        type: int
+        default: 5
+        description: fail2ban maxretry.

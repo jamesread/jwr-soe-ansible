@@ -1,0 +1,25 @@
+---
+# Label used in the drop-in filename, blockinfile marker and file headers.
+machine_hardening_auth_label: soe
+machine_hardening_auth_header: "Managed by Ansible — {{ machine_hardening_auth_label }} auth hardening"
+machine_hardening_auth_sshd_dropin: "/etc/ssh/sshd_config.d/99-{{ machine_hardening_auth_label }}-hardening.conf"
+# Also append the settings to the tail of sshd_config (belt and braces).
+machine_hardening_auth_sshd_config_block: true
+machine_hardening_auth_sshd_options:
+  PermitRootLogin: "no"
+  PasswordAuthentication: "no"
+  KbdInteractiveAuthentication: "no"
+  X11Forwarding: "no"
+  PermitEmptyPasswords: "no"
+  PubkeyAuthentication: "yes"
+  MaxAuthTries: 3
+  LoginGraceTime: 30
+  ClientAliveInterval: 300
+  ClientAliveCountMax: 2
+  LogLevel: VERBOSE
+# Empty list omits AllowUsers. Make sure ansible_user is listed.
+machine_hardening_auth_ssh_allow_users: []
+machine_hardening_auth_fail2ban: true
+machine_hardening_auth_fail2ban_findtime: 10m
+machine_hardening_auth_fail2ban_bantime: 1h
+machine_hardening_auth_fail2ban_maxretry: 5

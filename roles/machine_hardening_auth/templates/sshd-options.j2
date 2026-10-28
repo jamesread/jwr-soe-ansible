@@ -1,0 +1,6 @@
+{% for key, value in machine_hardening_auth_sshd_options.items() %}
+{{ key }} {{ value }}
+{% endfor %}
+{% if machine_hardening_auth_ssh_allow_users | length > 0 %}
+AllowUsers {{ machine_hardening_auth_ssh_allow_users | join(' ') }}
+{% endif %}
