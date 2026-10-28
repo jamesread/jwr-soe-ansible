@@ -1,0 +1,27 @@
+---
+argument_specs:
+  main:
+    short_description: Install httpd as a name-based reverse proxy for local services.
+    options:
+      systemd_service_httpd_proxy_manage_packages:
+        type: bool
+        default: true
+        description: Install the httpd package.
+      systemd_service_httpd_proxy_conf_dir:
+        type: str
+        default: /etc/httpd/conf.d
+        description: Directory for vhost config files.
+      systemd_service_httpd_proxy_log_dir:
+        type: str
+        default: /var/log/httpd
+        description: Directory for per-vhost logs.
+      systemd_service_httpd_proxy_vhosts:
+        type: list
+        elements: dict
+        default: []
+        description: Reverse proxy vhosts. Keys are server_name and upstream, plus an optional conf_name.
+      systemd_service_httpd_proxy_extra_templates:
+        type: list
+        elements: dict
+        default: []
+        description: Extra templates to install. Keys are src and dest, plus optional owner, group and mode.

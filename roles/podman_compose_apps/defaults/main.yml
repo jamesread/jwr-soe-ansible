@@ -1,0 +1,18 @@
+---
+# List of apps. Each entry: name, app_dir, compose_template, and optionally
+# description, compose_command, config_template, files_src/files_dest,
+# script_template/script_dest. Template/file paths resolve via the normal
+# playbook search path (e.g. <playbook_dir>/templates, <playbook_dir>/files).
+podman_compose_apps_list: []
+podman_compose_apps_user: app
+podman_compose_apps_group: app
+podman_compose_apps_home: /home/app
+# Keep a real login shell if this user is also ansible_user.
+podman_compose_apps_shell: /bin/bash
+podman_compose_apps_manage_packages: false
+# Pull images and force-recreate every app on each run (needed for :latest tags).
+podman_compose_apps_pull_images: true
+# Seconds before `compose up` is killed; avoids hangs on unhealthy depends_on.
+podman_compose_apps_up_timeout: 180
+# Shared Podman network so stacks can reach each other by container name. Empty skips.
+podman_compose_apps_shared_network: ""

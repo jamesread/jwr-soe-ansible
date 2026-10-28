@@ -1,0 +1,46 @@
+---
+- name: Install hardened sshd drop-in
+  ansible.builtin.template:
+    src: sshd-hardening.conf.j2
+    dest: "{{ machine_hardening_auth_sshd_dropin }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "/usr/sbin/sshd -t -f %s"
+  become: true
+  notify: Reload sshd
+
+- name: Enforce sshd hardening in the main config tail
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE {{ machine_hardening_auth_label | upper }} HARDENING"
+    block: "{{ lookup('ansible.builtin.template', 'sshd-options.j2') | trim }}"
+    validate: "/usr/sbin/sshd -t -f %s"
+  become: true
+  when: machine_hardening_auth_sshd_config_block | bool
+  notify: Reload sshd
+
+- name: Fail2ban
+  when: machine_hardening_auth_fail2ban | bool
+  become: true
+  block:
+    - name: Package - fail2ban
+      ansible.builtin.package:
+        name: fail2ban
+        state: present
+
+    - name: Install fail2ban sshd jail
+      ansible.builtin.template:
+        src: fail2ban-sshd.local.j2
+        dest: /etc/fail2ban/jail.d/sshd.local
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart fail2ban
+
+    - name: Service - fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: true
+      when: not ansible_check_mode

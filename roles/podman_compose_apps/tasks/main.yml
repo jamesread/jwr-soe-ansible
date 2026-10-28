@@ -1,0 +1,168 @@
+---
+- name: Package - podman, podman-compose
+  ansible.builtin.package:
+    name:
+      - podman
+      - podman-compose
+    state: present
+  become: true
+  when: podman_compose_apps_manage_packages | bool
+
+- name: Ensure compose apps group exists
+  ansible.builtin.group:
+    name: "{{ podman_compose_apps_group }}"
+    state: present
+  become: true
+
+- name: Ensure compose apps user exists
+  ansible.builtin.user:
+    name: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    home: "{{ podman_compose_apps_home }}"
+    create_home: true
+    system: true
+    shell: "{{ podman_compose_apps_shell }}"
+    state: present
+  become: true
+
+- name: Ensure compose apps home directory exists
+  ansible.builtin.file:
+    path: "{{ podman_compose_apps_home }}"
+    state: directory
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0755"
+  become: true
+
+- name: Shared network
+  when: podman_compose_apps_shared_network | length > 0
+  become: true
+  become_user: "{{ podman_compose_apps_user }}"
+  block:
+    - name: Check shared compose apps network exists
+      ansible.builtin.command:
+        cmd: podman network inspect {{ podman_compose_apps_shared_network }}
+      register: podman_compose_apps_shared_network_inspect
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Create shared compose apps network
+      ansible.builtin.command:
+        cmd: podman network create {{ podman_compose_apps_shared_network }}
+      when: podman_compose_apps_shared_network_inspect.rc != 0
+      changed_when: true
+
+- name: Check compose command is available
+  ansible.builtin.command:
+    cmd: "{{ item }} --version"
+  changed_when: false
+  check_mode: false
+  loop: "{{ podman_compose_apps_list | map(attribute='compose_command', default='podman-compose') | unique | list }}"
+
+- name: Ensure compose application directories exist
+  ansible.builtin.file:
+    path: "{{ item.app_dir }}"
+    state: directory
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0755"
+  become: true
+  loop: "{{ podman_compose_apps_list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install compose files
+  ansible.builtin.template:
+    src: "{{ item.compose_template }}"
+    dest: "{{ item.app_dir }}/docker-compose.yml"
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0644"
+  become: true
+  register: podman_compose_apps_compose_files
+  loop: "{{ podman_compose_apps_list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install compose app config files
+  ansible.builtin.template:
+    src: "{{ item.config_template }}"
+    dest: "{{ item.app_dir }}/config.yaml"
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0644"
+  become: true
+  register: podman_compose_apps_config_files
+  loop: "{{ podman_compose_apps_list | selectattr('config_template', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Sync compose app file trees
+  ansible.builtin.copy:
+    src: "{{ item.files_src }}/"
+    dest: "{{ item.app_dir }}/{{ item.files_dest }}/"
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0644"
+    directory_mode: "0755"
+  become: true
+  register: podman_compose_apps_file_trees
+  loop: "{{ podman_compose_apps_list | selectattr('files_src', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install compose app helper scripts
+  ansible.builtin.template:
+    src: "{{ item.script_template }}"
+    dest: "{{ item.app_dir }}/{{ item.script_dest }}"
+    owner: "{{ podman_compose_apps_user }}"
+    group: "{{ podman_compose_apps_group }}"
+    mode: "0755"
+  become: true
+  register: podman_compose_apps_scripts
+  loop: "{{ podman_compose_apps_list | selectattr('script_template', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# Only apps whose files changed are recreated (unless pulling, which recreates all).
+- name: Collect compose apps with changed files
+  ansible.builtin.set_fact:
+    podman_compose_apps_changed: >-
+      {{
+        ((podman_compose_apps_compose_files.results | default([]))
+        + (podman_compose_apps_config_files.results | default([]))
+        + (podman_compose_apps_file_trees.results | default([]))
+        + (podman_compose_apps_scripts.results | default([])))
+        | selectattr('changed', 'defined') | selectattr('changed')
+        | map(attribute='item.name') | unique | list
+      }}
+
+- name: Pull compose app images
+  ansible.builtin.command:
+    cmd: "{{ item.compose_command | default('podman-compose') }} pull"
+    chdir: "{{ item.app_dir }}"
+  become: true
+  become_user: "{{ podman_compose_apps_user }}"
+  when: podman_compose_apps_pull_images | bool
+  changed_when: true
+  loop: "{{ podman_compose_apps_list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Ensure compose apps are running
+  ansible.builtin.command:
+    cmd: >-
+      timeout --signal=TERM --kill-after=30s {{ podman_compose_apps_up_timeout | int }}
+      {{ item.compose_command | default('podman-compose') }}
+      up -d
+      {% if podman_compose_apps_recreate %}--force-recreate{% endif %}
+    chdir: "{{ item.app_dir }}"
+  vars:
+    podman_compose_apps_recreate: "{{ (podman_compose_apps_pull_images | bool) or (item.name in podman_compose_apps_changed) }}"
+  become: true
+  become_user: "{{ podman_compose_apps_user }}"
+  changed_when: podman_compose_apps_recreate | bool
+  loop: "{{ podman_compose_apps_list }}"
+  loop_control:
+    label: "{{ item.name }}"

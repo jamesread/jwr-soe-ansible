@@ -1,0 +1,12 @@
+---
+- name: Reload sshd
+  ansible.builtin.service:
+    name: sshd
+    state: reloaded
+  become: true
+
+- name: Restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
+  become: true
