@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: Run Prometheus as a systemd service, using the podman_app role.
+    options:
+      podman_app_prometheus_image:
+        type: str
+        default: docker.io/prom/prometheus:latest
+        description: Prometheus container image.
+      podman_app_prometheus_cfg_file:
+        type: str
+        default: prometheus.yml
+        description: Prometheus config template, written to /etc/prometheus/prometheus.yml.
+      podman_app_prometheus_alert_file:
+        type: str
+        default: alert.rules
+        description: Alert rules file, copied as is (not templated) to /etc/prometheus/alert.rules.

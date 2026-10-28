@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+[Unit]
+Description={{ podman_app_name }}
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image={{ podman_app_image }}
+ContainerName={{ podman_app_name }}
+{% for port in podman_app_ports %}
+PublishPort={{ port }}
+{% endfor %}
+{% if podman_app_config_mount | length > 0 %}
+Volume={{ podman_app_config_dir }}:{{ podman_app_config_mount }}:Z
+{% endif %}
+{% for volume in podman_app_volumes %}
+Volume={{ volume }}
+{% endfor %}
+{% for key, value in podman_app_env.items() %}
+Environment="{{ key }}={{ value }}"
+{% endfor %}
+{% if podman_app_user | length > 0 %}
+User={{ podman_app_user }}
+{% endif %}
+{% if podman_app_quadlet_extra | length > 0 %}
+{{ podman_app_quadlet_extra }}
+{% endif %}
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

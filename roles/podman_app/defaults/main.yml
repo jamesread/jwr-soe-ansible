@@ -1,0 +1,10 @@
+---
+# podman_app_name and podman_app_image are required, so have no defaults.
+podman_app_ports: []
+podman_app_volumes: []
+podman_app_env: {}
+podman_app_user: ''
+podman_app_config_dir: /etc/{{ podman_app_name }}
+podman_app_config_mount: ''
+podman_app_config_files: []
+podman_app_quadlet_extra: ''

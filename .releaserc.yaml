@@ -2,8 +2,12 @@
 branches:
   - master
 plugins:
-  - '@semantic-release/commit-analyzer'
-  - '@semantic-release/release-notes-generator'
+  # conventionalcommits (not the default angular preset) so that `feat!:` /
+  # `fix!:` trigger a major release, as well as a `BREAKING CHANGE:` footer.
+  - - '@semantic-release/commit-analyzer'
+    - preset: conventionalcommits
+  - - '@semantic-release/release-notes-generator'
+    - preset: conventionalcommits
   - '@semantic-release/github'
 
 tagFormat: '${version}'

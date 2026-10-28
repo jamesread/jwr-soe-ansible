@@ -18,6 +18,7 @@ class RoleVariable:
     default = ""
 
 def get_role_layer(name):
+    if "infra_" in name: return "infra"
     if "machine_" in name: return "machine"
     if "systemd_service" in name: return "workload"
     if "podman_" in name: return "workload"

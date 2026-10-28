@@ -1,0 +1,4 @@
+---
+podman_app_prometheus_image: docker.io/prom/prometheus:latest
+podman_app_prometheus_cfg_file: prometheus.yml
+podman_app_prometheus_alert_file: alert.rules

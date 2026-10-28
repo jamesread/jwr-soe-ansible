@@ -3,6 +3,11 @@ name: release
 
 on: # yamllint disable-line
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing git tag to publish to Galaxy (eg, 5.0.0)
+        required: true
+        type: string
   workflow_call:
     inputs:
       tag:
@@ -11,6 +16,9 @@ on: # yamllint disable-line
         type: string
   push:
     tags: ['*']
+
+permissions:
+  contents: read
 
 jobs:
   release:
@@ -22,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
 

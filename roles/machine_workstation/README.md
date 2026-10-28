@@ -2,7 +2,9 @@
 
 My desktop workstation
 ## Variables
-This role does not have any variables.
+| Variable | Default |
+|----------|---------|
+| `machine_workstation_graphical` | False |
 
 
 ## Example usage in a playbook
@@ -11,4 +13,6 @@ This role does not have any variables.
 - hosts: [myserver]
   roles:
     - role: jamesread.soe.machine_workstation
+      vars:
+        machine_workstation_graphical: False
 ```

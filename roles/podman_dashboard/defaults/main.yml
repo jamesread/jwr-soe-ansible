@@ -1,3 +1,0 @@
----
-podman_dashboard_volume: /containers/dashboard/
-podman_dashboard_config: dashboard.json

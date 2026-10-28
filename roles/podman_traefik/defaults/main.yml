@@ -1,3 +1,0 @@
----
-podman_traefik_volume: /containers/traefik/
-podman_traefik_config: traefik.json

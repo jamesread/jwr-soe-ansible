@@ -2,7 +2,9 @@
 namespace: jamesread
 name: soe
 description: A standard operating environment collection.
-version: 2.0.0
+# Placeholder. The real version comes from the git tag created by semantic-release,
+# and is written here at release time by galaxy-deploy.yml.
+version: 0.0.0
 readme: README.md
 
 authors:

@@ -1,0 +1,30 @@
+#cloud-config
+users:
+  - name: root
+    shell: /bin/bash
+{% if infra_libvirt_vm_ssh_authorized_keys | length > 0 %}
+    ssh-authorized-keys:
+{% for key in infra_libvirt_vm_ssh_authorized_keys %}
+      - {{ key }}
+{% endfor %}
+{% endif %}
+{% if infra_libvirt_vm_root_password | length > 0 %}
+chpasswd:
+  list: |
+    root:{{ infra_libvirt_vm_root_password }}
+  expire: false
+{% endif %}
+ssh_pwauth: {{ infra_libvirt_vm_ssh_pwauth | bool }}
+disable_root: false
+runcmd:
+{% if infra_libvirt_vm_ssh_pwauth | bool %}
+  - echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+{% else %}
+  - echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+{% endif %}
+{% if infra_libvirt_vm_permit_root_login | bool %}
+  - echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+{% else %}
+  - echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+{% endif %}
+  - service sshd restart

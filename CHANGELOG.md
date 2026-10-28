@@ -1,5 +1,9 @@
 # CHANGELOG
 
+Releases after 2.0.0 are versioned automatically by semantic-release, and their
+release notes are on [GitHub Releases](https://github.com/jamesread/jwr-soe-ansible/releases).
+The entries below are kept for history.
+
 ## 2.0.0
 
 Breaking change: all role default variables and ephemeral task variables now use

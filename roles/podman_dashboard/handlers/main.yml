@@ -1,5 +1,0 @@
----
-- name: Container - dashboard - restart
-  ansible.builtin.service:
-    name: container-dashboard
-    state: restarted

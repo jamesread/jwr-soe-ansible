@@ -1,0 +1,19 @@
+---
+- name: Prometheus
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app
+  vars:
+    podman_app_name: prometheus
+    podman_app_image: "{{ podman_app_prometheus_image }}"
+    podman_app_ports:
+      - 9090:9090
+    podman_app_config_mount: /etc/prometheus
+    podman_app_volumes:
+      - prometheus-data:/prometheus
+    podman_app_config_files:
+      - src: "{{ podman_app_prometheus_cfg_file }}"
+        dest: prometheus.yml
+      # Alert rules use Go template syntax ({{ $labels }}), so are not templated.
+      - src: "{{ podman_app_prometheus_alert_file }}"
+        dest: alert.rules
+        template: false

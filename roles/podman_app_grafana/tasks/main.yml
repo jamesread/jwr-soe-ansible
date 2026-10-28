@@ -1,0 +1,23 @@
+---
+- name: Grafana data and config directories
+  ansible.builtin.file:
+    path: "{{ podman_app_grafana_volume }}_{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - data
+    - config
+
+- name: Grafana
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app
+  vars:
+    podman_app_name: grafana
+    podman_app_image: "{{ podman_app_grafana_image }}"
+    podman_app_ports:
+      - 3000:3000
+    # Runs as root so it can use the existing root-owned data directory.
+    podman_app_user: root
+    podman_app_volumes:
+      - "{{ podman_app_grafana_volume }}_data:/var/lib/grafana:Z"
+      - "{{ podman_app_grafana_volume }}_config:/etc/grafana:Z"

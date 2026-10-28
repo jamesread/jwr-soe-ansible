@@ -1,11 +1,17 @@
 ---
 - name: Install workstation packages
   ansible.builtin.package:
-    state: present
     name:
-      - okular
-      - sddm
-      - kwin
+      - htop
+      - neovim
+      - git
+    state: present
+
+- name: Install graphical packages
+  ansible.builtin.package:
+    name:
+      - i3
+      - polybar
       - firefox
-      - spectacle
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+    state: present
+  when: machine_workstation_graphical | bool

@@ -1,0 +1,3 @@
+---
+podman_app_grafana_image: docker.io/grafana/grafana:latest
+podman_app_grafana_volume: /containers/grafana

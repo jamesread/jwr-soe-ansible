@@ -1,0 +1,69 @@
+---
+argument_specs:
+  main:
+    short_description: Run a container image as a systemd service, using a Podman quadlet.
+    description:
+      - Writes /etc/containers/systemd/<name>.container (rootful), plus any config
+        files, and restarts the service only when one of those changes.
+      - Requires podman 4.4 or newer on the target.
+    options:
+      podman_app_name:
+        type: str
+        required: true
+        description: Container and systemd service name.
+      podman_app_image:
+        type: str
+        required: true
+        description: Fully qualified image, eg docker.io/prom/prometheus:latest.
+      podman_app_ports:
+        type: list
+        elements: str
+        default: []
+        description: Published ports, eg "9090:9090".
+      podman_app_volumes:
+        type: list
+        elements: str
+        default: []
+        description: Volumes, as named-volume:path or /host/path:path[:options].
+      podman_app_env:
+        type: dict
+        default: {}
+        description: Environment variables for the container.
+      podman_app_user:
+        type: str
+        default: ''
+        description: User to run the container as. Empty uses the image default.
+      podman_app_config_dir:
+        type: str
+        default: /etc/<podman_app_name>
+        description: Host directory that podman_app_config_files are written to.
+      podman_app_config_mount:
+        type: str
+        default: ''
+        description: Path in the container to mount podman_app_config_dir at. Empty does not mount it.
+      podman_app_config_files:
+        type: list
+        elements: dict
+        default: []
+        description: Files to write into podman_app_config_dir.
+        options:
+          src:
+            type: str
+            required: true
+            description: Template (or file) to read, found the usual Ansible way, eg the playbook's templates/ or files/ directory.
+          dest:
+            type: str
+            required: true
+            description: Filename inside podman_app_config_dir.
+          mode:
+            type: str
+            default: '0644'
+            description: File mode. Use 0600 for secrets.
+          template:
+            type: bool
+            default: true
+            description: Render src as a Jinja template. Set false to copy it as is, eg for files containing Go template syntax.
+      podman_app_quadlet_extra:
+        type: str
+        default: ''
+        description: Raw lines appended to the [Container] section of the quadlet.

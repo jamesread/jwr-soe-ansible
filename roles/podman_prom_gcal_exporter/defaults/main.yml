@@ -1,3 +1,0 @@
----
-podman_prom_gcal_exporter_config_file: gcal.cfg
-podman_prom_gcal_exporter_secret_file: secrets.json

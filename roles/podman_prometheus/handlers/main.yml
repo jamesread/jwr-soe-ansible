@@ -1,5 +1,0 @@
----
-- name: Container prometheus reload config
-  tags: prom
-  ansible.builtin.command: kill --signal=SIGHUP $(pidof prometheus)
-  changed_when: true

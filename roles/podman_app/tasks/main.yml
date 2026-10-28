@@ -1,0 +1,61 @@
+---
+- name: Create config directory for {{ podman_app_name }}
+  ansible.builtin.file:
+    path: "{{ podman_app_config_dir }}"
+    state: directory
+    mode: '0755'
+  when: podman_app_config_files | length > 0 or podman_app_config_mount | length > 0
+
+- name: Template config files for {{ podman_app_name }}
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ podman_app_config_dir }}/{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop: "{{ podman_app_config_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  when: item.template | default(true) | bool
+  register: podman_app_templated
+
+- name: Copy config files for {{ podman_app_name }}
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ podman_app_config_dir }}/{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop: "{{ podman_app_config_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  when: not (item.template | default(true) | bool)
+  register: podman_app_copied
+
+- name: Write quadlet for {{ podman_app_name }}
+  ansible.builtin.template:
+    src: app.container.j2
+    dest: /etc/containers/systemd/{{ podman_app_name }}.container
+    mode: '0644'
+  register: podman_app_quadlet
+
+# In check mode a new quadlet is not really written, so systemd has no unit to
+# restart or start yet. Skip those steps rather than fail the dry run.
+- name: Check whether the unit exists yet for {{ podman_app_name }}
+  ansible.builtin.set_fact:
+    podman_app_unit_pending: "{{ ansible_check_mode and podman_app_quadlet is changed }}"
+
+# Not a handler: this role is included several times in one play (once per
+# app), and same-named handlers would only run once, for the last app.
+- name: Restart after quadlet or config changes for {{ podman_app_name }}
+  ansible.builtin.systemd_service:
+    name: "{{ podman_app_name }}"
+    state: restarted
+    daemon_reload: "{{ podman_app_quadlet is changed }}"
+  when:
+    - podman_app_quadlet is changed or podman_app_templated is changed or podman_app_copied is changed
+    - not podman_app_unit_pending
+
+# No `enabled: true` - quadlet units are generated and cannot be enabled. They
+# start at boot via the [Install] section of the quadlet instead.
+- name: Start {{ podman_app_name }}
+  ansible.builtin.systemd_service:
+    name: "{{ podman_app_name }}"
+    state: started
+  when: not podman_app_unit_pending

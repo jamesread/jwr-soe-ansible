@@ -1,3 +1,0 @@
----
-podman_prometheus_cfg_file: prometheus.yml
-podman_prometheus_alert_file: alert.rules

@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Run Grafana as a systemd service, using the podman_app role.
+    options:
+      podman_app_grafana_image:
+        type: str
+        default: docker.io/grafana/grafana:latest
+        description: Grafana container image.
+      podman_app_grafana_volume:
+        type: str
+        default: /containers/grafana
+        description: Host path prefix. Data is kept in <prefix>_data and config in <prefix>_config.

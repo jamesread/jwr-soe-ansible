@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: podman_app_grafana
+  author: jamesread
+  description: Runs Grafana as a systemd service (podman quadlet).
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.7'
+  platforms:
+    - name: EL
+      versions:
+        - '7'
+        - '8'
+    - name: Fedora
+      versions:
+        - all

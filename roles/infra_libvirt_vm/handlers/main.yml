@@ -1,0 +1,5 @@
+---
+- name: Genisoimage
+  ansible.builtin.command: genisoimage -output "/var/lib/libvirt/images/{{ infra_libvirt_vm_instance }}.iso" -volid cidata -joliet -r /tmp/meta-data /tmp/user-data
+  register: infra_libvirt_vm_cmd
+  changed_when: infra_libvirt_vm_cmd.rc == 0

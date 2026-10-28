@@ -1,5 +1,0 @@
----
-- name: Package - condor
-  ansible.builtin.package:
-    name: condor
-    state: lates
