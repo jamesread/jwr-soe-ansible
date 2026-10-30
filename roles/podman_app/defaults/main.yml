@@ -1,10 +1,63 @@
 ---
 # podman_app_name and podman_app_image are required, so have no defaults.
+
+# present deploys the app. absent stops it and removes its quadlet, but keeps
+# its config files, volumes and networks.
+podman_app_state: present
+
+# Run as a rootless user (default), or rootful as root.
+podman_app_rootless: true
+# Rootless account to run as. Empty uses the account Ansible connects as.
+podman_app_rootless_user: ''
+# Let the rootless user's services run without a login session, and start at
+# boot. Needs sudo (become) the first time, to run `loginctl enable-linger`.
+podman_app_linger: true
+
 podman_app_ports: []
 podman_app_volumes: []
 podman_app_env: {}
-podman_app_user: ''
-podman_app_config_dir: /etc/{{ podman_app_name }}
+# Written to a 0600 env file rather than the quadlet, which others can read.
+podman_app_secret_env: {}
+podman_app_container_user: ''
+# Arguments for the container, replacing the image's default command (CMD).
+podman_app_exec: ''
+podman_app_labels: {}
+# Podman networks to join. Each is created (via a .network quadlet) unless it
+# is a built-in mode like host. Containers on a network reach each other by
+# container name, plus any aliases.
+podman_app_networks: []
+podman_app_network_aliases: []
+# Other apps (or systemd units) this app needs. They start first, and are
+# waited on until healthy if they have a healthcheck.
+podman_app_requires: []
+# {cmd, interval, timeout, retries, start_period}. Empty for no healthcheck.
+podman_app_healthcheck: {}
+
+# Empty uses ~/<name> when rootless, or /etc/<name> when rootful.
+podman_app_config_dir: ''
 podman_app_config_mount: ''
 podman_app_config_files: []
+# Signal (eg HUP) that makes the app reload its config files. When set, a change
+# to config files alone sends this rather than restarting the app.
+podman_app_reload_signal: ''
+
+# Raw lines added to the [Unit], [Container] and [Service] sections.
+podman_app_unit_extra: ''
 podman_app_quadlet_extra: ''
+podman_app_service_extra: ''
+
+# Pull podman_app_image on every run, and if that gets a new image (eg a new
+# :latest), restart the service so the container is recreated from it.
+podman_app_tag_update: true
+
+# Address (hostname) to publish this app at, eg prometheus.example.com. When set,
+# the app is added to the podman_app_external_apps fact, which the proxy roles
+# (systemd_service_proxy_httpd, systemd_service_proxy_haproxy and
+# podman_app_proxy_nginx) turn into reverse proxy vhosts.
+podman_app_external_address: ''
+# Upstream for the proxy. Empty derives it from the first of podman_app_ports.
+podman_app_external_upstream: ''
+# For catalogues of apps, eg a homepage. Empty title uses podman_app_name.
+podman_app_external_title: ''
+podman_app_external_description: ''
+podman_app_external_category: ''

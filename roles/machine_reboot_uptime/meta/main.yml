@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Reboots the host when its uptime is over a limit, with Apprise notifications.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - '9'
+        - '10'
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - reboot
+    - maintenance
+    - apprise

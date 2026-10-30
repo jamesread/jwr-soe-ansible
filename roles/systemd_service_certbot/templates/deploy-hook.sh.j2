@@ -1,0 +1,11 @@
+#!/bin/bash
+# {{ ansible_managed }}
+# certbot runs every deploy hook for every renewed certificate, so act only on ours.
+set -euo pipefail
+
+case "${RENEWED_LINEAGE:-}" in
+  */{{ systemd_service_certbot_cert_name }}) ;;
+  *) exit 0 ;;
+esac
+
+{{ systemd_service_certbot_deploy_hook }}

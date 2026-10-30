@@ -1,0 +1,7 @@
+---
+machine_notify_boot_apprise_local: "{{ machine_notify_boot_apprise_host | length == 0 }}"
+machine_notify_boot_apprise_url: >-
+  {{ machine_notify_boot_apprise_host | regex_replace('/+$', '')
+     if machine_notify_boot_apprise_host | length > 0
+     else 'http://127.0.0.1:' ~ (podman_app_apprise_port | default(8000)) }}/notify{{ '/' ~ machine_notify_boot_apprise_key if machine_notify_boot_apprise_key | length > 0 }}
+machine_notify_boot_script: /usr/local/sbin/soe-notify-boot

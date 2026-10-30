@@ -1,0 +1,48 @@
+---
+argument_specs:
+  main:
+    short_description: Install haproxy as a name-based reverse proxy for local services.
+    options:
+      systemd_service_proxy_haproxy_cfg_file:
+        type: str
+        default: ''
+        description: A whole haproxy.cfg template of your own, found via the playbook search path. When set, it is used as is and the other options are ignored.
+      systemd_service_proxy_haproxy_vhosts:
+        type: list
+        elements: dict
+        default: []
+        description: Reverse proxy vhosts. Keys are server_name and upstream, plus optional tls (default true). Only the host and port of upstream are used.
+      systemd_service_proxy_haproxy_podman_apps:
+        type: bool
+        default: true
+        description:
+          - Also add a vhost for each podman_app app on this host that sets podman_app_external_address.
+          - Run this role after the podman_app roles in the same play, as it reads the podman_app_external_apps fact they set.
+      systemd_service_proxy_haproxy_tls_pem:
+        type: str
+        default: ''
+        description: PEM file on the host holding the certificate chain and private key, for HTTPS. When set, port 80 redirects to HTTPS.
+      systemd_service_proxy_haproxy_certbot:
+        type: bool
+        default: false
+        description: Get a Let's Encrypt certificate for every vhost (with systemd_service_certbot) and use it for HTTPS.
+      systemd_service_proxy_haproxy_certbot_email:
+        type: str
+        default: ''
+        description: Contact for Let's Encrypt expiry warnings.
+      systemd_service_proxy_haproxy_certbot_cert_name:
+        type: str
+        description: Name of the Let's Encrypt certificate. Defaults to the inventory hostname.
+      systemd_service_proxy_haproxy_certbot_extra_domains:
+        type: list
+        elements: str
+        default: []
+        description: Extra domains for the certificate, besides the vhosts' server names.
+      systemd_service_proxy_haproxy_certbot_http_port:
+        type: int
+        default: 9080
+        description: Port on 127.0.0.1 that certbot answers challenges on.
+      systemd_service_proxy_haproxy_stats_bind:
+        type: str
+        default: 127.0.0.1:8404
+        description: Address for stats (/stats) and Prometheus metrics (/metrics). Empty turns it off.

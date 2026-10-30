@@ -3,9 +3,10 @@ argument_specs:
   main:
     short_description: Run a container image as a systemd service, using a Podman quadlet.
     description:
-      - Writes /etc/containers/systemd/<name>.container (rootful), plus any config
-        files, and restarts the service only when one of those changes.
-      - Requires podman 4.4 or newer on the target.
+      - Rootless by default, as the account Ansible connects as (or podman_app_rootless_user).
+      - Writes <name>.container (and any .network) quadlets, plus config files, and restarts
+        the service only when one of those, or the image, changes.
+      - Requires podman 4.4 or newer, and 5.0 or newer for healthchecks.
     options:
       podman_app_name:
         type: str
@@ -15,11 +16,32 @@ argument_specs:
         type: str
         required: true
         description: Fully qualified image, eg docker.io/prom/prometheus:latest.
+      podman_app_state:
+        type: str
+        default: present
+        choices: [present, absent]
+        description:
+          - present deploys the app.
+          - absent stops it and removes its quadlet, keeping its config files, volumes and networks.
+      podman_app_rootless:
+        type: bool
+        default: true
+        description: Run as a rootless user. False runs rootful, as root.
+      podman_app_rootless_user:
+        type: str
+        default: ''
+        description: Account to run a rootless app as. Empty uses the account Ansible connects as.
+      podman_app_linger:
+        type: bool
+        default: true
+        description:
+          - Enable lingering for the rootless user, so its services run without a login session and start at boot.
+          - Needs sudo (become) the first time.
       podman_app_ports:
         type: list
         elements: str
         default: []
-        description: Published ports, eg "9090:9090".
+        description: Published ports, eg "9090:9090" or "127.0.0.1:8081:8080". Rootless apps cannot publish ports below 1024.
       podman_app_volumes:
         type: list
         elements: str
@@ -28,33 +50,87 @@ argument_specs:
       podman_app_env:
         type: dict
         default: {}
-        description: Environment variables for the container.
-      podman_app_user:
+        description: Environment variables for the container. Written into the quadlet, so not for secrets.
+      podman_app_secret_env:
+        type: dict
+        default: {}
+        description: Secret environment variables, written to a 0600 env file in the config directory instead of the quadlet.
+      podman_app_container_user:
         type: str
         default: ''
-        description: User to run the container as. Empty uses the image default.
+        description: User to run as inside the container, eg 1000:1000. Empty uses the image default.
+      podman_app_exec:
+        type: str
+        default: ''
+        description: Arguments for the container, replacing the image's default command (CMD), eg --config.file=/etc/app.yml.
+      podman_app_labels:
+        type: dict
+        default: {}
+        description: Container labels.
+      podman_app_networks:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Podman networks to join. Containers on a network reach each other by container name.
+          - Each is created via a .network quadlet, unless it is a built-in mode (host, none, private, bridge, pasta, slirp4netns).
+      podman_app_network_aliases:
+        type: list
+        elements: str
+        default: []
+        description: Extra names other containers can reach this one by, eg mysql.
+      podman_app_requires:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Other apps this app needs, by podman_app_name (or full systemd unit names).
+          - They start first, and if they have a healthcheck, this app waits until they are healthy.
+      podman_app_healthcheck:
+        type: dict
+        default: {}
+        description:
+          - Healthcheck. Apps that require this one wait until it is healthy. Empty for no healthcheck.
+        options:
+          cmd:
+            type: str
+            description: Command to run in the container, eg healthcheck.sh --connect. The healthcheck is only added when this is set.
+          interval:
+            type: str
+            description: Time between checks, eg 10s.
+          timeout:
+            type: str
+            description: Time before a check fails, eg 5s.
+          retries:
+            type: int
+            description: Failed checks before unhealthy.
+          start_period:
+            type: str
+            description: Grace period after start, eg 30s.
       podman_app_config_dir:
         type: str
-        default: /etc/<podman_app_name>
-        description: Host directory that podman_app_config_files are written to.
+        default: ''
+        description: Host directory for config files. Empty uses ~/<name> when rootless, or /etc/<name> when rootful.
       podman_app_config_mount:
         type: str
         default: ''
-        description: Path in the container to mount podman_app_config_dir at. Empty does not mount it.
+        description: Path in the container to mount the config directory at. Empty does not mount it.
       podman_app_config_files:
         type: list
         elements: dict
         default: []
-        description: Files to write into podman_app_config_dir.
+        description: Files (or directories) to write into the config directory.
         options:
           src:
             type: str
             required: true
-            description: Template (or file) to read, found the usual Ansible way, eg the playbook's templates/ or files/ directory.
+            description:
+              - Template or file to read, found the usual Ansible way, eg the playbook's templates/ or files/ directory.
+              - A directory, with a trailing slash and template false, is copied recursively.
           dest:
             type: str
             required: true
-            description: Filename inside podman_app_config_dir.
+            description: Path inside the config directory. Parent directories are created.
           mode:
             type: str
             default: '0644'
@@ -62,8 +138,50 @@ argument_specs:
           template:
             type: bool
             default: true
-            description: Render src as a Jinja template. Set false to copy it as is, eg for files containing Go template syntax.
+            description: Render src as a Jinja template. Set false to copy it as is, eg for directories or Go template syntax.
+      podman_app_reload_signal:
+        type: str
+        default: ''
+        description:
+          - Signal (eg HUP) that makes the app reload its config files.
+          - When set, a change to config files alone sends this signal instead of restarting the app.
+      podman_app_unit_extra:
+        type: str
+        default: ''
+        description: Raw lines appended to the [Unit] section of the quadlet.
       podman_app_quadlet_extra:
         type: str
         default: ''
-        description: Raw lines appended to the [Container] section of the quadlet.
+        description: Raw lines appended to the [Container] section of the quadlet, eg UserNS=keep-id.
+      podman_app_service_extra:
+        type: str
+        default: ''
+        description: Raw lines appended to the [Service] section of the quadlet, eg TimeoutStartSec=180.
+      podman_app_tag_update:
+        type: bool
+        default: true
+        description:
+          - Pull podman_app_image on every run, especially useful for tags like :latest.
+          - If the pull gets a new image, the service is restarted, which recreates the container from it.
+      podman_app_external_address:
+        type: str
+        default: ''
+        description:
+          - Hostname to publish this app at, eg prometheus.example.com.
+          - When set, the app is added to the podman_app_external_apps host fact, which the proxy roles turn into reverse proxy vhosts.
+      podman_app_external_upstream:
+        type: str
+        default: ''
+        description: Upstream URL for the proxy, eg http://127.0.0.1:9090/. Empty derives it from the first of podman_app_ports.
+      podman_app_external_title:
+        type: str
+        default: ''
+        description: Title for catalogues of apps (eg a homepage), recorded in podman_app_external_apps. Empty uses podman_app_name.
+      podman_app_external_description:
+        type: str
+        default: ''
+        description: One-line description for catalogues of apps.
+      podman_app_external_category:
+        type: str
+        default: ''
+        description: Category for catalogues of apps.

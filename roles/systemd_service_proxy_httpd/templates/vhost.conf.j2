@@ -1,0 +1,45 @@
+# Managed by Ansible: systemd_service_proxy_httpd
+{% set tls = systemd_service_proxy_httpd_tls_active | bool and item.tls | default(true) | bool %}
+{% macro proxy() %}
+    ProxyPreserveHost On
+    ProxyPass / {{ item.upstream }} upgrade=websocket
+    ProxyPassReverse / {{ item.upstream }}
+{% if item.extra is defined %}
+    {{ item.extra | indent(4) }}
+{% endif %}
+{% endmacro %}
+<VirtualHost *:80>
+    ServerName {{ item.server_name }}
+
+{% if systemd_service_proxy_httpd_certbot | bool %}
+    # Let's Encrypt http-01 challenges, answered by certbot while it runs.
+    ProxyPass /.well-known/acme-challenge/ http://127.0.0.1:{{ systemd_service_proxy_httpd_certbot_http_port }}/.well-known/acme-challenge/
+
+{% endif %}
+{% if tls %}
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+{% else %}
+{{ proxy() }}
+{%- endif %}
+
+    ErrorLog {{ systemd_service_proxy_httpd_log_dir }}/{{ item.server_name }}-error.log
+    CustomLog {{ systemd_service_proxy_httpd_log_dir }}/{{ item.server_name }}-access.log combined
+</VirtualHost>
+{% if tls %}
+
+<VirtualHost *:443>
+    ServerName {{ item.server_name }}
+
+    SSLEngine on
+    SSLCertificateFile {{ systemd_service_proxy_httpd_cert_file }}
+    SSLCertificateKeyFile {{ systemd_service_proxy_httpd_key_file }}
+    RequestHeader set X-Forwarded-Proto https
+
+{{ proxy() }}
+
+    ErrorLog {{ systemd_service_proxy_httpd_log_dir }}/{{ item.server_name }}-ssl-error.log
+    CustomLog {{ systemd_service_proxy_httpd_log_dir }}/{{ item.server_name }}-ssl-access.log combined
+</VirtualHost>
+{% endif %}

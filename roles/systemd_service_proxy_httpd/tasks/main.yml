@@ -1,0 +1,141 @@
+---
+- name: Package - httpd
+  ansible.builtin.package:
+    name: "{{ ['httpd'] + (['mod_ssl'] if systemd_service_proxy_httpd_tls_wanted else []) }}"
+    state: present
+  become: true
+  when: systemd_service_proxy_httpd_manage_packages | bool
+
+- name: Work out vhosts
+  ansible.builtin.set_fact:
+    systemd_service_proxy_httpd_all_vhosts: >-
+      {{ (systemd_service_proxy_httpd_vhosts
+          + ((podman_app_external_apps | default([])) if systemd_service_proxy_httpd_podman_apps | bool else []))
+         | unique(attribute='server_name') | list }}
+
+- name: Check for the Let's Encrypt certificate
+  ansible.builtin.stat:
+    path: "{{ systemd_service_proxy_httpd_live_dir }}/fullchain.pem"
+  register: systemd_service_proxy_httpd_live_cert
+  become: true
+  when: systemd_service_proxy_httpd_certbot | bool
+
+# Without a certificate yet, vhosts are HTTP only until certbot gets one below.
+- name: Work out whether HTTPS is on
+  ansible.builtin.set_fact:
+    systemd_service_proxy_httpd_tls_active: >-
+      {{ systemd_service_proxy_httpd_live_cert.stat.exists
+         if systemd_service_proxy_httpd_certbot | bool
+         else systemd_service_proxy_httpd_tls_cert | length > 0 }}
+
+- name: Install vhosts
+  ansible.builtin.include_tasks: vhosts.yml
+
+# Only files this role wrote (they carry its marker) are removed, eg the vhost
+# of an app that no longer has an external address.
+- name: Find vhosts written by this role
+  ansible.builtin.find:
+    paths: "{{ systemd_service_proxy_httpd_conf_dir }}"
+    patterns: "*.conf"
+    contains: "Managed by Ansible: systemd_service_proxy_httpd"
+  register: systemd_service_proxy_httpd_found
+  become: true
+
+- name: Remove vhosts that are no longer wanted
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  become: true
+  loop: "{{ systemd_service_proxy_httpd_found.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: >-
+    item.path | basename not in
+    (systemd_service_proxy_httpd_all_vhosts | map(attribute='server_name') | map('regex_replace', '$', '.conf') | list
+     + systemd_service_proxy_httpd_all_vhosts | selectattr('conf_name', 'defined') | map(attribute='conf_name') | list)
+  notify: Reload httpd
+
+# SELinux stops httpd connecting to local service ports unless this is on.
+- name: Gather SELinux facts
+  ansible.builtin.setup:
+    gather_subset:
+      - min
+  when: ansible_facts.selinux is not defined
+
+- name: SEbool - httpd_can_network_connect
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  become: true
+  when: ansible_facts.selinux.status | default('disabled') == 'enabled'
+
+- name: Ensure extra template directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  become: true
+  loop: "{{ systemd_service_proxy_httpd_extra_templates | map(attribute='dest') | map('dirname') | unique | list }}"
+
+- name: Install extra templates
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  become: true
+  loop: "{{ systemd_service_proxy_httpd_extra_templates }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: Reload httpd
+
+- name: Service - httpd
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+  become: true
+
+- name: Let's Encrypt
+  when: systemd_service_proxy_httpd_certbot | bool
+  block:
+    # certbot's challenge is answered through the vhosts just written.
+    - name: Reload httpd before getting the certificate  # noqa: no-handler
+      ansible.builtin.service:
+        name: httpd
+        state: reloaded
+      become: true
+      when: systemd_service_proxy_httpd_vhost_files is changed
+
+    - name: Get the certificate
+      ansible.builtin.include_role:
+        name: jamesread.soe.systemd_service_certbot
+      vars:
+        systemd_service_certbot_domains: >-
+          {{ systemd_service_proxy_httpd_all_vhosts | map(attribute='server_name') | list
+             + systemd_service_proxy_httpd_certbot_extra_domains }}
+        systemd_service_certbot_cert_name: "{{ systemd_service_proxy_httpd_certbot_cert_name }}"
+        systemd_service_certbot_email: "{{ systemd_service_proxy_httpd_certbot_email }}"
+        systemd_service_certbot_http_port: "{{ systemd_service_proxy_httpd_certbot_http_port }}"
+        systemd_service_certbot_deploy_hook: systemctl reload httpd
+
+    - name: Turn on HTTPS now the certificate exists
+      when: not systemd_service_proxy_httpd_tls_active | bool
+      block:
+        - name: Check for the new certificate
+          ansible.builtin.stat:
+            path: "{{ systemd_service_proxy_httpd_live_dir }}/fullchain.pem"
+          register: systemd_service_proxy_httpd_live_cert
+          become: true
+
+        - name: Install HTTPS vhosts
+          when: systemd_service_proxy_httpd_live_cert.stat.exists
+          block:
+            - name: Turn on HTTPS
+              ansible.builtin.set_fact:
+                systemd_service_proxy_httpd_tls_active: true
+
+            - name: Install vhosts with HTTPS
+              ansible.builtin.include_tasks: vhosts.yml

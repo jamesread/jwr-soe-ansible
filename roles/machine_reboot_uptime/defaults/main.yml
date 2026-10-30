@@ -1,0 +1,14 @@
+---
+# Reboot when uptime is more than this many days. 5 keeps uptime under about
+# a week when run weekly.
+machine_reboot_uptime_days: 5
+machine_reboot_uptime_timeout: 600
+machine_reboot_uptime_log_file: /var/log/soe-reboot-uptime.log
+
+# Apprise API to send to, eg http://apprise.example.com:8000. Empty (the
+# default, unless the host sets apprise_host) runs Apprise on this host, with
+# podman_app_apprise, listening on 127.0.0.1 only.
+machine_reboot_uptime_apprise_host: "{{ apprise_host | default('') }}"
+# Config key on apprise_host to send to (/notify/<key>). Empty sends to /notify,
+# which the local Apprise sends to podman_app_apprise_urls.
+machine_reboot_uptime_apprise_key: "{{ apprise_key | default('') }}"

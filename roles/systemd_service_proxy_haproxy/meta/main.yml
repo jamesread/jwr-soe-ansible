@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Installs haproxy as a name-based reverse proxy for local services.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - '9'
+        - '10'
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - haproxy
+    - proxy

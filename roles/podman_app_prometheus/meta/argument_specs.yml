@@ -7,11 +7,25 @@ argument_specs:
         type: str
         default: docker.io/prom/prometheus:latest
         description: Prometheus container image.
+      podman_app_prometheus_ports:
+        type: list
+        elements: str
+        default: ['9090:9090']
+        description: Published ports, as for podman_app_ports.
       podman_app_prometheus_cfg_file:
         type: str
         default: prometheus.yml
-        description: Prometheus config template, written to /etc/prometheus/prometheus.yml.
+        description: Prometheus config template, written to prometheus.yml in the config directory.
       podman_app_prometheus_alert_file:
         type: str
         default: alert.rules
-        description: Alert rules file, copied as is (not templated) to /etc/prometheus/alert.rules.
+        description: Alert rules file, copied as is (not templated) to alert.rules in the config directory.
+      podman_app_prometheus_extra_args:
+        type: list
+        elements: str
+        default: []
+        description: Extra command line arguments, eg --web.external-url=https://prom.example.com/.
+      podman_app_prometheus_external_address:
+        type: str
+        default: ''
+        description: Hostname to publish Prometheus at, via a proxy role (see podman_app_external_address). Empty does not publish it.

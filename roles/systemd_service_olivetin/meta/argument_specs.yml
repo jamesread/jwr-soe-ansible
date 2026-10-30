@@ -1,0 +1,32 @@
+---
+argument_specs:
+  main:
+    short_description: Install OliveTin as a service, with actions for each podman_app app.
+    options:
+      systemd_service_olivetin_version:
+        type: str
+        default: 3000.20.0
+        description: OliveTin release to install. Renovate can bump it (see the collection README).
+      systemd_service_olivetin_rpm_url:
+        type: str
+        description: URL of the OliveTin rpm. Defaults to the GitHub release for the version and architecture.
+      systemd_service_olivetin_config_dir:
+        type: str
+        default: /etc/OliveTin
+        description: OliveTin config directory.
+      systemd_service_olivetin_config_src:
+        type: str
+        default: ''
+        description:
+          - Directory of OliveTin config in your playbook's files, copied to the config directory. config.yaml, and optionally config.d/, entities/, custom-webui/ and so on.
+          - Empty keeps the packaged config.
+      systemd_service_olivetin_config_d_prune:
+        type: bool
+        default: true
+        description: Remove fragments in config.d/ that are not in config_src.
+      systemd_service_olivetin_podman_app_actions:
+        type: bool
+        default: true
+        description:
+          - Generate start, stop, restart and update actions (and a dashboard) for every podman_app app on this host, in config.d/50-podman-apps.yaml.
+          - Run this role after the podman_app roles in the same play, as it reads the podman_app_apps fact they set.

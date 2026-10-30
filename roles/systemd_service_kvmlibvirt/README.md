@@ -1,9 +1,14 @@
 # systemd_service_kvmlibvirt
 
 Installs kvm, libvirt and essential virt tools.
+
+<!-- BEGIN GENERATED VARIABLES -->
+
 ## Variables
+
 This role does not have any variables.
 
+<!-- END GENERATED VARIABLES -->
 
 ## Example usage in a playbook
 

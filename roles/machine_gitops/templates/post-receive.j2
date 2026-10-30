@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+# Refreshes the deploy checkout after a push to {{ machine_gitops_branch }}, then
+# runs the deploy command. Output is shown to whoever pushed.
+set -euo pipefail
+
+# Git sets these for hooks, pointing at the bare repo; they would otherwise
+# override the -C target below.
+unset GIT_DIR GIT_WORK_TREE GIT_QUARANTINE_PATH
+
+repo="{{ machine_gitops_repo_dir }}"
+checkout="{{ machine_gitops_checkout_dir }}"
+branch="{{ machine_gitops_branch }}"
+
+deploy=false
+while read -r _old new ref; do
+  [ "$ref" = "refs/heads/${branch}" ] || continue
+  # A deleted branch has nothing to deploy.
+  [ "$new" = "0000000000000000000000000000000000000000" ] && continue
+  deploy=true
+done
+"$deploy" || exit 0
+
+# One deploy at a time.
+exec 9>"${repo}/gitops.lock"
+flock 9
+
+if [ -d "${checkout}/.git" ]; then
+  git -C "$checkout" fetch --quiet origin "$branch"
+  git -C "$checkout" reset --hard --quiet "origin/${branch}"
+else
+  git clone --quiet --branch "$branch" "$repo" "$checkout"
+fi
+echo "Updated ${checkout} to $(git -C "$checkout" rev-parse --short HEAD)"
+{% if machine_gitops_command | length > 0 %}
+
+cd "$checkout"
+{% if machine_gitops_requirements | length > 0 %}
+if [ -f "{{ machine_gitops_requirements }}" ]; then
+  ansible-galaxy collection install --upgrade -r "{{ machine_gitops_requirements }}" -p "{{ machine_gitops_collections_path }}"
+fi
+{% endif %}
+
+echo "Running:" {{ machine_gitops_command | quote }}
+{{ machine_gitops_command }}
+{% endif %}

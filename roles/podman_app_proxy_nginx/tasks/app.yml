@@ -1,0 +1,22 @@
+---
+- name: Proxy container
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app
+  vars:
+    podman_app_name: "{{ podman_app_proxy_nginx_name }}"
+    podman_app_image: "{{ podman_app_proxy_nginx_image }}"
+    # Rootful on the host network, to bind ports 80 and 443 and reach apps
+    # published on 127.0.0.1.
+    podman_app_rootless: false
+    podman_app_networks: [host]
+    podman_app_config_dir: "{{ podman_app_proxy_nginx_dir }}/conf.d"
+    podman_app_config_mount: /etc/nginx/conf.d
+    # Shared label (z), so certificate files added while nginx runs stay readable.
+    podman_app_volumes:
+      - "{{ podman_app_proxy_nginx_tls_dir }}:/etc/nginx/tls:ro,z"
+    podman_app_config_files:
+      - src: "{{ podman_app_proxy_nginx_templates }}/proxy.conf.j2"
+        dest: proxy.conf
+    # nginx reloads its config on SIGHUP, without dropping connections.
+    podman_app_reload_signal: HUP
+    podman_app_external_address: ''

@@ -1,0 +1,110 @@
+---
+- name: Work out vhosts
+  ansible.builtin.set_fact:
+    podman_app_proxy_nginx_all_vhosts: >-
+      {{ (podman_app_proxy_nginx_vhosts
+          + ((podman_app_external_apps | default([])) if podman_app_proxy_nginx_podman_apps | bool else []))
+         | unique(attribute='server_name') | list }}
+    # Set now, as podman_app renders the template from its own role.
+    podman_app_proxy_nginx_templates: "{{ role_path }}/templates"
+
+- name: Create TLS directory
+  ansible.builtin.file:
+    path: "{{ podman_app_proxy_nginx_tls_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+  become: true
+
+# The container cannot read certificates elsewhere on the host (SELinux), so
+# they are copied into its config directory.
+- name: Find the certificate to use
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  become: true
+  loop: >-
+    {{ [podman_app_proxy_nginx_live_dir ~ '/fullchain.pem', podman_app_proxy_nginx_live_dir ~ '/privkey.pem']
+       if podman_app_proxy_nginx_certbot | bool
+       else ([podman_app_proxy_nginx_tls_cert, podman_app_proxy_nginx_tls_key]
+             if podman_app_proxy_nginx_tls_cert | length > 0 else []) }}
+  register: podman_app_proxy_nginx_cert_src
+
+- name: Copy the certificate and key
+  ansible.builtin.copy:
+    src: "{{ item.0.stat.lnk_source | default(item.0.stat.path) }}"
+    dest: "{{ podman_app_proxy_nginx_tls_dir }}/{{ item.1 }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0600'
+    # The label the tls/ volume has, so nginx can read a new file on reload.
+    setype: container_file_t
+    selevel: s0
+  become: true
+  loop: "{{ podman_app_proxy_nginx_cert_src.results | zip(['server.crt', 'server.key']) | list }}"
+  loop_control:
+    label: "{{ item.1 }}"
+  when: item.0.stat.exists | default(false)
+  register: podman_app_proxy_nginx_cert_copy
+
+- name: Work out whether HTTPS is on
+  ansible.builtin.set_fact:
+    podman_app_proxy_nginx_tls_active: >-
+      {{ podman_app_proxy_nginx_cert_src.results | length == 2
+         and podman_app_proxy_nginx_cert_src.results | map(attribute='stat.exists') | select | list | length == 2 }}
+
+- name: Run the proxy
+  ansible.builtin.include_tasks: app.yml
+
+- name: Check the nginx config
+  ansible.builtin.command: podman exec {{ podman_app_proxy_nginx_name }} nginx -t
+  changed_when: false
+  become: true
+  when: not ansible_check_mode
+
+# Not a handler: nginx must have it before certbot runs, below.
+- name: Reload nginx for a new certificate  # noqa: no-handler
+  ansible.builtin.command: podman kill --signal HUP {{ podman_app_proxy_nginx_name }}
+  changed_when: true
+  become: true
+  when: podman_app_proxy_nginx_cert_copy is changed
+
+- name: Let's Encrypt
+  when: podman_app_proxy_nginx_certbot | bool
+  block:
+    - name: Get the certificate
+      ansible.builtin.include_role:
+        name: jamesread.soe.systemd_service_certbot
+      vars:
+        systemd_service_certbot_domains: >-
+          {{ podman_app_proxy_nginx_all_vhosts | map(attribute='server_name') | list
+             + podman_app_proxy_nginx_certbot_extra_domains }}
+        systemd_service_certbot_cert_name: "{{ podman_app_proxy_nginx_certbot_cert_name }}"
+        systemd_service_certbot_email: "{{ podman_app_proxy_nginx_certbot_email }}"
+        systemd_service_certbot_http_port: "{{ podman_app_proxy_nginx_certbot_http_port }}"
+        systemd_service_certbot_deploy_hook: |
+          dir="{{ podman_app_proxy_nginx_tls_dir }}"
+          install -d -m 0750 "$dir"
+          install -m 0600 "$RENEWED_LINEAGE/fullchain.pem" "$dir/server.crt"
+          install -m 0600 "$RENEWED_LINEAGE/privkey.pem" "$dir/server.key"
+          podman kill --signal HUP {{ podman_app_proxy_nginx_name }} || true
+
+    - name: Turn on HTTPS now the certificate exists
+      when: not podman_app_proxy_nginx_tls_active | bool
+      block:
+        - name: Check for the new certificate
+          ansible.builtin.stat:
+            path: "{{ podman_app_proxy_nginx_tls_dir }}/server.key"
+          register: podman_app_proxy_nginx_new_cert
+          become: true
+
+        - name: Reconfigure with HTTPS
+          when: podman_app_proxy_nginx_new_cert.stat.exists
+          block:
+            - name: Turn on HTTPS
+              ansible.builtin.set_fact:
+                podman_app_proxy_nginx_tls_active: true
+
+            - name: Run the proxy with HTTPS
+              ansible.builtin.include_tasks: app.yml

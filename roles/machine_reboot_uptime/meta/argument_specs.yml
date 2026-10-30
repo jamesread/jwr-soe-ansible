@@ -1,0 +1,25 @@
+---
+argument_specs:
+  main:
+    short_description: Reboot the host when its uptime is over a limit, with Apprise notifications.
+    options:
+      machine_reboot_uptime_days:
+        type: float
+        default: 5
+        description: Reboot when uptime is more than this many days. 5 keeps uptime under about a week when run weekly.
+      machine_reboot_uptime_timeout:
+        type: int
+        default: 600
+        description: Seconds to wait for the host to come back.
+      machine_reboot_uptime_log_file:
+        type: str
+        default: /var/log/soe-reboot-uptime.log
+        description: Log of reboots on the host.
+      machine_reboot_uptime_apprise_host:
+        type: str
+        description:
+          - Apprise API to send to, eg http://apprise.example.com:8000. Defaults to the host's apprise_host.
+          - Empty runs Apprise on this host (podman_app_apprise), listening on 127.0.0.1 only.
+      machine_reboot_uptime_apprise_key:
+        type: str
+        description: Config key on the Apprise API to send to (/notify/<key>). Defaults to the host's apprise_key. Empty sends to /notify, which the local Apprise sends to podman_app_apprise_urls.

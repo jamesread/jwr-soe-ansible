@@ -1,0 +1,10 @@
+---
+systemd_service_proxy_httpd_live_dir: /etc/letsencrypt/live/{{ systemd_service_proxy_httpd_certbot_cert_name }}
+systemd_service_proxy_httpd_tls_wanted: >-
+  {{ systemd_service_proxy_httpd_certbot | bool or systemd_service_proxy_httpd_tls_cert | length > 0 }}
+systemd_service_proxy_httpd_cert_file: >-
+  {{ systemd_service_proxy_httpd_live_dir ~ '/fullchain.pem' if systemd_service_proxy_httpd_certbot | bool
+     else systemd_service_proxy_httpd_tls_cert }}
+systemd_service_proxy_httpd_key_file: >-
+  {{ systemd_service_proxy_httpd_live_dir ~ '/privkey.pem' if systemd_service_proxy_httpd_certbot | bool
+     else systemd_service_proxy_httpd_tls_key }}

@@ -1,0 +1,27 @@
+---
+- name: Apprise
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app
+  vars:
+    podman_app_name: apprise
+    podman_app_image: "{{ podman_app_apprise_image }}"
+    podman_app_rootless: "{{ podman_app_apprise_rootless }}"
+    # Never on an external interface.
+    podman_app_ports:
+      - 127.0.0.1:{{ podman_app_apprise_port }}:8000
+    podman_app_env:
+      APPRISE_STATEFUL_MODE: disabled
+      APPRISE_WORKER_COUNT: 1
+    # Notifications sent to /notify (with no key) go to these URLs. Passed in
+    # the 0600 env file, rather than a mounted config file, as the image
+    # takes ownership of what is mounted at /config.
+    podman_app_secret_env:
+      APPRISE_STATELESS_URLS: "{{ podman_app_apprise_urls | join(',') }}"
+    podman_app_volumes:
+      - apprise-config:/config
+    podman_app_external_address: ''
+
+# The machine_notify_* roles skip deploying it again in the same play.
+- name: Record that local Apprise is deployed
+  ansible.builtin.set_fact:
+    podman_app_apprise_deployed: true

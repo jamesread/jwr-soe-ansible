@@ -1,0 +1,106 @@
+---
+- name: Local Apprise
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app_apprise
+  when:
+    - machine_upgrade_fedora_release_apprise_local | bool
+    - podman_app_apprise_deployed is not defined
+
+- name: Gather distribution facts
+  ansible.builtin.setup:
+    gather_subset: [min]
+  when: ansible_facts['distribution'] is not defined
+
+# Run with --tags notify to check notifications get through, without upgrading.
+- name: Send a test notification
+  tags: [notify, never]
+  ansible.builtin.include_tasks:
+    file: notify.yml
+    apply:
+      tags: [notify]
+  vars:
+    machine_upgrade_fedora_release_must_deliver: true
+    machine_upgrade_fedora_release_type: info
+    machine_upgrade_fedora_release_title: Fedora release upgrade test
+    machine_upgrade_fedora_release_body: Test notification from machine_upgrade_fedora_release.
+
+- name: Upgrade to the next Fedora release
+  when: ansible_facts['distribution'] == 'Fedora'
+  vars:
+    machine_upgrade_fedora_release_current: "{{ ansible_facts['distribution_major_version'] | int }}"
+    machine_upgrade_fedora_release_target: "{{ (ansible_facts['distribution_major_version'] | int) + 1 }}"
+  block:
+    # repolist works with both dnf4 and dnf5.
+    - name: Check whether the next release is available, Fedora {{ machine_upgrade_fedora_release_target }}
+      ansible.builtin.command:
+        cmd: dnf --releasever={{ machine_upgrade_fedora_release_target }} -q repolist fedora
+      register: machine_upgrade_fedora_release_available
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      when: machine_upgrade_fedora_release_target | int <= machine_upgrade_fedora_release_max | int
+
+    - name: Upgrade
+      when:
+        - machine_upgrade_fedora_release_target | int <= machine_upgrade_fedora_release_max | int
+        - machine_upgrade_fedora_release_available.rc | default(1) == 0
+      block:
+        - name: Notify upgrade started
+          ansible.builtin.include_tasks: notify.yml
+          vars:
+            machine_upgrade_fedora_release_type: info
+            machine_upgrade_fedora_release_title: Fedora upgrade started
+            machine_upgrade_fedora_release_body: >-
+              Upgrading from Fedora {{ machine_upgrade_fedora_release_current }}
+              to {{ machine_upgrade_fedora_release_target }}.
+
+        - name: Update the current release first  # noqa: package-latest
+          ansible.builtin.dnf:
+            name: "*"
+            state: latest
+            update_cache: true
+          become: true
+
+        # dnf5 has system-upgrade built in; dnf4 needs the plugin.
+        - name: Package - dnf system-upgrade plugin
+          ansible.builtin.dnf:
+            name: dnf-plugin-system-upgrade
+            state: present
+          become: true
+          when: ansible_facts['distribution_major_version'] | int < 41
+
+        - name: Download Fedora {{ machine_upgrade_fedora_release_target }}
+          ansible.builtin.command:
+            cmd: dnf system-upgrade download --refresh --releasever={{ machine_upgrade_fedora_release_target }} -y
+          changed_when: true
+          become: true
+
+        - name: Notify before rebooting
+          ansible.builtin.include_tasks: notify.yml
+          vars:
+            machine_upgrade_fedora_release_type: warning
+            machine_upgrade_fedora_release_title: Rebooting for Fedora upgrade
+            machine_upgrade_fedora_release_body: >-
+              Rebooting to upgrade offline from Fedora {{ machine_upgrade_fedora_release_current }}
+              to {{ machine_upgrade_fedora_release_target }}.
+
+        # The offline upgrade takes a while and reboots again, so this does not wait.
+        - name: Reboot into the offline upgrade
+          ansible.builtin.command:
+            cmd: dnf system-upgrade reboot -y
+          async: 1
+          poll: 0
+          changed_when: true
+          become: true
+
+      rescue:
+        - name: Notify upgrade failed
+          ansible.builtin.include_tasks: notify.yml
+          vars:
+            machine_upgrade_fedora_release_type: failure
+            machine_upgrade_fedora_release_title: Fedora upgrade failed
+            machine_upgrade_fedora_release_body: "{{ ansible_failed_result.msg | default('Fedora upgrade failed') }}"
+
+        - name: Fail after notifying
+          ansible.builtin.fail:
+            msg: "{{ ansible_failed_result.msg | default('Fedora upgrade failed') }}"

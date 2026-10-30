@@ -1,0 +1,105 @@
+---
+- name: Check the installed OliveTin version
+  ansible.builtin.package_facts:
+
+# Released as an rpm on GitHub, without a signature.
+- name: Install OliveTin {{ systemd_service_olivetin_version }}
+  ansible.builtin.dnf:
+    name: "{{ systemd_service_olivetin_rpm_url }}"
+    state: present
+    disable_gpg_check: true
+  become: true
+  when: >-
+    ansible_facts.packages['OliveTin'] | default([]) | map(attribute='version') | first | default('')
+    != systemd_service_olivetin_version | string
+  notify: Restart OliveTin
+
+- name: Create config directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+  loop:
+    - "{{ systemd_service_olivetin_config_dir }}"
+    - "{{ systemd_service_olivetin_config_dir }}/config.d"
+
+- name: Install config
+  ansible.builtin.copy:
+    src: "{{ systemd_service_olivetin_config_src }}/"
+    dest: "{{ systemd_service_olivetin_config_dir }}/"
+    owner: root
+    group: root
+    mode: preserve
+    directory_mode: '0755'
+  become: true
+  when: systemd_service_olivetin_config_src | length > 0
+  notify: Restart OliveTin
+
+- name: Remove stale config.d fragments
+  when:
+    - systemd_service_olivetin_config_src | length > 0
+    - systemd_service_olivetin_config_d_prune | bool
+  vars:
+    systemd_service_olivetin_wanted: >-
+      {{ query('ansible.builtin.fileglob', systemd_service_olivetin_config_src ~ '/config.d/*') | map('basename') | list
+         + ['50-podman-apps.yaml'] }}
+  block:
+    - name: Find installed config.d fragments
+      ansible.builtin.find:
+        paths: "{{ systemd_service_olivetin_config_dir }}/config.d"
+      register: systemd_service_olivetin_fragments
+      become: true
+
+    - name: Remove config.d fragments not in config_src
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      become: true
+      loop: "{{ systemd_service_olivetin_fragments.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+      when: item.path | basename not in systemd_service_olivetin_wanted
+      notify: Restart OliveTin
+
+# The packaged config does not load config.d/, so the app actions need this.
+- name: Load config.d fragments
+  ansible.builtin.lineinfile:
+    path: "{{ systemd_service_olivetin_config_dir }}/config.yaml"
+    regexp: '^include:'
+    line: 'include: config.d'
+  become: true
+  when:
+    - systemd_service_olivetin_config_src | length == 0
+    - systemd_service_olivetin_podman_app_actions | bool
+  notify: Restart OliveTin
+
+- name: Install podman_app actions
+  ansible.builtin.template:
+    src: podman-apps.yaml.j2
+    dest: "{{ systemd_service_olivetin_config_dir }}/config.d/50-podman-apps.yaml"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when:
+    - systemd_service_olivetin_podman_app_actions | bool
+    - podman_app_apps | default([]) | length > 0
+  notify: Restart OliveTin
+
+- name: Remove podman_app actions when there are none
+  ansible.builtin.file:
+    path: "{{ systemd_service_olivetin_config_dir }}/config.d/50-podman-apps.yaml"
+    state: absent
+  become: true
+  when: not (systemd_service_olivetin_podman_app_actions | bool and podman_app_apps | default([]) | length > 0)
+  notify: Restart OliveTin
+
+- name: Service - OliveTin
+  ansible.builtin.systemd_service:
+    name: OliveTin
+    state: started
+    enabled: true
+  become: true

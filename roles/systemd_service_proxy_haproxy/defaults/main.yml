@@ -1,0 +1,26 @@
+---
+# A whole haproxy.cfg template of your own (found via the playbook search
+# path). When set, it is used as is, and the options below are ignored.
+systemd_service_proxy_haproxy_cfg_file: ''
+
+# Name-based reverse proxy vhosts. Each entry: server_name, upstream
+# (eg http://127.0.0.1:8080/), and optionally tls (default true). Only the
+# host and port of upstream are used.
+systemd_service_proxy_haproxy_vhosts: []
+# Also add a vhost for each podman_app app on this host that sets
+# podman_app_external_address (read from the podman_app_external_apps fact).
+systemd_service_proxy_haproxy_podman_apps: true
+
+# HTTPS with a certificate you supply: one PEM file holding the certificate
+# chain and private key. When set, port 80 redirects to HTTPS.
+systemd_service_proxy_haproxy_tls_pem: ''
+# Or get a Let's Encrypt certificate for every vhost, with systemd_service_certbot.
+systemd_service_proxy_haproxy_certbot: false
+systemd_service_proxy_haproxy_certbot_email: ''
+systemd_service_proxy_haproxy_certbot_cert_name: "{{ inventory_hostname }}"
+# Extra domains for the certificate, besides the vhosts' server names.
+systemd_service_proxy_haproxy_certbot_extra_domains: []
+systemd_service_proxy_haproxy_certbot_http_port: 9080
+
+# Address for stats (/stats) and Prometheus metrics (/metrics). Empty turns it off.
+systemd_service_proxy_haproxy_stats_bind: 127.0.0.1:8404

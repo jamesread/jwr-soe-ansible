@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Installs OliveTin (web buttons for shell commands) as a service, with actions for each podman_app app.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - '9'
+        - '10'
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - olivetin

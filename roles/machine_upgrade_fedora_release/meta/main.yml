@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Upgrades Fedora to the next release when one is available, with Apprise notifications.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - fedora
+    - upgrade
+    - apprise

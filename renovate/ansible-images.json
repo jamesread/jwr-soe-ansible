@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "jamesread.soe: container image tags and annotated versions in Ansible YAML and Podman quadlet files.",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Container images with a registry host, eg podman_app_image: ghcr.io/org/app:1.2.3, a list item, or Image= in a quadlet. Tags that are not versions (eg latest) are skipped.",
+      "managerFilePatterns": [
+        "/(^|/)(ansible|roles|group_vars|host_vars|inventory|playbooks)/.+\\.ya?ml$/",
+        "/\\.(container|image|kube|pod)$/"
+      ],
+      "matchStrings": [
+        "(?:Image=|:[ \\t]+[\"']?|-[ \\t]+[\"']?)(?<depName>(?:[a-z0-9-]+\\.)+[a-z0-9-]+(?::\\d+)?/[a-z0-9._/-]+):(?<currentValue>[A-Za-z0-9_][A-Za-z0-9._-]{0,127})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Any value with a renovate comment on the line above, eg:\n# renovate: datasource=github-releases depName=OliveTin/OliveTin\nsystemd_service_olivetin_version: 3000.20.0",
+      "managerFilePatterns": [
+        "/(^|/)(ansible|roles|group_vars|host_vars|inventory|playbooks)/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "#[ \\t]*renovate:[ \\t]*datasource=(?<datasource>\\S+)[ \\t]+depName=(?<depName>\\S+)(?:[ \\t]+versioning=(?<versioning>\\S+))?[ \\t]*\\n[^\\n:]*:[ \\t]*[\"']?(?<currentValue>[^\\s\"'#]+)"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}loose{{/if}}"
+    }
+  ]
+}

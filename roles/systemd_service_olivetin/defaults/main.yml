@@ -1,0 +1,16 @@
+---
+# renovate: datasource=github-releases depName=OliveTin/OliveTin
+systemd_service_olivetin_version: 3000.20.0
+systemd_service_olivetin_rpm_url: >-
+  https://github.com/OliveTin/OliveTin/releases/download/{{ systemd_service_olivetin_version }}/OliveTin_linux_{{
+  'arm64' if ansible_facts['architecture'] | default('x86_64') == 'aarch64' else 'amd64' }}.rpm
+systemd_service_olivetin_config_dir: /etc/OliveTin
+# Directory of OliveTin config in your playbook's files (eg OliveTin), copied
+# to the config directory: config.yaml, and optionally config.d/, entities/,
+# custom-webui/ and so on. Empty keeps the packaged config.
+systemd_service_olivetin_config_src: ''
+# Remove fragments in config.d/ that are not in config_src.
+systemd_service_olivetin_config_d_prune: true
+# Generate start, stop, restart and update actions for every podman_app app on
+# this host (from the podman_app_apps fact), in config.d/.
+systemd_service_olivetin_podman_app_actions: true

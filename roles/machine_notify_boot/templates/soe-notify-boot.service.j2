@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Send an Apprise notification on boot
+Wants=network-online.target{{ ' apprise.service' if machine_notify_boot_apprise_local | bool }}
+After=network-online.target{{ ' apprise.service' if machine_notify_boot_apprise_local | bool }}
+
+[Service]
+Type=oneshot
+ExecStart={{ machine_notify_boot_script }}
+
+[Install]
+WantedBy=multi-user.target

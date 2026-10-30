@@ -1,3 +1,12 @@
 ---
 podman_app_grafana_image: docker.io/grafana/grafana:latest
-podman_app_grafana_volume: /containers/grafana
+podman_app_grafana_ports:
+  - 3000:3000
+# Override to keep existing data elsewhere, eg
+# ['/containers/grafana_data:/var/lib/grafana:Z'] (owned by uid 472).
+podman_app_grafana_volumes:
+  - grafana-data:/var/lib/grafana
+# Grafana settings as environment variables, eg GF_SERVER_ROOT_URL.
+podman_app_grafana_env: {}
+# Hostname to publish at via a proxy role. Empty does not publish.
+podman_app_grafana_external_address: ''

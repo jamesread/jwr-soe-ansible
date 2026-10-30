@@ -1,4 +1,10 @@
 ---
 podman_app_prometheus_image: docker.io/prom/prometheus:latest
+podman_app_prometheus_ports:
+  - 9090:9090
 podman_app_prometheus_cfg_file: prometheus.yml
 podman_app_prometheus_alert_file: alert.rules
+# Extra command line arguments, eg --web.external-url=https://prom.example.com/
+podman_app_prometheus_extra_args: []
+# Hostname to publish at via a proxy role. Empty does not publish.
+podman_app_prometheus_external_address: ''

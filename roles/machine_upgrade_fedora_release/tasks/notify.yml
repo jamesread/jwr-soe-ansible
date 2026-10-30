@@ -1,0 +1,26 @@
+---
+# Logs, and sends one Apprise notification. Set machine_upgrade_fedora_release_type,
+# _title and _body. A failed notification does not fail the run, unless
+# machine_upgrade_fedora_release_must_deliver is set (for the test notification).
+- name: Log - {{ machine_upgrade_fedora_release_title }}
+  ansible.builtin.lineinfile:
+    path: "{{ machine_upgrade_fedora_release_log_file }}"
+    line: "[{{ now(utc=true).isoformat() }}] {{ machine_upgrade_fedora_release_title }}: {{ machine_upgrade_fedora_release_body | replace('\n', ' ') }}"
+    create: true
+    mode: '0644'
+  become: true
+  changed_when: false
+
+- name: Notify - {{ machine_upgrade_fedora_release_title }}
+  ansible.builtin.uri:
+    url: "{{ machine_upgrade_fedora_release_apprise_url }}"
+    method: POST
+    body_format: json
+    body:
+      title: "{{ ansible_facts['fqdn'] | default(inventory_hostname) }}: {{ machine_upgrade_fedora_release_title }}"
+      body: "{{ machine_upgrade_fedora_release_body }}"
+      type: "{{ machine_upgrade_fedora_release_type }}"
+  register: machine_upgrade_fedora_release_notify_result
+  failed_when:
+    - machine_upgrade_fedora_release_must_deliver | default(false) | bool
+    - machine_upgrade_fedora_release_notify_result.status | default(0) != 200

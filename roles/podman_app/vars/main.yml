@@ -1,0 +1,10 @@
+---
+podman_app_systemd_scope: "{{ 'user' if podman_app_rootless | bool else 'system' }}"
+# Network modes podman provides itself, so no .network quadlet is written.
+podman_app_builtin_networks:
+  - host
+  - none
+  - private
+  - bridge
+  - pasta
+  - slirp4netns

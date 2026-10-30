@@ -1,0 +1,36 @@
+---
+argument_specs:
+  main:
+    short_description: GitOps by push, with a bare repo whose post-receive hook refreshes a checkout and runs a command.
+    options:
+      machine_gitops_name:
+        type: str
+        required: true
+        description: Name of the site repo, eg example.com. Used in the default paths.
+      machine_gitops_repo_dir:
+        type: str
+        description: Bare repo on this host to push to. Defaults to /srv/git/<name>.git.
+      machine_gitops_checkout_dir:
+        type: str
+        description: Deploy checkout, refreshed on every push (local edits there are discarded). Defaults to /srv/gitops/<name>.
+      machine_gitops_branch:
+        type: str
+        default: main
+        description: Branch that deploys.
+      machine_gitops_command:
+        type: str
+        default: ''
+        description: Command run in the checkout after each push, eg ansible-playbook ansible/playbooks/site.yml -c local -l myhost. Empty only refreshes the checkout.
+      machine_gitops_requirements:
+        type: str
+        default: ansible/collections/requirements.yml
+        description: Collections requirements file in the repo. If it exists, the collections are installed (upgraded within their version ranges) before the command. Empty skips this.
+      machine_gitops_collections_path:
+        type: str
+        default: ansible/collections
+        description: Where in the checkout to install the collections.
+      machine_gitops_packages:
+        type: list
+        elements: str
+        default: [git, ansible-core]
+        description: Packages the hook needs.

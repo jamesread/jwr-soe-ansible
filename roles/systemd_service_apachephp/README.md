@@ -1,9 +1,14 @@
 # systemd_service_apachephp
 
 Installs httpd.
+
+<!-- BEGIN GENERATED VARIABLES -->
+
 ## Variables
+
 This role does not have any variables.
 
+<!-- END GENERATED VARIABLES -->
 
 ## Example usage in a playbook
 

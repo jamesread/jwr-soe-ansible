@@ -1,0 +1,12 @@
+---
+- name: Install haproxy config
+  ansible.builtin.template:
+    src: "{{ systemd_service_proxy_haproxy_cfg_file if systemd_service_proxy_haproxy_cfg_file | length > 0 else 'haproxy.cfg.j2' }}"
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+    validate: haproxy -c -f %s
+  become: true
+  register: systemd_service_proxy_haproxy_config
+  notify: Reload haproxy

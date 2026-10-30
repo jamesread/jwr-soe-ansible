@@ -1,0 +1,5 @@
+---
+systemd_service_proxy_haproxy_certbot_pem: /etc/haproxy/certs/{{ systemd_service_proxy_haproxy_certbot_cert_name }}.pem
+systemd_service_proxy_haproxy_pem: >-
+  {{ systemd_service_proxy_haproxy_certbot_pem if systemd_service_proxy_haproxy_certbot | bool
+     else systemd_service_proxy_haproxy_tls_pem }}

@@ -1,0 +1,9 @@
+---
+podman_app_apprise_image: docker.io/caronc/apprise:latest
+# Published on 127.0.0.1 only, so only this host can send notifications.
+podman_app_apprise_port: 8000
+# Apprise URLs that notifications sent to /notify go to, eg
+# tgram://bottoken/ChatID. They hold tokens, so keep them in a vault.
+podman_app_apprise_urls: []
+# Rootful, so it runs from boot for every user and for machine-level notifications.
+podman_app_apprise_rootless: false

@@ -16,15 +16,19 @@ argument_specs:
       machine_hardening_auth_sshd_config_block:
         type: bool
         default: true
-        description: Also append the settings to the tail of /etc/ssh/sshd_config.
+        description: Also put the settings at the top of /etc/ssh/sshd_config, before its Include line, so they win over everything else.
       machine_hardening_auth_sshd_options:
         type: dict
-        description: Ordered sshd options written to the drop-in and config block.
+        description: Ordered sshd options written to the drop-in and config block. Give times in seconds, as they are verified against sshd -T.
       machine_hardening_auth_ssh_allow_users:
         type: list
         elements: str
         default: []
         description: AllowUsers entries. Empty omits AllowUsers. Include ansible_user.
+      machine_hardening_auth_verify:
+        type: bool
+        default: true
+        description: Fail the run if sshd -T shows any hardening option or AllowUsers did not take effect.
       machine_hardening_auth_fail2ban:
         type: bool
         default: true

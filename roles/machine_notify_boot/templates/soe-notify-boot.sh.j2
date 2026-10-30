@@ -1,0 +1,20 @@
+#!/bin/bash
+# {{ ansible_managed }}
+# Sends an Apprise notification that this host has booted. Never fails the boot.
+set -uo pipefail
+
+host="$(hostname -f 2>/dev/null || hostname)"
+os="unknown"
+if [[ -r /etc/os-release ]]; then
+  # shellcheck source=/dev/null
+  . /etc/os-release
+  os="${PRETTY_NAME:-${NAME:-unknown} ${VERSION_ID:-}}"
+fi
+
+# Apprise may still be starting, so retry for a while.
+curl -fsS -o /dev/null --max-time 20 --retry 10 --retry-delay 6 --retry-all-errors \
+  --data-urlencode "title=${host}: boot" \
+  --data-urlencode "body=${host} has booted up, os ${os}" \
+  --data-urlencode "type=info" \
+  "{{ machine_notify_boot_apprise_url }}" || true
+exit 0

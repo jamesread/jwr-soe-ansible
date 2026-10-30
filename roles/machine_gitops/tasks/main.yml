@@ -1,0 +1,56 @@
+---
+- name: Packages - GitOps
+  ansible.builtin.package:
+    name: "{{ machine_gitops_packages }}"
+    state: present
+  become: true
+
+- name: Create bare repo directory
+  ansible.builtin.file:
+    path: "{{ machine_gitops_repo_dir | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+# The git module cannot create a bare repo.
+- name: Create bare repo  # noqa: command-instead-of-module
+  ansible.builtin.command:
+    cmd: git init --bare --initial-branch={{ machine_gitops_branch }} {{ machine_gitops_repo_dir }}
+    creates: "{{ machine_gitops_repo_dir }}/HEAD"
+  become: true
+
+- name: Install post-receive hook
+  ansible.builtin.template:
+    src: post-receive.j2
+    dest: "{{ machine_gitops_repo_dir }}/hooks/post-receive"
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Check whether the repo has been pushed to
+  ansible.builtin.stat:
+    path: "{{ machine_gitops_repo_dir }}/refs/heads/{{ machine_gitops_branch }}"
+  register: machine_gitops_pushed
+  become: true
+
+- name: Create checkout directory
+  ansible.builtin.file:
+    path: "{{ machine_gitops_checkout_dir | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+# Also done by the hook on every push; this covers a new or wiped host.
+- name: Update deploy checkout
+  ansible.builtin.git:
+    repo: "{{ machine_gitops_repo_dir }}"
+    dest: "{{ machine_gitops_checkout_dir }}"
+    version: "{{ machine_gitops_branch }}"
+    force: true
+  become: true
+  when: machine_gitops_pushed.stat.exists

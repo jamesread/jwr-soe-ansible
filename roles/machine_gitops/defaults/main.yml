@@ -1,0 +1,19 @@
+---
+# machine_gitops_name (eg the site repo's name, example.com) is required.
+
+# Bare repo on this host to push to, eg git push root@host:/srv/git/example.com.git
+machine_gitops_repo_dir: /srv/git/{{ machine_gitops_name }}.git
+# Deploy checkout, refreshed on every push. Local edits there are discarded.
+machine_gitops_checkout_dir: /srv/gitops/{{ machine_gitops_name }}
+machine_gitops_branch: main
+# Command run in the checkout after each push, eg
+# ansible-playbook ansible/playbooks/site.yml -c local -l myhost
+# Empty only refreshes the checkout.
+machine_gitops_command: ''
+# Before the command, install the collections the repo requires (if this file
+# exists in it) into machine_gitops_collections_path.
+machine_gitops_requirements: ansible/collections/requirements.yml
+machine_gitops_collections_path: ansible/collections
+machine_gitops_packages:
+  - git
+  - ansible-core

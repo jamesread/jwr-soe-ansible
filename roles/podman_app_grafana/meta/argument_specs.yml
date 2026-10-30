@@ -7,7 +7,21 @@ argument_specs:
         type: str
         default: docker.io/grafana/grafana:latest
         description: Grafana container image.
-      podman_app_grafana_volume:
+      podman_app_grafana_ports:
+        type: list
+        elements: str
+        default: ['3000:3000']
+        description: Published ports, as for podman_app_ports.
+      podman_app_grafana_volumes:
+        type: list
+        elements: str
+        default: ['grafana-data:/var/lib/grafana']
+        description: Volumes, as for podman_app_volumes. Override to keep existing data in a host directory.
+      podman_app_grafana_env:
+        type: dict
+        default: {}
+        description: Grafana settings as environment variables, eg GF_SERVER_ROOT_URL.
+      podman_app_grafana_external_address:
         type: str
-        default: /containers/grafana
-        description: Host path prefix. Data is kept in <prefix>_data and config in <prefix>_config.
+        default: ''
+        description: Hostname to publish Grafana at, via a proxy role (see podman_app_external_address). Empty does not publish it.

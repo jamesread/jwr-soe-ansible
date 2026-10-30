@@ -1,0 +1,62 @@
+---
+argument_specs:
+  main:
+    short_description: Install httpd as a name-based reverse proxy for local services.
+    options:
+      systemd_service_proxy_httpd_manage_packages:
+        type: bool
+        default: true
+        description: Install the httpd package (and mod_ssl, when HTTPS is used).
+      systemd_service_proxy_httpd_conf_dir:
+        type: str
+        default: /etc/httpd/conf.d
+        description: Directory for vhost config files.
+      systemd_service_proxy_httpd_log_dir:
+        type: str
+        default: /var/log/httpd
+        description: Directory for per-vhost logs.
+      systemd_service_proxy_httpd_vhosts:
+        type: list
+        elements: dict
+        default: []
+        description:
+          - Reverse proxy vhosts. Keys are server_name and upstream, plus optional conf_name, tls (default true) and extra (raw lines for the vhost).
+      systemd_service_proxy_httpd_extra_templates:
+        type: list
+        elements: dict
+        default: []
+        description: Extra templates to install. Keys are src and dest, plus optional owner, group and mode.
+      systemd_service_proxy_httpd_podman_apps:
+        type: bool
+        default: true
+        description:
+          - Also add a vhost for each podman_app app on this host that sets podman_app_external_address.
+          - Run this role after the podman_app roles in the same play, as it reads the podman_app_external_apps fact they set.
+      systemd_service_proxy_httpd_tls_cert:
+        type: str
+        default: ''
+        description: Certificate (chain) file on the host for HTTPS. When set, vhosts also listen on 443 and port 80 redirects to HTTPS.
+      systemd_service_proxy_httpd_tls_key:
+        type: str
+        default: ''
+        description: Private key file on the host for HTTPS.
+      systemd_service_proxy_httpd_certbot:
+        type: bool
+        default: false
+        description: Get a Let's Encrypt certificate for every vhost (with systemd_service_certbot) and use it for HTTPS.
+      systemd_service_proxy_httpd_certbot_email:
+        type: str
+        default: ''
+        description: Contact for Let's Encrypt expiry warnings.
+      systemd_service_proxy_httpd_certbot_cert_name:
+        type: str
+        description: Name of the Let's Encrypt certificate. Defaults to the inventory hostname.
+      systemd_service_proxy_httpd_certbot_extra_domains:
+        type: list
+        elements: str
+        default: []
+        description: Extra domains for the certificate, besides the vhosts' server names.
+      systemd_service_proxy_httpd_certbot_http_port:
+        type: int
+        default: 9080
+        description: Port on 127.0.0.1 that certbot answers challenges on.

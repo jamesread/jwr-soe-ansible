@@ -1,0 +1,16 @@
+---
+# systemd_service_certbot_domains (the certificate's domains) is required.
+
+# Name of the certificate, ie its directory under /etc/letsencrypt/live.
+systemd_service_certbot_cert_name: "{{ systemd_service_certbot_domains | first | default('') }}"
+# Contact for expiry warnings. Empty registers without an email address.
+systemd_service_certbot_email: ''
+# certbot answers the http-01 challenge itself, listening on 127.0.0.1 at this
+# port only while it runs. The proxy on port 80 must forward
+# /.well-known/acme-challenge/ here (the proxy roles do this).
+systemd_service_certbot_http_port: 9080
+# Shell commands run after the certificate is issued or renewed, with
+# RENEWED_LINEAGE set to its live directory, eg to reload the proxy.
+systemd_service_certbot_deploy_hook: ''
+# Use the Let's Encrypt staging server (for testing; certificates are untrusted).
+systemd_service_certbot_staging: false

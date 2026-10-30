@@ -6,40 +6,55 @@ This is published on Ansible Galaxy as [jamesread.soe](https://galaxy.ansible.co
 
 ## Roles
 
+<!-- BEGIN GENERATED ROLES -->
+
 ### infra layer
 
-*  jamesread.soe.[infra_libvirt_vm](roles/infra_libvirt_vm) - Creates a libvirtvm.
+* jamesread.soe.[infra_libvirt_vm](roles/infra_libvirt_vm) - Creates a libvirtvm.
 
 ### machine layer
 
-*  jamesread.soe.[machine_hardening_auth](roles/machine_hardening_auth) - Hardens SSH authentication (sshd options, AllowUsers) and adds a fail2ban sshd jail.
-*  jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
-*  jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
-*  jamesread.soe.[machine_podman](roles/machine_podman) - Installs podman.
-*  jamesread.soe.[machine_sysadmin_utils](roles/machine_sysadmin_utils) - Various utils used for sysadmins.
-*  jamesread.soe.[machine_wol](roles/machine_wol) - Enable Wake on LAN.
-*  jamesread.soe.[machine_workstation](roles/machine_workstation) - My desktop workstation
+* jamesread.soe.[machine_gitops](roles/machine_gitops) - GitOps by push. A bare repo whose post-receive hook refreshes a deploy checkout and runs a command, eg ansible-playbook.
+* jamesread.soe.[machine_hardening_auth](roles/machine_hardening_auth) - Hardens SSH authentication (sshd options, AllowUsers) and adds a fail2ban sshd jail.
+* jamesread.soe.[machine_k8s](roles/machine_k8s) - Install a k8s node (could be a control/worker).
+* jamesread.soe.[machine_kiosk](roles/machine_kiosk) - My heads up display (kiosk)
+* jamesread.soe.[machine_notify_boot](roles/machine_notify_boot) - Sends an Apprise notification each time the host boots.
+* jamesread.soe.[machine_notify_ssh_login](roles/machine_notify_ssh_login) - Sends an Apprise notification when someone opens an interactive SSH login.
+* jamesread.soe.[machine_podman](roles/machine_podman) - Installs podman.
+* jamesread.soe.[machine_reboot_uptime](roles/machine_reboot_uptime) - Reboots the host when its uptime is over a limit, with Apprise notifications.
+* jamesread.soe.[machine_sysadmin_utils](roles/machine_sysadmin_utils) - Various utils used for sysadmins.
+* jamesread.soe.[machine_upgrade_fedora_release](roles/machine_upgrade_fedora_release) - Upgrades Fedora to the next release when one is available, with Apprise notifications.
+* jamesread.soe.[machine_wol](roles/machine_wol) - Enable Wake on LAN.
+* jamesread.soe.[machine_workstation](roles/machine_workstation) - My desktop workstation
 
 ### workload layer
 
-*  jamesread.soe.[podman_app](roles/podman_app) - Runs any container image as a systemd service, using a Podman quadlet.
-*  jamesread.soe.[podman_app_grafana](roles/podman_app_grafana) - Runs Grafana as a systemd service (podman quadlet).
-*  jamesread.soe.[podman_app_prometheus](roles/podman_app_prometheus) - Runs Prometheus as a systemd service (podman quadlet).
-*  jamesread.soe.[podman_compose_apps](roles/podman_compose_apps) - Deploys rootless Podman Compose apps from a list of compose templates.
-*  jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
-*  jamesread.soe.[podman_loki](roles/podman_loki) - Install loki as a podman container.
-*  jamesread.soe.[podman_promtail](roles/podman_promtail) - Installs a promtail container.
-*  jamesread.soe.[systemd_service_apachephp](roles/systemd_service_apachephp) - Installs httpd.
-*  jamesread.soe.[systemd_service_filebeat](roles/systemd_service_filebeat) - Installs a filebeat service.
-*  jamesread.soe.[systemd_service_haproxy](roles/systemd_service_haproxy) - Installs haproxy as a service.
-*  jamesread.soe.[systemd_service_httpd_proxy](roles/systemd_service_httpd_proxy) - Installs httpd as a name-based reverse proxy for local services.
-*  jamesread.soe.[systemd_service_jenkins](roles/systemd_service_jenkins) - Installs jenkins as a service.
-*  jamesread.soe.[systemd_service_journalbeat](roles/systemd_service_journalbeat) - Installs a journalbeat systemd service.
-*  jamesread.soe.[systemd_service_kvmlibvirt](roles/systemd_service_kvmlibvirt) - Installs kvm, libvirt and essential virt tools.
+* jamesread.soe.[podman_app](roles/podman_app) - Runs any container image as a systemd service (rootless by default), using a Podman quadlet.
+* jamesread.soe.[podman_app_apprise](roles/podman_app_apprise) - Runs the Apprise notification API (podman_app), listening on 127.0.0.1 only.
+* jamesread.soe.[podman_app_grafana](roles/podman_app_grafana) - Runs Grafana as a systemd service (podman quadlet).
+* jamesread.soe.[podman_app_prometheus](roles/podman_app_prometheus) - Runs Prometheus as a systemd service (podman quadlet).
+* jamesread.soe.[podman_app_proxy_nginx](roles/podman_app_proxy_nginx) - Runs nginx in a container (podman_app) as a name-based reverse proxy for local services.
+* jamesread.soe.[podman_efk](roles/podman_efk) - Installs a EFK stack.
+* jamesread.soe.[podman_loki](roles/podman_loki) - Install loki as a podman container.
+* jamesread.soe.[podman_promtail](roles/podman_promtail) - Installs a promtail container.
+* jamesread.soe.[systemd_service_apachephp](roles/systemd_service_apachephp) - Installs httpd.
+* jamesread.soe.[systemd_service_certbot](roles/systemd_service_certbot) - Gets and renews a Let's Encrypt certificate with certbot (http-01, behind a proxy).
+* jamesread.soe.[systemd_service_filebeat](roles/systemd_service_filebeat) - Installs a filebeat service.
+* jamesread.soe.[systemd_service_jenkins](roles/systemd_service_jenkins) - Installs jenkins as a service.
+* jamesread.soe.[systemd_service_journalbeat](roles/systemd_service_journalbeat) - Installs a journalbeat systemd service.
+* jamesread.soe.[systemd_service_kvmlibvirt](roles/systemd_service_kvmlibvirt) - Installs kvm, libvirt and essential virt tools.
+* jamesread.soe.[systemd_service_olivetin](roles/systemd_service_olivetin) - Installs OliveTin (web buttons for shell commands) as a service, with actions for each podman_app app.
+* jamesread.soe.[systemd_service_proxy_haproxy](roles/systemd_service_proxy_haproxy) - Installs haproxy as a name-based reverse proxy for local services.
+* jamesread.soe.[systemd_service_proxy_httpd](roles/systemd_service_proxy_httpd) - Installs httpd as a name-based reverse proxy for local services.
 
 ### misc layer
 
-*  jamesread.soe.[common](roles/common) - Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
+* jamesread.soe.[common](roles/common) - Common/baseline config. Prometheus node exporter, sshd, SMART, etc.
+
+<!-- END GENERATED ROLES -->
+
+The role list and each role's variables table are generated by
+`./roles-to-readme.py`; the rest of each README is written by hand.
 
 ## Usage
 
@@ -69,8 +84,73 @@ Create a playbook like this
 1. Infra (provisioning machines): `infra_*`
 2. OS Configuration (Physical/Virtual machine) - `machine_`
 3. OS Apps: `systemd_service_*`
-4. OS Containers: `podman_*`. `podman_app` runs any image as a quadlet;
-   `podman_app_*` roles are common apps built on it.
+4. OS Containers: `podman_*`. `podman_app` runs any image as a quadlet, and is
+   the only approved way to deploy podman apps; `podman_app_*` roles are
+   common apps built on it.
+
+## Publishing apps: proxies and HTTPS
+
+Apps that set `podman_app_external_address` are recorded in the
+`podman_app_external_apps` fact, and a proxy role run later in the same play
+turns each into a vhost. There are three approved proxies, with the same vhost
+and HTTPS options:
+
+| Role | Runs | Notes |
+|------|------|-------|
+| [podman_app_proxy_nginx](roles/podman_app_proxy_nginx) | nginx in a container | Recommended. Nothing on the host but podman. |
+| [systemd_service_proxy_httpd](roles/systemd_service_proxy_httpd) | httpd on the host | |
+| [systemd_service_proxy_haproxy](roles/systemd_service_proxy_haproxy) | haproxy on the host | Can also take a whole hand-written config. |
+
+Each serves plain HTTP by default (eg behind Cloudflare), or HTTPS with a
+certificate you supply, or with a Let's Encrypt certificate covering every
+vhost (`*_certbot: true`, using [systemd_service_certbot](roles/systemd_service_certbot)).
+
+## Apprise notifications
+
+The `machine_notify_boot`, `machine_notify_ssh_login`,
+`machine_upgrade_fedora_release` and `machine_reboot_uptime` roles send
+notifications to an [Apprise API](https://github.com/caronc/apprise-api):
+
+- By default each host runs its own, with [podman_app_apprise](roles/podman_app_apprise),
+  listening on `127.0.0.1` only. Set where notifications go with
+  `podman_app_apprise_urls` (keep the URLs in a vault).
+- Or set `apprise_host` for a host (or group), eg `http://apprise.example.com:8000`,
+  to send to a shared Apprise API instead; nothing is then installed locally.
+  `apprise_key` picks the config key there (`/notify/<key>`); without one,
+  notifications go to `/notify`.
+
+## Renovate
+
+Pin image tags (eg `ghcr.io/org/app:1.2.3` rather than `:latest`) and
+[Renovate](https://docs.renovatebot.com/) can propose updates. This repo
+publishes a preset that finds them in Ansible YAML (under `ansible/`, `roles/`,
+`group_vars/`, `host_vars/`, `inventory/` and `playbooks/`) and in quadlet
+files. Environment repos extend it in their `renovate.json`:
+
+```json
+{
+  "extends": [
+    "config:recommended",
+    "github>jamesread/jwr-soe-ansible//renovate/ansible-images"
+  ]
+}
+```
+
+It updates:
+
+- Image references with a registry host, eg `podman_app_image: ghcr.io/org/app:1.2.3`,
+  list items, and `Image=` in quadlets. Tags that are not versions (eg
+  `latest`) are left alone. Docker Hub images need the `docker.io/` prefix,
+  which podman wants anyway.
+- Any value with a `renovate:` comment on the line above, eg
+
+  ```yaml
+  # renovate: datasource=github-releases depName=OliveTin/OliveTin
+  systemd_service_olivetin_version: 3000.20.0
+  ```
+
+Images that are not pinned are kept current by `podman_app_tag_update`
+instead, which needs no image watcher (eg WUD) on the host.
 
 ## Versioning and releases
 

@@ -1,0 +1,6 @@
+---
+machine_upgrade_fedora_release_apprise_local: "{{ machine_upgrade_fedora_release_apprise_host | length == 0 }}"
+machine_upgrade_fedora_release_apprise_url: >-
+  {{ machine_upgrade_fedora_release_apprise_host | regex_replace('/+$', '')
+     if machine_upgrade_fedora_release_apprise_host | length > 0
+     else 'http://127.0.0.1:' ~ (podman_app_apprise_port | default(8000)) }}/notify{{ '/' ~ machine_upgrade_fedora_release_apprise_key if machine_upgrade_fedora_release_apprise_key | length > 0 }}

@@ -1,11 +1,16 @@
 # machine_workstation
 
 My desktop workstation
-## Variables
-| Variable | Default |
-|----------|---------|
-| `machine_workstation_graphical` | False |
 
+<!-- BEGIN GENERATED VARIABLES -->
+
+## Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `machine_workstation_graphical` | `False` | Install graphical apps (i3, polybar, firefox). |
+
+<!-- END GENERATED VARIABLES -->
 
 ## Example usage in a playbook
 
@@ -13,6 +18,4 @@ My desktop workstation
 - hosts: [myserver]
   roles:
     - role: jamesread.soe.machine_workstation
-      vars:
-        machine_workstation_graphical: False
 ```

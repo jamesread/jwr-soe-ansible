@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+# Sourced by login shells. Notifies once per interactive SSH login (with a
+# terminal), so not for scp, sftp, one-off ssh commands or Ansible. Sends in the
+# background, so a slow Apprise never delays the login.
+if [ -n "${SSH_TTY:-}" ] && [ -n "${SSH_CONNECTION:-}" ] && [ -z "${SOE_NOTIFY_SSH_LOGIN_SENT:-}" ]; then
+  export SOE_NOTIFY_SSH_LOGIN_SENT=1
+  (
+    _soe_host="$(hostname -f 2>/dev/null || hostname)"
+    curl -fsS -o /dev/null --max-time 30 \
+      --data-urlencode "title=${_soe_host}: SSH login" \
+      --data-urlencode "body=$(id -un) logged in to ${_soe_host} from ${SSH_CONNECTION%% *}" \
+      --data-urlencode "type=info" \
+      "{{ machine_notify_ssh_login_apprise_url }}" >/dev/null 2>&1 &
+  ) >/dev/null 2>&1
+fi

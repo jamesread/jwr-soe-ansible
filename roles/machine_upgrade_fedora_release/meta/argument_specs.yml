@@ -1,0 +1,21 @@
+---
+argument_specs:
+  main:
+    short_description: Upgrade Fedora to the next release when one is available, with Apprise notifications.
+    options:
+      machine_upgrade_fedora_release_max:
+        type: int
+        default: 44
+        description: Highest release to upgrade to. Stops upgrades onto a release before it is final; bump it when a new Fedora release ships.
+      machine_upgrade_fedora_release_log_file:
+        type: str
+        default: /var/log/soe-upgrade-fedora-release.log
+        description: Log of upgrade steps on the host.
+      machine_upgrade_fedora_release_apprise_host:
+        type: str
+        description:
+          - Apprise API to send to, eg http://apprise.example.com:8000. Defaults to the host's apprise_host.
+          - Empty runs Apprise on this host (podman_app_apprise), listening on 127.0.0.1 only.
+      machine_upgrade_fedora_release_apprise_key:
+        type: str
+        description: Config key on the Apprise API to send to (/notify/<key>). Defaults to the host's apprise_key. Empty sends to /notify, which the local Apprise sends to podman_app_apprise_urls.

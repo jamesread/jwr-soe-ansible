@@ -1,0 +1,4 @@
+---
+podman_app_proxy_nginx_name: proxy-nginx
+podman_app_proxy_nginx_tls_dir: "{{ podman_app_proxy_nginx_dir }}/tls"
+podman_app_proxy_nginx_live_dir: /etc/letsencrypt/live/{{ podman_app_proxy_nginx_certbot_cert_name }}

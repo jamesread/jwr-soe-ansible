@@ -1,0 +1,13 @@
+---
+# Highest release to upgrade to. Stops upgrades onto a branched or rawhide
+# release before it is final; bump it when a new Fedora release ships.
+machine_upgrade_fedora_release_max: 44
+machine_upgrade_fedora_release_log_file: /var/log/soe-upgrade-fedora-release.log
+
+# Apprise API to send to, eg http://apprise.example.com:8000. Empty (the
+# default, unless the host sets apprise_host) runs Apprise on this host, with
+# podman_app_apprise, listening on 127.0.0.1 only.
+machine_upgrade_fedora_release_apprise_host: "{{ apprise_host | default('') }}"
+# Config key on apprise_host to send to (/notify/<key>). Empty sends to /notify,
+# which the local Apprise sends to podman_app_apprise_urls.
+machine_upgrade_fedora_release_apprise_key: "{{ apprise_key | default('') }}"

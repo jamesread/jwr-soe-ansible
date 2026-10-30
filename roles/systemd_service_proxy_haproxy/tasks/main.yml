@@ -1,0 +1,95 @@
+---
+- name: Package - haproxy
+  ansible.builtin.package:
+    name: haproxy
+    state: present
+  become: true
+
+# Lets haproxy connect to services on any port.
+- name: SEbool - haproxy_connect_any
+  ansible.posix.seboolean:
+    name: haproxy_connect_any
+    state: true
+    persistent: true
+    ignore_selinux_state: true
+  become: true
+
+- name: Work out vhosts
+  ansible.builtin.set_fact:
+    systemd_service_proxy_haproxy_all_vhosts: >-
+      {{ (systemd_service_proxy_haproxy_vhosts
+          + ((podman_app_external_apps | default([])) if systemd_service_proxy_haproxy_podman_apps | bool else []))
+         | unique(attribute='server_name') | list }}
+
+- name: Check for the certificate PEM
+  ansible.builtin.stat:
+    path: "{{ systemd_service_proxy_haproxy_pem }}"
+  register: systemd_service_proxy_haproxy_pem_file
+  become: true
+  when: systemd_service_proxy_haproxy_pem | length > 0
+
+# haproxy will not start with a missing certificate, so HTTPS is only turned on
+# once the PEM exists (for certbot, after it gets the certificate below).
+- name: Work out whether HTTPS is on
+  ansible.builtin.set_fact:
+    systemd_service_proxy_haproxy_tls_active: >-
+      {{ systemd_service_proxy_haproxy_pem | length > 0 and systemd_service_proxy_haproxy_pem_file.stat.exists }}
+
+- name: Install config
+  ansible.builtin.include_tasks: config.yml
+
+- name: Service - haproxy
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
+  become: true
+
+- name: Let's Encrypt
+  when: systemd_service_proxy_haproxy_certbot | bool
+  block:
+    # certbot's challenge is answered through the config just written.
+    - name: Reload haproxy before getting the certificate  # noqa: no-handler
+      ansible.builtin.service:
+        name: haproxy
+        state: reloaded
+      become: true
+      when: systemd_service_proxy_haproxy_config is changed
+
+    # haproxy wants the chain and key in one file, so the hook assembles it.
+    - name: Get the certificate
+      ansible.builtin.include_role:
+        name: jamesread.soe.systemd_service_certbot
+      vars:
+        systemd_service_certbot_domains: >-
+          {{ systemd_service_proxy_haproxy_all_vhosts | map(attribute='server_name') | list
+             + systemd_service_proxy_haproxy_certbot_extra_domains }}
+        systemd_service_certbot_cert_name: "{{ systemd_service_proxy_haproxy_certbot_cert_name }}"
+        systemd_service_certbot_email: "{{ systemd_service_proxy_haproxy_certbot_email }}"
+        systemd_service_certbot_http_port: "{{ systemd_service_proxy_haproxy_certbot_http_port }}"
+        systemd_service_certbot_deploy_hook: |
+          pem="{{ systemd_service_proxy_haproxy_certbot_pem }}"
+          install -d -m 0750 "$(dirname "$pem")"
+          umask 077
+          cat "$RENEWED_LINEAGE/fullchain.pem" "$RENEWED_LINEAGE/privkey.pem" > "$pem.tmp"
+          mv "$pem.tmp" "$pem"
+          if systemctl is-active --quiet haproxy; then systemctl reload haproxy; fi
+
+    - name: Turn on HTTPS now the certificate exists
+      when: not systemd_service_proxy_haproxy_tls_active | bool
+      block:
+        - name: Check for the new certificate PEM
+          ansible.builtin.stat:
+            path: "{{ systemd_service_proxy_haproxy_pem }}"
+          register: systemd_service_proxy_haproxy_pem_file
+          become: true
+
+        - name: Install config with HTTPS
+          when: systemd_service_proxy_haproxy_pem_file.stat.exists
+          block:
+            - name: Turn on HTTPS
+              ansible.builtin.set_fact:
+                systemd_service_proxy_haproxy_tls_active: true
+
+            - name: Install config
+              ansible.builtin.include_tasks: config.yml

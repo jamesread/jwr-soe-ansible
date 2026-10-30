@@ -1,0 +1,22 @@
+---
+argument_specs:
+  main:
+    short_description: Run the Apprise notification API (podman_app), listening on 127.0.0.1 only.
+    options:
+      podman_app_apprise_image:
+        type: str
+        default: docker.io/caronc/apprise:latest
+        description: Apprise API container image.
+      podman_app_apprise_port:
+        type: int
+        default: 8000
+        description: Port on 127.0.0.1 to publish the API on. It is never published on other interfaces.
+      podman_app_apprise_urls:
+        type: list
+        elements: str
+        default: []
+        description: Apprise URLs that notifications sent to /notify go to, eg tgram://bottoken/ChatID. They hold tokens, so keep them in a vault.
+      podman_app_apprise_rootless:
+        type: bool
+        default: false
+        description: Run rootless. Rootful by default, so it runs from boot for machine-level notifications.

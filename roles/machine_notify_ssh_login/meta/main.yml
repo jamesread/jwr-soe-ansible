@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Sends an Apprise notification when someone opens an interactive SSH login.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - '9'
+        - '10'
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - apprise
+    - notifications
+    - ssh

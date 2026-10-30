@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: jamesread
+  description: Runs the Apprise notification API (podman_app), listening on 127.0.0.1 only.
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - '9'
+        - '10'
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - apprise
+    - notifications
+    - podman

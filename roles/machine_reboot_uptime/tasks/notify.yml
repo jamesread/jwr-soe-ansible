@@ -1,0 +1,26 @@
+---
+# Logs, and sends one Apprise notification. Set machine_reboot_uptime_type,
+# _title and _body. A failed notification does not fail the run, unless
+# machine_reboot_uptime_must_deliver is set (for the test notification).
+- name: Log - {{ machine_reboot_uptime_title }}
+  ansible.builtin.lineinfile:
+    path: "{{ machine_reboot_uptime_log_file }}"
+    line: "[{{ now(utc=true).isoformat() }}] {{ machine_reboot_uptime_title }}: {{ machine_reboot_uptime_body | replace('\n', ' ') }}"
+    create: true
+    mode: '0644'
+  become: true
+  changed_when: false
+
+- name: Notify - {{ machine_reboot_uptime_title }}
+  ansible.builtin.uri:
+    url: "{{ machine_reboot_uptime_apprise_url }}"
+    method: POST
+    body_format: json
+    body:
+      title: "{{ ansible_facts['fqdn'] | default(inventory_hostname) }}: {{ machine_reboot_uptime_title }}"
+      body: "{{ machine_reboot_uptime_body }}"
+      type: "{{ machine_reboot_uptime_type }}"
+  register: machine_reboot_uptime_notify_result
+  failed_when:
+    - machine_reboot_uptime_must_deliver | default(false) | bool
+    - machine_reboot_uptime_notify_result.status | default(0) != 200

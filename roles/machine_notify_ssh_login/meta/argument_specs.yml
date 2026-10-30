@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Send an Apprise notification when someone opens an interactive SSH login.
+    options:
+      machine_notify_ssh_login_apprise_host:
+        type: str
+        description:
+          - Apprise API to send to, eg http://apprise.example.com:8000. Defaults to the host's apprise_host.
+          - Empty runs Apprise on this host (podman_app_apprise), listening on 127.0.0.1 only.
+      machine_notify_ssh_login_apprise_key:
+        type: str
+        description: Config key on the Apprise API to send to (/notify/<key>). Defaults to the host's apprise_key. Empty sends to /notify, which the local Apprise sends to podman_app_apprise_urls.

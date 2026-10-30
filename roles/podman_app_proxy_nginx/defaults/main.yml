@@ -1,0 +1,31 @@
+---
+podman_app_proxy_nginx_image: docker.io/library/nginx:stable-alpine
+# Host directory for the generated config (in conf.d/) and TLS files (in tls/).
+podman_app_proxy_nginx_dir: /etc/proxy-nginx
+
+# Name-based reverse proxy vhosts. Each entry: server_name, upstream
+# (eg http://127.0.0.1:8080/), and optionally tls (default true) and extra
+# (raw nginx lines for the vhost's location /).
+podman_app_proxy_nginx_vhosts: []
+# Also add a vhost for each podman_app app on this host that sets
+# podman_app_external_address (read from the podman_app_external_apps fact).
+podman_app_proxy_nginx_podman_apps: true
+
+# HTTPS with a certificate you supply (paths on the host). When set, vhosts
+# also listen on 443, and port 80 redirects to HTTPS.
+podman_app_proxy_nginx_tls_cert: ''
+podman_app_proxy_nginx_tls_key: ''
+# Or get a Let's Encrypt certificate for every vhost, with systemd_service_certbot.
+podman_app_proxy_nginx_certbot: false
+podman_app_proxy_nginx_certbot_email: ''
+podman_app_proxy_nginx_certbot_cert_name: "{{ inventory_hostname }}"
+# Extra domains for the certificate, besides the vhosts' server names.
+podman_app_proxy_nginx_certbot_extra_domains: []
+podman_app_proxy_nginx_certbot_http_port: 9080
+
+# Turn away requests for hostnames with no vhost, rather than serving the first vhost.
+podman_app_proxy_nginx_default_server: true
+podman_app_proxy_nginx_ipv6: true
+podman_app_proxy_nginx_client_max_body_size: 100m
+# Raw nginx config added to the http context.
+podman_app_proxy_nginx_extra_conf: ''

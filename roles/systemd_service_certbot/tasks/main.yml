@@ -1,0 +1,65 @@
+---
+- name: Check certbot domains are set
+  ansible.builtin.assert:
+    that:
+      - systemd_service_certbot_domains | default([]) | length > 0
+    fail_msg: systemd_service_certbot_domains must list at least one domain.
+    quiet: true
+
+- name: Package - certbot
+  ansible.builtin.package:
+    name: certbot
+    state: present
+  become: true
+
+- name: Install certbot deploy hook
+  ansible.builtin.template:
+    src: deploy-hook.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/deploy/{{ systemd_service_certbot_cert_name }}.sh
+    owner: root
+    group: root
+    mode: '0700'
+  become: true
+  when: systemd_service_certbot_deploy_hook | length > 0
+
+# Changes nothing unless the certificate is missing, due for renewal, or its
+# domains changed. The standalone settings are saved, so renewals (by
+# certbot-renew.timer) use them too.
+- name: Get certificate {{ systemd_service_certbot_cert_name }}
+  ansible.builtin.command:
+    argv: >-
+      {{ ['certbot', 'certonly', '--non-interactive', '--agree-tos',
+          '--standalone', '--preferred-challenges', 'http',
+          '--http-01-address', '127.0.0.1',
+          '--http-01-port', systemd_service_certbot_http_port | string,
+          '--cert-name', systemd_service_certbot_cert_name,
+          '--keep-until-expiring', '--expand']
+         + (['--email', systemd_service_certbot_email] if systemd_service_certbot_email | length > 0
+            else ['--register-unsafely-without-email'])
+         + (['--staging'] if systemd_service_certbot_staging | bool else [])
+         + (systemd_service_certbot_domains | map('regex_replace', '^', '--domain=') | list) }}
+  register: systemd_service_certbot_certonly
+  changed_when: "'Successfully received certificate' in systemd_service_certbot_certonly.stdout"
+  become: true
+
+# certbot only runs deploy hooks for renewals, not a first issue.
+- name: Run deploy hook for a new certificate
+  ansible.builtin.command: /etc/letsencrypt/renewal-hooks/deploy/{{ systemd_service_certbot_cert_name }}.sh
+  environment:
+    RENEWED_LINEAGE: /etc/letsencrypt/live/{{ systemd_service_certbot_cert_name }}
+  changed_when: true
+  become: true
+  when:
+    - systemd_service_certbot_certonly is changed
+    - systemd_service_certbot_deploy_hook | length > 0
+
+- name: Service - certbot-renew.timer
+  ansible.builtin.systemd_service:
+    name: certbot-renew.timer
+    state: started
+    enabled: true
+  become: true
+
+- name: Record certificate directory
+  ansible.builtin.set_fact:
+    systemd_service_certbot_live_dir: /etc/letsencrypt/live/{{ systemd_service_certbot_cert_name }}

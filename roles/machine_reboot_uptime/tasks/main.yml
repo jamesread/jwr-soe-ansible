@@ -1,0 +1,58 @@
+---
+- name: Local Apprise
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app_apprise
+  when:
+    - machine_reboot_uptime_apprise_local | bool
+    - podman_app_apprise_deployed is not defined
+
+# Run with --tags notify to check notifications get through, without rebooting.
+- name: Send a test notification
+  tags: [notify, never]
+  ansible.builtin.include_tasks:
+    file: notify.yml
+    apply:
+      tags: [notify]
+  vars:
+    machine_reboot_uptime_must_deliver: true
+    machine_reboot_uptime_type: info
+    machine_reboot_uptime_title: Uptime reboot test
+    machine_reboot_uptime_body: Test notification from machine_reboot_uptime.
+
+- name: Read uptime
+  ansible.builtin.slurp:
+    src: /proc/uptime
+  register: machine_reboot_uptime_proc
+
+- name: Reboot when uptime is over the limit of days, {{ machine_reboot_uptime_days }}
+  vars:
+    machine_reboot_uptime_seconds: "{{ (machine_reboot_uptime_proc.content | b64decode).split() | first | float }}"
+    machine_reboot_uptime_human: "{{ ((machine_reboot_uptime_seconds | float) / 86400) | round(1) }} days"
+  when: machine_reboot_uptime_seconds | float > machine_reboot_uptime_days | float * 86400
+  block:
+    - name: Notify before rebooting
+      ansible.builtin.include_tasks: notify.yml
+      vars:
+        machine_reboot_uptime_type: warning
+        machine_reboot_uptime_title: Rebooting for uptime
+        machine_reboot_uptime_body: >-
+          Uptime is {{ machine_reboot_uptime_human }}, over the
+          {{ machine_reboot_uptime_days }} day limit. Rebooting.
+
+    - name: Reboot
+      ansible.builtin.reboot:
+        reboot_timeout: "{{ machine_reboot_uptime_timeout }}"
+        msg: Rebooting, as uptime is over {{ machine_reboot_uptime_days }} days
+      become: true
+
+  rescue:
+    - name: Notify reboot failed
+      ansible.builtin.include_tasks: notify.yml
+      vars:
+        machine_reboot_uptime_type: failure
+        machine_reboot_uptime_title: Uptime reboot failed
+        machine_reboot_uptime_body: "{{ ansible_failed_result.msg | default('Uptime reboot failed') }}"
+
+    - name: Fail after notifying
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('Uptime reboot failed') }}"

@@ -1,61 +1,280 @@
 ---
-- name: Create config directory for {{ podman_app_name }}
-  ansible.builtin.file:
-    path: "{{ podman_app_config_dir }}"
-    state: directory
-    mode: '0755'
-  when: podman_app_config_files | length > 0 or podman_app_config_mount | length > 0
-
-- name: Template config files for {{ podman_app_name }}
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ podman_app_config_dir }}/{{ item.dest }}"
-    mode: "{{ item.mode | default('0644') }}"
-  loop: "{{ podman_app_config_files }}"
-  loop_control:
-    label: "{{ item.dest }}"
-  when: item.template | default(true) | bool
-  register: podman_app_templated
-
-- name: Copy config files for {{ podman_app_name }}
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ podman_app_config_dir }}/{{ item.dest }}"
-    mode: "{{ item.mode | default('0644') }}"
-  loop: "{{ podman_app_config_files }}"
-  loop_control:
-    label: "{{ item.dest }}"
-  when: not (item.template | default(true) | bool)
-  register: podman_app_copied
-
-- name: Write quadlet for {{ podman_app_name }}
-  ansible.builtin.template:
-    src: app.container.j2
-    dest: /etc/containers/systemd/{{ podman_app_name }}.container
-    mode: '0644'
-  register: podman_app_quadlet
-
-# In check mode a new quadlet is not really written, so systemd has no unit to
-# restart or start yet. Skip those steps rather than fail the dry run.
-- name: Check whether the unit exists yet for {{ podman_app_name }}
-  ansible.builtin.set_fact:
-    podman_app_unit_pending: "{{ ansible_check_mode and podman_app_quadlet is changed }}"
-
-# Not a handler: this role is included several times in one play (once per
-# app), and same-named handlers would only run once, for the last app.
-- name: Restart after quadlet or config changes for {{ podman_app_name }}
-  ansible.builtin.systemd_service:
-    name: "{{ podman_app_name }}"
-    state: restarted
-    daemon_reload: "{{ podman_app_quadlet is changed }}"
+# Work out who runs the app (a rootless user, or root) and where its files go.
+# Tagged always (read only), so the app registries below are complete even in
+# a run limited to other roles' tags, eg the proxy's.
+- name: Find the connecting user for {{ podman_app_name }}
+  ansible.builtin.command: id -un
+  register: podman_app_whoami
+  changed_when: false
+  check_mode: false
+  tags: always
   when:
-    - podman_app_quadlet is changed or podman_app_templated is changed or podman_app_copied is changed
-    - not podman_app_unit_pending
+    - podman_app_rootless | bool
+    - podman_app_rootless_user | length == 0
 
-# No `enabled: true` - quadlet units are generated and cannot be enabled. They
-# start at boot via the [Install] section of the quadlet instead.
-- name: Start {{ podman_app_name }}
-  ansible.builtin.systemd_service:
-    name: "{{ podman_app_name }}"
-    state: started
-  when: not podman_app_unit_pending
+- name: Look up the rootless account for {{ podman_app_name }}
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ podman_app_rootless_user if podman_app_rootless_user | length > 0 else podman_app_whoami.stdout }}"
+  tags: always
+  when: podman_app_rootless | bool
+
+- name: Work out paths for {{ podman_app_name }}
+  tags: always
+  ansible.builtin.set_fact:
+    podman_app_run_user: "{{ podman_app_account_name if podman_app_rootless | bool else 'root' }}"
+    podman_app_run_uid: "{{ ansible_facts.getent_passwd[podman_app_account_name][1] if podman_app_rootless | bool else '0' }}"
+    podman_app_quadlet_dir: >-
+      {{ podman_app_account_home ~ '/.config/containers/systemd' if podman_app_rootless | bool else '/etc/containers/systemd' }}
+    podman_app_run_config_dir: >-
+      {{ podman_app_config_dir if podman_app_config_dir | length > 0
+         else (podman_app_account_home ~ '/' ~ podman_app_name if podman_app_rootless | bool else '/etc/' ~ podman_app_name) }}
+  vars:
+    podman_app_account_name: "{{ ansible_facts.getent_passwd.keys() | first if podman_app_rootless | bool else 'root' }}"
+    podman_app_account_home: "{{ ansible_facts.getent_passwd[podman_app_account_name][4] if podman_app_rootless | bool else '/root' }}"
+
+# Rootless user services only run while the user is logged in, unless the user
+# lingers. Lingering also starts them at boot.
+- name: Lingering for rootless user
+  when:
+    - podman_app_state == 'present'
+    - podman_app_rootless | bool
+    - podman_app_linger | bool
+  block:
+    - name: Check lingering for {{ podman_app_run_user }}
+      ansible.builtin.stat:
+        path: /var/lib/systemd/linger/{{ podman_app_run_user }}
+      register: podman_app_linger_file
+
+    - name: Enable lingering for {{ podman_app_run_user }}
+      ansible.builtin.command: loginctl enable-linger {{ podman_app_run_user }}
+      become: true
+      changed_when: true
+      when: not podman_app_linger_file.stat.exists
+
+- name: Deploy {{ podman_app_name }}
+  when: podman_app_state == 'present'
+  become: true
+  become_user: "{{ podman_app_run_user }}"
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ podman_app_run_uid }}
+  block:
+    - name: Create config directory for {{ podman_app_name }}
+      ansible.builtin.file:
+        path: "{{ podman_app_run_config_dir }}"
+        state: directory
+        mode: '0755'
+      when: >-
+        podman_app_config_files | length > 0 or podman_app_config_mount | length > 0
+        or podman_app_secret_env | length > 0
+
+    - name: Create config subdirectories for {{ podman_app_name }}
+      ansible.builtin.file:
+        path: "{{ podman_app_run_config_dir }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ podman_app_config_files | map(attribute='dest') | map('dirname') | select | unique | list }}"
+
+    - name: Template config files for {{ podman_app_name }}
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ podman_app_run_config_dir }}/{{ item.dest }}"
+        mode: "{{ item.mode | default('0644') }}"
+      loop: "{{ podman_app_config_files }}"
+      loop_control:
+        label: "{{ item.dest }}"
+      when: item.template | default(true) | bool
+      register: podman_app_templated
+
+    # Also copies whole directories: give src and dest with a trailing slash.
+    - name: Copy config files for {{ podman_app_name }}
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ podman_app_run_config_dir }}/{{ item.dest }}"
+        mode: "{{ item.mode | default('0644') }}"
+        directory_mode: '0755'
+      loop: "{{ podman_app_config_files }}"
+      loop_control:
+        label: "{{ item.dest }}"
+      when: not (item.template | default(true) | bool)
+      register: podman_app_copied
+
+    # Kept out of the quadlet, which is readable by other users.
+    - name: Write secret environment file for {{ podman_app_name }}
+      ansible.builtin.copy:
+        content: |
+          {% for key, value in podman_app_secret_env.items() %}
+          {{ key }}={{ value }}
+          {% endfor %}
+        dest: "{{ podman_app_run_config_dir }}/{{ podman_app_name }}.env"
+        mode: '0600'
+      when: podman_app_secret_env | length > 0
+      register: podman_app_secret_env_file
+      no_log: true
+
+    - name: Create quadlet directory for {{ podman_app_name }}
+      ansible.builtin.file:
+        path: "{{ podman_app_quadlet_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Write network quadlets for {{ podman_app_name }}
+      ansible.builtin.template:
+        src: app.network.j2
+        dest: "{{ podman_app_quadlet_dir }}/{{ item }}.network"
+        mode: '0644'
+      loop: "{{ podman_app_networks | reject('in', podman_app_builtin_networks) | list }}"
+      register: podman_app_network_quadlets
+
+    - name: Write quadlet for {{ podman_app_name }}
+      ansible.builtin.template:
+        src: app.container.j2
+        dest: "{{ podman_app_quadlet_dir }}/{{ podman_app_name }}.container"
+        mode: '0644'
+      register: podman_app_quadlet
+
+    - name: Update image tag for {{ podman_app_name }}
+      when: podman_app_tag_update | bool
+      block:
+        - name: Read current image ID for {{ podman_app_name }}
+          ansible.builtin.command: podman image inspect {{ podman_app_image }}
+          register: podman_app_image_before
+          changed_when: false
+          failed_when: false
+          check_mode: false
+
+        # Changed only if the pull got a different image than was already here. A
+        # failed pull (eg registry down) only fails the run if there is no image
+        # to fall back on; otherwise the current image keeps running.
+        - name: Pull image for {{ podman_app_name }}
+          ansible.builtin.command: podman pull --quiet {{ podman_app_image }}
+          register: podman_app_image_pull
+          changed_when: >-
+            podman_app_image_pull.rc == 0 and (
+              podman_app_image_before.rc != 0
+              or podman_app_image_pull.stdout_lines | last != (podman_app_image_before.stdout | from_json | first).Id)
+          failed_when: podman_app_image_pull.rc != 0 and podman_app_image_before.rc != 0
+
+    # In check mode a new quadlet is not really written, so systemd has no unit
+    # to restart or start yet. Skip those steps rather than fail the dry run.
+    - name: Check whether the unit exists yet for {{ podman_app_name }}
+      ansible.builtin.set_fact:
+        podman_app_unit_pending: "{{ ansible_check_mode and podman_app_quadlet is changed }}"
+        podman_app_needs_restart: >-
+          {{ podman_app_quadlet is changed or podman_app_network_quadlets is changed
+             or podman_app_secret_env_file is changed or podman_app_image_pull is changed
+             or ((podman_app_templated is changed or podman_app_copied is changed)
+                 and podman_app_reload_signal | length == 0) }}
+        podman_app_needs_reload: >-
+          {{ (podman_app_templated is changed or podman_app_copied is changed)
+             and podman_app_reload_signal | length > 0 }}
+
+    # Not a handler: this role is included several times in one play (once per
+    # app), and same-named handlers would only run once, for the last app.
+    - name: Restart after quadlet, config or image changes for {{ podman_app_name }}
+      ansible.builtin.systemd_service:
+        name: "{{ podman_app_name }}"
+        state: restarted
+        scope: "{{ podman_app_systemd_scope }}"
+        daemon_reload: "{{ podman_app_quadlet is changed or podman_app_network_quadlets is changed }}"
+      when:
+        - podman_app_needs_restart | bool
+        - not podman_app_unit_pending
+
+    # With podman_app_reload_signal, a change to config files alone signals the
+    # app to reload them (eg Prometheus on SIGHUP) instead of restarting it.
+    - name: Reload config for {{ podman_app_name }}
+      ansible.builtin.command: podman kill --signal {{ podman_app_reload_signal }} {{ podman_app_name }}
+      changed_when: true
+      when:
+        - podman_app_needs_reload | bool
+        - not podman_app_unit_pending
+
+    # No `enabled: true` - quadlet units are generated and cannot be enabled.
+    # They start at boot via the [Install] section of the quadlet instead.
+    - name: Start {{ podman_app_name }}
+      ansible.builtin.systemd_service:
+        name: "{{ podman_app_name }}"
+        state: started
+        scope: "{{ podman_app_systemd_scope }}"
+      when: not podman_app_unit_pending
+
+# Removes the service and its quadlet. Config files, the secret env file,
+# volumes and networks are kept, as they may hold data or be shared.
+- name: Remove {{ podman_app_name }}
+  when: podman_app_state == 'absent'
+  become: true
+  become_user: "{{ podman_app_run_user }}"
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ podman_app_run_uid }}
+  block:
+    - name: Stop {{ podman_app_name }}
+      ansible.builtin.systemd_service:
+        name: "{{ podman_app_name }}"
+        state: stopped
+        scope: "{{ podman_app_systemd_scope }}"
+      register: podman_app_stop
+      failed_when:
+        - podman_app_stop is failed
+        - "'Could not find the requested service' not in podman_app_stop.msg | default('')"
+
+    - name: Remove quadlet for {{ podman_app_name }}
+      ansible.builtin.file:
+        path: "{{ podman_app_quadlet_dir }}/{{ podman_app_name }}.container"
+        state: absent
+      register: podman_app_quadlet_removed
+
+    # Not a handler, for the same reason as the restart above.
+    - name: Reload systemd after removing {{ podman_app_name }}  # noqa: no-handler
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+        scope: "{{ podman_app_systemd_scope }}"
+      when: podman_app_quadlet_removed is changed
+
+# Every app on the host, recorded as a host fact for roles that act on them,
+# eg systemd_service_olivetin's app actions. Tagged always, like the paths.
+- name: Add to podman_app_apps for {{ podman_app_name }}
+  tags: always
+  ansible.builtin.set_fact:
+    podman_app_apps: >-
+      {{ (podman_app_apps | default([]) | rejectattr('name', 'eq', podman_app_name) | list)
+      + ([{'name': podman_app_name,
+           'image': podman_app_image,
+           'rootless': podman_app_rootless | bool,
+           'run_user': podman_app_run_user,
+           'run_uid': podman_app_run_uid,
+           'scope': podman_app_systemd_scope}] if podman_app_state == 'present' else []) }}
+
+# Apps with an external address, recorded as a host fact rather than written as
+# proxy config here, so this role stays independent of whichever proxy (if any)
+# is used. The title, description and category are for catalogues of apps.
+- name: Register external address for {{ podman_app_name }}
+  tags: always
+  vars:
+    # "[ip:]hostport:containerport[/proto]" -> [ip,] hostport, containerport
+    podman_app_port_parts: "{{ ((podman_app_ports | first | default('')).split('/') | first).split(':') }}"
+    podman_app_port_host_ip: "{{ podman_app_port_parts[0] if podman_app_port_parts | length > 2 else '' }}"
+    podman_app_derived_upstream: >-
+      http://{{ podman_app_port_host_ip if podman_app_port_host_ip not in ['', '0.0.0.0'] else '127.0.0.1' }}:{{ podman_app_port_parts[-2] | default('') }}/
+    podman_app_published: "{{ podman_app_state == 'present' and podman_app_external_address | length > 0 }}"
+  block:
+    - name: Check an upstream is known for {{ podman_app_name }}
+      ansible.builtin.assert:
+        that:
+          - podman_app_external_upstream | length > 0 or podman_app_port_parts | length >= 2
+        fail_msg: >-
+          podman_app_external_address is set, so either podman_app_ports must
+          publish a host port, or podman_app_external_upstream must be set.
+        quiet: true
+      when: podman_app_published | bool
+
+    - name: Add to podman_app_external_apps for {{ podman_app_name }}
+      ansible.builtin.set_fact:
+        podman_app_external_apps: >-
+          {{ (podman_app_external_apps | default([]) | rejectattr('name', 'eq', podman_app_name) | list)
+          + ([{'name': podman_app_name,
+               'server_name': podman_app_external_address,
+               'upstream': podman_app_external_upstream if podman_app_external_upstream | length > 0 else podman_app_derived_upstream,
+               'title': podman_app_external_title if podman_app_external_title | length > 0 else podman_app_name,
+               'description': podman_app_external_description,
+               'category': podman_app_external_category}] if podman_app_published | bool else []) }}

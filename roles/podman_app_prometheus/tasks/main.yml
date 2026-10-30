@@ -5,11 +5,20 @@
   vars:
     podman_app_name: prometheus
     podman_app_image: "{{ podman_app_prometheus_image }}"
-    podman_app_ports:
-      - 9090:9090
+    podman_app_external_address: "{{ podman_app_prometheus_external_address }}"
+    podman_app_external_title: Prometheus
+    podman_app_external_description: Metrics and alerting
+    podman_app_ports: "{{ podman_app_prometheus_ports }}"
     podman_app_config_mount: /etc/prometheus
     podman_app_volumes:
       - prometheus-data:/prometheus
+    # Setting Exec replaces the image's default arguments, so they are repeated.
+    podman_app_exec: >-
+      {{ (['--config.file=/etc/prometheus/prometheus.yml', '--storage.tsdb.path=/prometheus']
+          + podman_app_prometheus_extra_args) | join(' ')
+         if podman_app_prometheus_extra_args | length > 0 else '' }}
+    # Prometheus reloads its config and rules on SIGHUP, without a restart.
+    podman_app_reload_signal: HUP
     podman_app_config_files:
       - src: "{{ podman_app_prometheus_cfg_file }}"
         dest: prometheus.yml

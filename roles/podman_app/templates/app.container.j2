@@ -3,15 +3,29 @@
 Description={{ podman_app_name }}
 Wants=network-online.target
 After=network-online.target
+{% for unit in podman_app_requires %}
+{% set unit = unit if '.' in unit else unit ~ '.service' %}
+Requires={{ unit }}
+After={{ unit }}
+{% endfor %}
+{% if podman_app_unit_extra | length > 0 %}
+{{ podman_app_unit_extra }}
+{% endif %}
 
 [Container]
 Image={{ podman_app_image }}
 ContainerName={{ podman_app_name }}
+{% for network in podman_app_networks %}
+Network={{ network if network in podman_app_builtin_networks else network ~ '.network' }}
+{% endfor %}
+{% for alias in podman_app_network_aliases %}
+NetworkAlias={{ alias }}
+{% endfor %}
 {% for port in podman_app_ports %}
 PublishPort={{ port }}
 {% endfor %}
 {% if podman_app_config_mount | length > 0 %}
-Volume={{ podman_app_config_dir }}:{{ podman_app_config_mount }}:Z
+Volume={{ podman_app_run_config_dir }}:{{ podman_app_config_mount }}:Z
 {% endif %}
 {% for volume in podman_app_volumes %}
 Volume={{ volume }}
@@ -19,8 +33,25 @@ Volume={{ volume }}
 {% for key, value in podman_app_env.items() %}
 Environment="{{ key }}={{ value }}"
 {% endfor %}
-{% if podman_app_user | length > 0 %}
-User={{ podman_app_user }}
+{% if podman_app_secret_env | length > 0 %}
+EnvironmentFile={{ podman_app_run_config_dir }}/{{ podman_app_name }}.env
+{% endif %}
+{% for key, value in podman_app_labels.items() %}
+Label="{{ key }}={{ value }}"
+{% endfor %}
+{% if podman_app_container_user | length > 0 %}
+User={{ podman_app_container_user }}
+{% endif %}
+{% if podman_app_healthcheck.cmd is defined %}
+HealthCmd={{ podman_app_healthcheck.cmd }}
+{% for key in ['interval', 'timeout', 'retries', 'start_period'] if podman_app_healthcheck[key] is defined %}
+Health{{ key | replace('_', ' ') | title | replace(' ', '') }}={{ podman_app_healthcheck[key] }}
+{% endfor %}
+# Only report started once healthy, so apps that require this one wait for it.
+Notify=healthy
+{% endif %}
+{% if podman_app_exec | length > 0 %}
+Exec={{ podman_app_exec }}
 {% endif %}
 {% if podman_app_quadlet_extra | length > 0 %}
 {{ podman_app_quadlet_extra }}
@@ -28,6 +59,9 @@ User={{ podman_app_user }}
 
 [Service]
 Restart=always
+{% if podman_app_service_extra | length > 0 %}
+{{ podman_app_service_extra }}
+{% endif %}
 
 [Install]
-WantedBy=multi-user.target
+WantedBy={{ 'default.target' if podman_app_rootless | bool else 'multi-user.target' }}

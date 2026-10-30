@@ -1,0 +1,34 @@
+---
+- name: Local Apprise
+  ansible.builtin.include_role:
+    name: jamesread.soe.podman_app_apprise
+  when:
+    - machine_notify_ssh_login_apprise_local | bool
+    - podman_app_apprise_deployed is not defined
+
+- name: Package - curl
+  ansible.builtin.package:
+    name: curl
+    state: present
+  become: true
+
+- name: Install SSH login notification
+  ansible.builtin.template:
+    src: soe-notify-ssh-login.sh.j2
+    dest: /etc/profile.d/soe-notify-ssh-login.sh
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+# Run with --tags notify to check notifications get through.
+- name: Send a test notification
+  tags: [notify, never]
+  ansible.builtin.uri:
+    url: "{{ machine_notify_ssh_login_apprise_url }}"
+    method: POST
+    body_format: json
+    body:
+      title: "{{ inventory_hostname }}: SSH login notification test"
+      body: Test notification from machine_notify_ssh_login.
+      type: info

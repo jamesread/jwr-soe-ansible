@@ -1,0 +1,32 @@
+---
+argument_specs:
+  main:
+    short_description: Get and renew a Let's Encrypt certificate with certbot.
+    description:
+      - Uses the http-01 challenge, with certbot listening on 127.0.0.1 while it runs, behind a proxy on port 80.
+      - Sets the systemd_service_certbot_live_dir fact to the certificate's directory.
+    options:
+      systemd_service_certbot_domains:
+        type: list
+        elements: str
+        required: true
+        description: Domains for the certificate.
+      systemd_service_certbot_cert_name:
+        type: str
+        description: Name of the certificate, ie its directory under /etc/letsencrypt/live. Defaults to the first domain.
+      systemd_service_certbot_email:
+        type: str
+        default: ''
+        description: Contact for expiry warnings. Empty registers without an email address.
+      systemd_service_certbot_http_port:
+        type: int
+        default: 9080
+        description: Port on 127.0.0.1 that certbot answers the http-01 challenge on. The proxy on port 80 must forward /.well-known/acme-challenge/ to it.
+      systemd_service_certbot_deploy_hook:
+        type: str
+        default: ''
+        description: Shell commands run after the certificate is issued or renewed, with RENEWED_LINEAGE set to its live directory, eg to reload the proxy.
+      systemd_service_certbot_staging:
+        type: bool
+        default: false
+        description: Use the Let's Encrypt staging server, for testing. Its certificates are not trusted.

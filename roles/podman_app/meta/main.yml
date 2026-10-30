@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: jamesread
-  description: Runs any container image as a systemd service, using a Podman quadlet.
+  description: Runs any container image as a systemd service (rootless by default), using a Podman quadlet.
   license: GPL-3.0-or-later
   min_ansible_version: '2.15'
   platforms:
